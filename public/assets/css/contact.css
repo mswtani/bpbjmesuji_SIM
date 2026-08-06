@@ -1,0 +1,135 @@
+/* ==========================================================================
+   KONTAK PAGE STYLES
+   ========================================================================== */
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+}
+.contact-info h4,
+.contact-social h4,
+.contact-form h4 {
+    font-size: 20px;
+    color: #0b2f64;
+    margin-bottom: 20px;
+}
+.contact-info p {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+.contact-info p i {
+    color: #d4af37;
+    margin-top: 5px;
+}
+.map-container {
+    margin-top: 25px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.map-container iframe {
+    width: 100%; /* Memastikan peta memenuhi container */
+    height: 450px; /* Tinggi default untuk desktop */
+    border: 0; /* Menghapus border */
+}
+.contact-social p {
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+.social-links-contact {
+    list-style: none;
+    padding: 0;
+}
+.social-links-contact li a {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    margin-bottom: 10px;
+    text-decoration: none;
+    color: #333;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.social-links-contact li a:hover {
+    background-color: #1a4a8d;
+    color: white;
+    transform: translateX(5px);
+}
+.social-links-contact li a i {
+    font-size: 20px;
+    width: 25px;
+    text-align: center;
+    color: #d4af37;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #555;
+}
+.contact-form button {
+    border: none;
+}
+
+/* Style tambahan untuk halaman kontak */
+.contact-intro {
+    margin-bottom: 30px;
+    text-align: center;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.social-cards-container {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.social-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    justify-content: center;
+}
+.social-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+.social-card i {
+    font-size: 22px;
+    margin-right: 10px;
+}
+.social-card.facebook {
+    background-color: #3b5998;
+}
+.social-card.instagram {
+    background: linear-gradient(
+        45deg,
+        #f09433,
+        #e6683c,
+        #dc2743,
+        #cc2366,
+        #bc1888
+    );
+}

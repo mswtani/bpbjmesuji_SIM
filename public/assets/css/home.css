@@ -1,0 +1,290 @@
+/* Hero Carousel Section */
+.carousel-item {
+    height: 60vh; /* Anda bisa sesuaikan tinggi carousel */
+    min-height: 350px;
+    background: no-repeat center center scroll;
+    background-size: cover;
+}
+
+/* Menambahkan overlay gelap agar teks lebih terbaca */
+.carousel-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.carousel-caption {
+    /* Memastikan caption berada di atas overlay */
+    position: relative;
+    color: white;
+    /* Menambahkan bayangan pada teks agar tetap terbaca tanpa overlay */
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.btn-primary {
+    display: inline-block;
+    background-color: #d4af37;
+    color: #0b2f64;
+    padding: 12px 25px;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+.btn-primary:hover {
+    background-color: #fff;
+}
+
+/* Layanan Section */
+.layanan-section {
+    padding: 40px 0;
+    background-color: #fff; /* Memberi latar belakang putih */
+    margin-top: -20px; /* Sedikit menaikkan section agar lebih menyatu */
+    position: relative; /* Diperlukan untuk z-index */
+    z-index: 10;
+    border-radius: 15px 15px 0 0;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
+}
+.layanan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+.layanan-item {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 25px;
+    text-align: center;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    transition:
+        transform 0.3s,
+        box-shadow 0.3s;
+}
+.layanan-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    color: #1a4a8d;
+}
+.layanan-item .layanan-icon {
+    height: 50px; /* Atur tinggi gambar */
+    width: auto;
+    margin-bottom: 15px;
+    transition: transform 0.3s;
+}
+.layanan-item h4 {
+    font-size: 18px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+.layanan-item p {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Berita Section */
+.berita-section {
+    padding: 50px 0;
+    background-color: #f4f6f9;
+}
+.berita-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* 2 bagian untuk berita utama, 1 bagian untuk sidebar */
+    gap: 30px;
+}
+.featured-article .berita-img {
+    height: 250px;
+}
+.berita-card {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+    transition:
+        transform 0.3s,
+        box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+.berita-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+.berita-card .berita-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+.berita-content {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+.berita-meta {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 10px;
+}
+.berita-content h4 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
+.featured-title {
+    font-size: 22px;
+}
+.berita-excerpt {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 15px;
+}
+.berita-content h4 a {
+    color: #0b2f64;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+.berita-content h4 a:hover {
+    color: #d4af37;
+}
+.berita-link {
+    font-weight: 600;
+    color: #1a4a8d;
+    text-decoration: none;
+    align-self: flex-start;
+}
+
+/* Halaman List Berita Penuh */
+.berita-list-full {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+/* Sidebar Berita */
+.berita-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.berita-card-small {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition:
+        transform 0.3s,
+        box-shadow 0.3s;
+}
+.berita-card-small:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.berita-card-small h4 {
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+/* Regulasi JDIH Section */
+.regulasi-section {
+    padding: 50px 0;
+    background-color: #fff;
+}
+.peraturan-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+.peraturan-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #f8fafc;
+    transition: box-shadow 0.3s;
+}
+.peraturan-item:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+}
+.peraturan-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.peraturan-kategori {
+    background-color: #1a4a8d;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+.peraturan-judul {
+    margin: 0;
+    color: #333;
+}
+.btn-lihat {
+    background-color: #d4af37;
+    color: #0b2f64;
+    padding: 8px 18px;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-left: 15px;
+}
+
+/* Profile Page */
+.profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+.profile-card {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+.profile-card h4 {
+    font-size: 20px;
+    color: #0b2f64;
+    margin-bottom: 15px;
+}
+.profile-card h5 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a4a8d;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+.visi-text {
+    font-style: italic;
+    font-size: 18px;
+    text-align: center;
+    padding: 20px;
+    background-color: #f8fafc;
+    border-left: 4px solid #d4af37;
+}
+.misi-list {
+    padding-left: 20px;
+    line-height: 1.8;
+}
+.struktur-img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}

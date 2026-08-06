@@ -1,0 +1,406 @@
+/* ==========================================================================
+   RESPONSIVE DESIGN (Tablet & Mobile Hingga 320px)
+   ========================================================================== */
+
+/* Desktop Kecil & Tablet (Maksimal 1199px) */
+@media (max-width: 1199px) {
+    /* Mengubah layout grid kontak menjadi 1 kolom */
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+}
+
+/* Tablet (Maksimal 991px) */
+@media (max-width: 991px) {
+    .header-flex {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .logo-area {
+        flex-direction: column;
+        align-items: center; /* Memastikan logo juga ditengah */
+    }
+
+    /* Tukar logo pada tampilan mobile */
+    .logo-area .mesuji {
+        display: block; /* Sembunyikan logo Mesuji */
+    }
+    .logo-area .ukpbj {
+        display: none; /* Tampilkan logo UKPBJ */
+        height: 60px; /* Sesuaikan ukuran logo UKPBJ */
+    }
+
+    .berita-detail-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .regulasi-detail-body {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Tablet & Mobile Umum (Maksimal 768px) */
+@media (max-width: 768px) {
+    body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Sembunyikan top-bar di mobile, header utama tetap tampil */
+    .top-bar {
+        display: none;
+    }
+
+    /* Tukar logo pada tampilan mobile (768px ke bawah) */
+    .logo-area .mesuji {
+        display: none; /* Sembunyikan logo Mesuji */
+    }
+    .logo-area .ukpbj {
+        display: block; /* Tampilkan logo UKPBJ */
+        height: 60px; /* Sesuaikan ukuran logo UKPBJ */
+    }
+
+    .logo-text h1 {
+        font-size: 18px;
+    }
+    .logo-text h2 {
+        font-size: 13px; /* Pastikan h2 juga terlihat di mobile */
+        font-weight: 400;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+
+    .search-box input {
+        width: 100%;
+    }
+
+    /* Sembunyikan nav-links desktop dan tampilkan hamburger */
+    .navbar .container {
+        display: flex;
+        justify-content: space-between; /* Agar logo dan hamburger terpisah */
+    }
+    /* Pindahkan navbar ke atas pada mode mobile */
+    .navbar {
+        order: -2;
+    }
+    .main-header {
+        order: -1;
+    }
+
+    /* Tampilkan logo di navbar mobile */
+    .mobile-logo {
+        display: block;
+        height: 60px; /* Menyamakan tinggi dengan logo di header */
+        width: auto;
+    }
+
+    .navbar .nav-links {
+        display: none;
+    }
+    .hamburger-btn {
+        display: block;
+        padding: 10px 20px; /* Mengurangi padding vertikal untuk memperkecil tinggi navbar */
+        transition: transform 0.3s ease; /* Menambahkan transisi untuk rotasi */
+    }
+
+    .hamburger-btn.rotate {
+        transform: rotate(-180deg); /* Rotasi 180 derajat ke kiri */
+    }
+
+    /* Style untuk link di dalam sidenav */
+    .sidenav .nav-links {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        padding: 0;
+    }
+    .sidenav .nav-links li {
+        text-align: left; /* Mengubah alignment ke kiri */
+    }
+    .sidenav .nav-links > li {
+        /* Menambahkan garis hanya untuk item menu utama */
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidenav .nav-links li a {
+        padding-left: 32px; /* Memberi indentasi pada item utama */
+        transition: background-color 0.3s ease; /* Animasi untuk background */
+    }
+    /* Pastikan semua link di sidenav berwarna putih */
+    .sidenav .nav-links a {
+        color: white !important;
+        background-color: transparent !important; /* Hapus background hover */
+        transition: none; /* Hapus transisi hover */
+    }
+
+    /* Memberi warna emas pada link halaman yang sedang aktif di sidenav */
+    .sidenav .nav-links li a.active {
+        color: #d4af37 !important;
+        transition: color 0.3s ease;
+    }
+
+    /* Styling untuk dropdown di dalam Sidenav */
+    .sidenav .dropdown-menu {
+        position: static; /* Mengubah posisi agar dropdown tetap di dalam alur */
+        background-color: #0b2f64;
+        max-height: 0; /* Sembunyikan dengan max-height untuk animasi */
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        overflow: hidden; /* Sembunyikan konten yang meluap */
+        transition: max-height 0.4s ease-out; /* Animasi slide */
+    }
+
+    /* Tampilkan dropdown jika memiliki class 'show' */
+    .sidenav .dropdown-menu.show {
+        max-height: 500px; /* Nilai yang cukup besar untuk menampung semua item */
+    }
+
+    .sidenav .dropdown-menu a {
+        padding-left: 48px !important; /* Indentasi lebih dalam untuk sub-item */
+    }
+
+    /* Menambahkan garis pemisah tipis di antara item dropdown */
+    .sidenav .dropdown-menu li {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Menambahkan panah indikator pada dropdown toggle */
+    .sidenav .dropdown-toggle::after {
+        content: "›"; /* Panah ke kanan */
+        float: right; /* Posisikan panah di kanan */
+        margin-right: 20px;
+        transition: transform 0.3s ease; /* Animasi rotasi */
+        font-weight: bold;
+        border: none; /* Menghapus panah default dari Bootstrap */
+    }
+
+    /* Rotasi panah saat dropdown aktif */
+    .sidenav .dropdown-toggle.active::after {
+        transform: rotate(90deg);
+    }
+
+    /* Memberi background pada navlink dropdown yang aktif */
+    .sidenav .dropdown-toggle.active {
+        background-color: transparent !important; /* Hapus background di tombolnya saja */
+    }
+    /* Mengubah background seluruh .user-session jika dropdown di dalamnya aktif */
+    .sidenav .user-session:has(.dropdown-toggle.active) {
+        background-color: #0b2f64;
+    }
+
+    /* Memberi warna font pada user session yang aktif */
+    .sidenav .user-session .dropdown-toggle.active,
+    .sidenav .user-session .dropdown-toggle.active .username {
+        color: #d4af37 !important;
+    }
+
+    /* User session di Sidenav */
+    .sidenav .user-session {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #1a4a8d; /* Samakan dengan background sidenav */
+        transition: background-color 0.3s ease; /* Animasi untuk background */
+        padding: 15px 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .sidenav .user-session .dropdown-menu {
+        position: absolute !important; /* Mengubah posisi agar relatif terhadap parent */
+        bottom: calc(
+            24% - 1px
+        ) !important; /* Posisi tepat di atas tombol pemicu, dikurangi 1px border */
+        top: auto !important;
+        left: 0 !important;
+        width: 100% !important; /* Lebar sama dengan sidenav */
+        background-color: #0b2f64; /* Samakan background */
+        border: 1px 0 solid rgba(255, 255, 255, 0.1);
+        padding: 0 !important; /* Menghapus padding default Bootstrap */
+    }
+    /* Menyamakan style item di dalam dropdown user */
+    .sidenav .user-session .dropdown-item {
+        color: white !important;
+        padding: 15px 20px 15px 48px !important; /* Samakan padding-left dengan sub-menu lain */
+        background-color: transparent !important; /* Hapus hover */
+        text-align: left; /* Pastikan teks rata kiri */
+    }
+    .sidenav .user-session .dropdown-menu li {
+        border-top: 1px solid rgba(255, 255, 255, 0.1); /* Garis pemisah */
+    }
+
+    /* Menambahkan panah juga untuk user session dropdown */
+    .sidenav .user-session .dropdown-toggle::after {
+        display: inline-block; /* Memastikan panah muncul */
+    }
+
+    /* Animasi rotasi ke atas khusus untuk panah user session */
+    .sidenav .user-session .dropdown-toggle.active::after {
+        transform: rotate(-90deg);
+    }
+
+    .hero h2 {
+        font-size: 24px;
+    }
+
+    .hero p {
+        font-size: 15px;
+    }
+
+    /* Menyesuaikan ukuran teks di carousel mobile */
+    .carousel-caption {
+        /* Mengurangi padding atas dan bawah agar tidak terlalu mepet */
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+    .carousel-caption h2 {
+        font-size: 22px; /* Ukuran font judul di mobile */
+        line-height: 1.3;
+    }
+
+    .layanan-section {
+        margin-top: 0;
+        border-radius: 0;
+        padding: 30px 0;
+    }
+
+    .berita-grid {
+        grid-template-columns: 1fr; /* Ubah kembali ke 1 kolom di mobile */
+    }
+
+    .peraturan-list {
+        grid-template-columns: 1fr;
+    }
+
+    .peraturan-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .btn-lihat {
+        align-self: flex-end;
+    }
+
+    .footer-grid {
+        text-align: center;
+        justify-items: center;
+    }
+
+    .map-container iframe {
+        width: 100%; /* Memastikan peta tidak overflow */
+        height: 300px; /* Menyesuaikan tinggi peta untuk mobile */
+    }
+
+    .contact-grid {
+        padding: 20px 15px; /* Mengurangi padding horizontal di mobile */
+    }
+
+    .map-container iframe {
+        border: 0; /* Menghapus border dari inline style */
+    }
+
+    /* Mengubah social card menjadi 1 kolom di mobile */
+    .social-cards-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Mobile Sangat Kecil (Maksimal 360px) */
+@media (max-width: 360px) {
+    .container {
+        width: 95%; /* Memberikan sedikit ruang di kanan-kiri layar */
+    }
+
+    /* Mengubah layout info kontak menjadi vertikal */
+    .contact-info p {
+        flex-direction: column;
+        align-items: flex-start; /* Mengubah alignment menjadi rata kiri */
+        text-align: left; /* Mengubah alignment teks menjadi rata kiri */
+        gap: 8px;
+    }
+
+    /* Memperkecil peta di layar sangat kecil */
+    .map-container iframe {
+        height: 250px;
+    }
+
+    .logo {
+        height: 50px; /* Memperkecil logo agar muat */
+    }
+
+    .logo-text h1 {
+        font-size: 15px; /* Mengecilkan ukuran font judul instansi */
+        line-height: 1.3;
+    }
+
+    .logo-text h2 {
+        font-size: 11px;
+    }
+
+    .hero h2 {
+        font-size: 18px;
+    }
+
+    .hero p {
+        font-size: 13px;
+    }
+
+    .btn-primary {
+        padding: 10px 18px;
+        font-size: 14px;
+    }
+
+    .section-title {
+        font-size: 18px;
+    }
+
+    .peraturan-judul {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    /* Modifikasi Tab Filter agar tidak berantakan */
+    .tabs {
+        display: flex;
+        justify-content: space-between;
+        gap: 2px;
+    }
+
+    .tab-btn {
+        flex: 1;
+        padding: 8px 5px;
+        font-size: 12px;
+        text-align: center;
+        margin-right: 0;
+    }
+
+    /* Penyesuaian teks di dalam tabel agar tetap terbaca saat di-scroll */
+    .data-table th,
+    .data-table td {
+        padding: 10px 8px;
+        font-size: 12px;
+    }
+
+    .badge {
+        font-size: 10px;
+        padding: 3px 6px;
+    }
+
+    footer {
+        padding: 30px 0 15px 0;
+    }
+
+    .contact-grid {
+        padding: 20px 10px; /* Mengurangi padding horizontal agar konten tidak terpotong */
+    }
+}
+
+@media (max-width: 991px) {
+}
