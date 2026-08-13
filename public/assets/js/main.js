@@ -43,7 +43,13 @@ document.addEventListener("DOMContentLoaded", function () {
     if (mainNav && sideNav) {
         sideNav.innerHTML = mainNav.innerHTML;
         if (topBarUser && sideNavContainer) {
-            sideNavContainer.appendChild(topBarUser.cloneNode(true));
+            // Buat container baru untuk user session di bagian bawah sidenav
+            const sideNavFooter = document.createElement("div");
+            sideNavFooter.classList.add("sidenav-footer");
+
+            // Salin user session ke dalam footer tersebut
+            sideNavFooter.appendChild(topBarUser.cloneNode(true));
+            sideNavContainer.appendChild(sideNavFooter);
         }
 
         // Tambahkan fungsionalitas klik untuk dropdown di sidenav setelah disalin
@@ -80,8 +86,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         // Fungsionalitas untuk dropdown user di sidenav
-        const sideNavUserContainer =
-            sideNavContainer.querySelector(".user-session");
+        const sideNavUserContainer = sideNavContainer.querySelector(
+            ".sidenav-footer .user-session",
+        );
         if (sideNavUserContainer) {
             const sideNavUserToggle =
                 sideNavUserContainer.querySelector(".dropdown-toggle");

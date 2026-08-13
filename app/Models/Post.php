@@ -2,17 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\RegulationRelation;
 
 class Post extends Model
 {
-    use HasFactory;
-
-    /**
-     * Atribut yang boleh diisi melalui mass assignment.
-     */
     protected $fillable = [
         'author_id',
         'type',
@@ -23,76 +19,133 @@ class Post extends Model
         'featured_image',
         'status',
         'published_at',
+
+        // Regulasi
+        'regulation_type_id',
+        'regulation_number',
+        'regulation_year',
+        'regulation_date',
+        'legal_status',
+        'document_path',
+        'document_original_name',
+        'document_size',
     ];
 
-    /**
-     * Casting atribut.
-     */
+
     protected function casts(): array
     {
         return [
             'published_at' => 'datetime',
+            'regulation_date' => 'date',
+            'regulation_year' => 'integer',
+            'document_size' => 'integer',
         ];
     }
 
+
     /**
-     * User yang membuat konten.
+     * Author konten.
      */
     public function author(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'author_id');
+        return $this->belongsTo(
+            User::class,
+            'author_id'
+        );
     }
 
-    /**
-     * Scope untuk konten yang sudah dipublikasikan.
-     */
-    public function scopePublished($query)
-    {
-        return $query
-            ->where('status', 'published')
-            ->whereNotNull('published_at')
-            ->where('published_at', '<=', now());
-    }
 
     /**
-     * Scope berdasarkan jenis konten.
+     * Jenis regulasi.
      */
-    public function scopeType($query, string $type)
+    public function regulationType(): BelongsTo
     {
-        return $query->where('type', $type);
+        return $this->belongsTo(
+            RegulationType::class,
+            'regulation_type_id'
+        );
     }
 
-    /**
-     * Apakah konten merupakan berita?
-     */
-    public function isNews(): bool
-    {
-        return $this->type === 'news';
-    }
 
     /**
-     * Apakah konten merupakan pengumuman?
+     * Hubungan regulasi yang dibuat oleh regulasi ini.
+     *
+     * Misalnya:
+     *
+     * Perbup 5/2026
+     *     └── repeals → Perbup 12/2021
      */
-    public function isAnnouncement(): bool
+    public function regulationRelations(): HasMany
     {
-        return $this->type === 'announcement';
+        return $this->hasMany(
+            RegulationRelation::class,
+            'post_id'
+        );
     }
 
-    /**
-     * Apakah konten merupakan regulasi?
-     */
-    public function isRegulation(): bool
-    {
-        return $this->type === 'regulation';
-    }
 
     /**
-     * Apakah konten sudah dipublikasikan?
+     * Regulasi yang diubah oleh regulasi ini.
      */
-    public function isPublished(): bool
+    public function amendments(): HasMany
     {
-        return $this->status === 'published'
-            && $this->published_at !== null
-            && $this->published_at->isPast();
+        return $this->hasMany(
+            RegulationRelation::class,
+            'post_id'
+        )->where(
+            'relation_type',
+            'amends'
+        );
+    }
+
+
+    /**
+     * Regulasi yang dicabut oleh regulasi ini.
+     */
+    public function repeals(): HasMany
+    {
+        return $this->hasMany(
+            RegulationRelation::class,
+            'post_id'
+        )->where(
+            'relation_type',
+            'repeals'
+        );
+    }
+
+
+    /**
+     * Regulasi yang mengubah regulasi ini.
+     *
+     * Misalnya:
+     *
+     * Perbup 12/2021
+     *     ↑
+     * Perbup 5/2026
+     */
+    public function amendedBy(): HasMany
+    {
+        return $this->hasMany(
+            RegulationRelation::class,
+            'related_post_id'
+        )->where(
+            'relation_type',
+            'amends'
+        );
+    }
+
+
+    /**
+     * Regulasi yang mencabut regulasi ini.
+     */
+    public function repealedBy(): HasMany
+    {
+        return $this->hasMany(
+            RegulationRelation::class,
+            'related_post_id'
+        )->where(
+            'relation_type',
+            'repeals'
+        );
     }
 }

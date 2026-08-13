@@ -192,6 +192,14 @@
     overflow-x: hidden;
     transition: 0.3s;
     padding-top: 60px;
+    /* Menjadikan sidenav sebagai flex container */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Memastikan nav-links mengisi ruang yang tersedia */
+.sidenav .nav-links {
+    flex-grow: 1;
 }
 
 .sidenav .close-btn {

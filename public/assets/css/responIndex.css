@@ -113,7 +113,6 @@
 
     /* Style untuk link di dalam sidenav */
     .sidenav .nav-links {
-        display: flex;
         flex-direction: column;
         width: 100%;
         padding: 0;
@@ -192,33 +191,29 @@
         background-color: transparent !important; /* Hapus background di tombolnya saja */
     }
     /* Mengubah background seluruh .user-session jika dropdown di dalamnya aktif */
-    .sidenav .user-session:has(.dropdown-toggle.active) {
+    .sidenav .sidenav-footer:has(.dropdown-toggle.active) {
         background-color: #0b2f64;
     }
 
     /* Memberi warna font pada user session yang aktif */
-    .sidenav .user-session .dropdown-toggle.active,
-    .sidenav .user-session .dropdown-toggle.active .username {
+    .sidenav .sidenav-footer .dropdown-toggle.active,
+    .sidenav .sidenav-footer .dropdown-toggle.active .username {
         color: #d4af37 !important;
     }
 
-    /* User session di Sidenav */
-    .sidenav .user-session {
-        position: absolute;
-        bottom: 0;
-        left: 0;
+    /* Footer Sidenav (untuk user session) */
+    .sidenav-footer {
         width: 100%;
         background-color: #1a4a8d; /* Samakan dengan background sidenav */
         transition: background-color 0.3s ease; /* Animasi untuk background */
-        padding: 15px 20px;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .sidenav .user-session {
+        padding: 15px 20px;
     }
     .sidenav .user-session .dropdown-menu {
         position: absolute !important; /* Mengubah posisi agar relatif terhadap parent */
-        bottom: calc(
-            24% - 1px
-        ) !important; /* Posisi tepat di atas tombol pemicu, dikurangi 1px border */
-        top: auto !important;
+        bottom: 100% !important; /* Posisi tepat di atas tombol pemicu */
         left: 0 !important;
         width: 100% !important; /* Lebar sama dengan sidenav */
         background-color: #0b2f64; /* Samakan background */

@@ -4,7 +4,9 @@ use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PublicPostController;
 
 
 /*
@@ -116,6 +118,75 @@ Route::middleware('auth')->group(function () {
         ->name('users.reset-password');
 
 
+
+        /*
+    |--------------------------------------------------------------------------
+    | Content Management
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/posts', [PostController::class, 'index'])
+        ->middleware('permission:posts.view')
+        ->name('posts.index');
+
+    Route::get('/posts/create', [PostController::class, 'create'])
+        ->middleware('permission:posts.create')
+        ->name('posts.create');
+
+    Route::post('/posts', [PostController::class, 'store'])
+        ->middleware('permission:posts.create')
+        ->name('posts.store');
+
+    Route::get(
+        'posts/{post}/document/preview',
+        [PostController::class, 'previewDocument']
+    )->name('posts.document.preview');
+
+    Route::get(
+        'posts/{post}/document/download',
+        [PostController::class, 'downloadDocument']
+    )->name('posts.document.download');
+
+    Route::get('/posts/{post}', [PostController::class, 'show'])
+        ->middleware('permission:posts.view')
+        ->name('posts.show');
+
+    Route::get('/posts/{post}/edit', [PostController::class, 'edit'])
+        ->middleware('permission:posts.update')
+        ->name('posts.edit');
+
+    Route::put('/posts/{post}', [PostController::class, 'update'])
+        ->middleware('permission:posts.update')
+        ->name('posts.update');
+
+    Route::patch('/posts/{post}/publish', [PostController::class, 'publish'])
+        ->middleware('permission:posts.publish')
+        ->name('posts.publish');
+
+    Route::patch('/posts/{post}/archive', [PostController::class, 'archive'])
+        ->middleware('permission:posts.publish')
+        ->name('posts.archive');
+
+    Route::delete('/posts/{post}', [PostController::class, 'destroy'])
+        ->middleware('permission:posts.delete')
+        ->name('posts.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relasi pdf
+    |--------------------------------------------------------------------------
+    */
+    Route::post(
+        'posts/{post}/relations',
+        [PostController::class, 'storeRelation']
+    )->name('posts.relations.store');
+
+    Route::delete(
+        'posts/{post}/relations/{relation}',
+        [PostController::class, 'destroyRelation']
+    )->name('posts.relations.destroy');
+
+
     /*
     |--------------------------------------------------------------------------
     | Role Management
@@ -155,6 +226,31 @@ Route::middleware('auth')->group(function () {
         ->name('roles.destroy');
 
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| Public Content
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/berita', [PublicPostController::class, 'news'])
+    ->name('public.news');
+
+Route::get('/berita/{slug}', [PublicPostController::class, 'newsShow'])
+    ->name('public.news.show');
+
+Route::get('/pengumuman', [PublicPostController::class, 'announcements'])
+    ->name('public.announcements');
+
+Route::get('/pengumuman/{slug}', [PublicPostController::class, 'announcementShow'])
+    ->name('public.announcements.show');
+
+Route::get('/regulasi', [PublicPostController::class, 'regulations'])
+    ->name('public.regulations');
+
+Route::get('/regulasi/{slug}', [PublicPostController::class, 'regulationShow'])
+    ->name('public.regulations.show');
 
 
 /*

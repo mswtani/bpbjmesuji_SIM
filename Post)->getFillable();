@@ -1,0 +1,23 @@
+[90m= [39m[
+    [34m"[39m[34mid[39m[34m"[39m => [35m5[39m,
+    [34m"[39m[34mauthor_id[39m[34m"[39m => [35m4[39m,
+    [34m"[39m[34mtype[39m[34m"[39m => [32m"[39m[32mnews[39m[32m"[39m,
+    [34m"[39m[34mtitle[39m[34m"[39m => [32m"[39m[32mSosialisasi E-Katalog Lokal untuk Pelaku Usaha di Mesuji[39m[32m"[39m,
+    [34m"[39m[34mslug[39m[34m"[39m => [32m"[39m[32msosialisasi-e-katalog-lokal-untuk-pelaku-usaha-di-mesuji-2[39m[32m"[39m,
+    [34m"[39m[34mexcerpt[39m[34m"[39m => [32m"[39m\"[32mIni adalah langkah strategis untuk mendorong perputaran ekonomi di daerah dan memastikan produk-produk lokal berkualitas dapat terserap oleh pemerintah.[39m\"[32m"[39m,
+    [34m"[39m[34mcontent[39m[34m"[39m => <<<[32mEOS[39m
+      [32mMESUJI - Bagian Pengadaan Barang dan Jasa (BPBJ) Sekretariat Daerah Kabupaten Mesuji menggelar acara sosialisasi mengenai pemanfaatan Katalog Elektronik (E-Katalog) Lokal bagi para pelaku usaha di wilayah tersebut. Acara yang berlangsung di Aula Pemkab Mesuji ini dihadiri oleh puluhan perwakilan dari Usaha Mikro, Kecil, dan Menengah (UMKM) serta asosiasi pengusaha setempat.[39m\r
+      \r
+      [32mKepala BPBJ Kabupaten Mesuji, dalam sambutannya, menyatakan bahwa E-Katalog Lokal merupakan instrumen penting untuk meningkatkan partisipasi pengusaha lokal dalam pengadaan barang/jasa pemerintah. "Dengan adanya e-katalog lokal, diharapkan para pelaku usaha mikro, kecil, dan menengah (UMKM) di Kabupaten Mesuji dapat lebih mudah berpartisipasi dalam memenuhi kebutuhan pemerintah daerah," ujarnya.[39m\r
+      \r
+      [32mSosialisasi ini memberikan panduan teknis mengenai cara mendaftarkan produk, persyaratan yang harus dipenuhi, serta mekanisme transaksi melalui platform E-Katalog. Para peserta juga diberikan kesempatan untuk berdiskusi dan bertanya langsung kepada narasumber dari LKPP yang dihadirkan secara virtual.[39m\r
+      \r
+      [32m"Ini adalah langkah strategis untuk mendorong perputaran ekonomi di daerah dan memastikan produk-produk lokal berkualitas dapat terserap oleh pemerintah."[39m\r
+      [32mPemerintah Kabupaten Mesuji berkomitmen untuk terus membina dan memfasilitasi para pelaku usaha agar dapat bersaing dan tumbuh melalui platform digital ini. Diharapkan, setelah sosialisasi ini, akan semakin banyak produk lokal Mesuji yang tayang di E-Katalog.[39m
+      [32mEOS[39m,
+    [34m"[39m[34mfeatured_image[39m[34m"[39m => [32m"[39m[32m0[39m[32m"[39m,
+    [34m"[39m[34mstatus[39m[34m"[39m => [32m"[39m[32mdraft[39m[32m"[39m,
+    [34m"[39m[34mpublished_at[39m[34m"[39m => [36mnull[39m,
+    [34m"[39m[34mcreated_at[39m[34m"[39m => [32m"[39m[32m2026-08-10T14:32:29.000000Z[39m[32m"[39m,
+    [34m"[39m[34mupdated_at[39m[34m"[39m => [32m"[39m[32m2026-08-10T14:32:29.000000Z[39m[32m"[39m,
+  ]
