@@ -37,6 +37,24 @@ Route::get('/dashboard', function () {
     ->name('dashboard');
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Public Regulation Documents
+    |--------------------------------------------------------------------------
+    |
+    | Preview dan download dokumen regulasi harus dapat
+    | diakses oleh masyarakat tanpa login.
+    |
+    */
+    Route::get(
+        'posts/{post}/document/preview',
+        [PostController::class, 'previewDocument']
+    )->name('posts.document.preview');
+
+    Route::get(
+        'posts/{post}/document/download',
+        [PostController::class, 'downloadDocument']
+    )->name('posts.document.download');
 /*
 |--------------------------------------------------------------------------
 | Authenticated Routes
@@ -137,17 +155,7 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:posts.create')
         ->name('posts.store');
 
-    Route::get(
-        'posts/{post}/document/preview',
-        [PostController::class, 'previewDocument']
-    )->name('posts.document.preview');
-
-    Route::get(
-        'posts/{post}/document/download',
-        [PostController::class, 'downloadDocument']
-    )->name('posts.document.download');
-
-    Route::get('/posts/{post}', [PostController::class, 'show'])
+        Route::get('/posts/{post}', [PostController::class, 'show'])
         ->middleware('permission:posts.view')
         ->name('posts.show');
 

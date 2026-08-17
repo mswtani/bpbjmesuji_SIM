@@ -318,65 +318,94 @@
 
                                 @endforeach
 
+                                
 
-                                {{-- Diubah dengan regulasi lain --}}
+                                {{-- Regulasi yang mengubah regulasi ini --}}
                                 @foreach ($amendedBy as $relation)
 
                                     <div class="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
 
-                                        <p class="text-sm font-semibold text-yellow-900">
-                                            Diubah Dengan
-                                        </p>
+                                        <div class="flex items-start gap-3">
 
-                                        <p class="mt-1 text-sm text-yellow-800">
-                                            Regulasi ini diubah dengan:
-                                        </p>
+                                            <div class="mt-0.5">
+                                                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-yellow-100 text-yellow-700">
+                                                    ↔
+                                                </span>
+                                            </div>
 
-                                        <a
-                                            href="{{ route('posts.show', $relation->post) }}"
-                                            class="mt-1 block font-medium text-indigo-600 hover:text-indigo-800 hover:underline"
-                                        >
-                                            {{ $relation->post->title }}
-                                        </a>
+                                            <div class="min-w-0">
 
-                                        @if ($relation->post->regulation_number)
-                                            <p class="mt-1 text-xs text-gray-600">
-                                                Nomor:
-                                                {{ $relation->post->regulation_number }}
-                                            </p>
-                                        @endif
+                                                <p class="text-sm font-semibold text-yellow-900">
+                                                    Diubah oleh
+                                                </p>
+
+                                                <p class="mt-1 text-sm text-yellow-800">
+                                                    Regulasi ini diubah oleh:
+                                                </p>
+
+                                                <a
+                                                    href="{{ route('posts.show', $relation->post) }}"
+                                                    class="mt-1 block font-medium text-indigo-600 hover:text-indigo-800 hover:underline"
+                                                >
+                                                    {{ $relation->post->title }}
+                                                </a>
+
+                                                @if ($relation->post->regulation_number)
+                                                    <p class="mt-1 text-xs text-gray-600">
+                                                        Nomor:
+                                                        {{ $relation->post->regulation_number }}
+                                                    </p>
+                                                @endif
+
+                                            </div>
+
+                                        </div>
 
                                     </div>
 
                                 @endforeach
 
 
-                                {{-- Dicabut dengan regulasi lain --}}
+                                {{-- Regulasi yang mencabut regulasi ini --}}
                                 @foreach ($repealedBy as $relation)
 
                                     <div class="rounded-lg border border-red-200 bg-red-50 p-4">
 
-                                        <p class="text-sm font-semibold text-red-900">
-                                            Dicabut Dengan
-                                        </p>
+                                        <div class="flex items-start gap-3">
 
-                                        <p class="mt-1 text-sm text-red-800">
-                                            Regulasi ini dicabut dengan:
-                                        </p>
+                                            <div class="mt-0.5">
+                                                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-red-700">
+                                                    ×
+                                                </span>
+                                            </div>
 
-                                        <a
-                                            href="{{ route('posts.show', $relation->post) }}"
-                                            class="mt-1 block font-medium text-indigo-600 hover:text-indigo-800 hover:underline"
-                                        >
-                                            {{ $relation->post->title }}
-                                        </a>
+                                            <div class="min-w-0">
 
-                                        @if ($relation->post->regulation_number)
-                                            <p class="mt-1 text-xs text-gray-600">
-                                                Nomor:
-                                                {{ $relation->post->regulation_number }}
-                                            </p>
-                                        @endif
+                                                <p class="text-sm font-semibold text-red-900">
+                                                    Dicabut oleh
+                                                </p>
+
+                                                <p class="mt-1 text-sm text-red-800">
+                                                    Regulasi ini dicabut oleh:
+                                                </p>
+
+                                                <a
+                                                    href="{{ route('posts.show', $relation->post) }}"
+                                                    class="mt-1 block font-medium text-indigo-600 hover:text-indigo-800 hover:underline"
+                                                >
+                                                    {{ $relation->post->title }}
+                                                </a>
+
+                                                @if ($relation->post->regulation_number)
+                                                    <p class="mt-1 text-xs text-gray-600">
+                                                        Nomor:
+                                                        {{ $relation->post->regulation_number }}
+                                                    </p>
+                                                @endif
+
+                                            </div>
+
+                                        </div>
 
                                     </div>
 
@@ -448,8 +477,25 @@
 
             
             {{-- Dokumen Regulasi --}}
-
             @if ($post->type === 'regulation' && $post->document_path)
+
+                @php
+                    $documentExtension = strtolower(
+                        pathinfo(
+                            $post->document_path,
+                            PATHINFO_EXTENSION
+                        )
+                    );
+
+                    $isPdf = $documentExtension === 'pdf';
+
+                    $downloadLabel = match ($documentExtension) {
+                        'pdf' => 'Download PDF',
+                        'zip' => 'Download ZIP',
+                        'rar' => 'Download RAR',
+                        default => 'Download Dokumen',
+                    };
+                @endphp
 
                 <div class="mt-6 rounded-lg border border-gray-200 bg-white p-5">
 
@@ -458,24 +504,31 @@
                     </h2>
 
                     <p class="mt-1 text-sm text-gray-600">
-                        {{ $post->document_original_name ?? 'Dokumen PDF' }}
+                        {{ $post->document_original_name ?? 'Dokumen Regulasi' }}
                     </p>
 
                     <div class="mt-4 flex flex-wrap gap-3">
 
-                        <a
-                            href="{{ route('posts.document.preview', $post) }}"
-                            target="_blank"
-                            class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-                        >
-                            Preview PDF
-                        </a>
+                        {{-- Preview hanya untuk PDF --}}
+                        @if ($isPdf)
 
+                            <a
+                                href="{{ route('posts.document.preview', $post) }}"
+                                target="_blank"
+                                rel="noopener"
+                                class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                            >
+                                Preview PDF
+                            </a>
+
+                        @endif
+
+                        {{-- Download PDF / ZIP / RAR --}}
                         <a
                             href="{{ route('posts.document.download', $post) }}"
                             class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                         >
-                            Download PDF
+                            {{ $downloadLabel }}
                         </a>
 
                     </div>
@@ -503,44 +556,62 @@
         \Illuminate\Support\Facades\Storage::disk('public')->exists($post->document_path)
     )
 
-        <div class="mt-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+        @php
+            $documentExtension = strtolower(
+                pathinfo(
+                    $post->document_path,
+                    PATHINFO_EXTENSION
+                )
+            );
+        @endphp
 
-            <div class="flex flex-col gap-3 border-b border-gray-200 bg-gray-50 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+        {{-- HANYA PDF yang boleh mempunyai preview --}}
+        @if ($documentExtension === 'pdf')
 
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-900">
-                        Preview Dokumen
-                    </h2>
+            <div class="mt-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
 
-                    @if ($post->document_original_name)
-                        <p class="mt-1 text-sm text-gray-500">
-                            {{ $post->document_original_name }}
-                        </p>
-                    @endif
+                <div class="flex flex-col gap-3 border-b border-gray-200 bg-gray-50 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+
+                    <div>
+
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            Preview Dokumen
+                        </h2>
+
+                        @if ($post->document_original_name)
+
+                            <p class="mt-1 text-sm text-gray-500">
+                                {{ $post->document_original_name }}
+                            </p>
+
+                        @endif
+
+                    </div>
+
+                    <a
+                        href="{{ route('posts.document.preview', $post) }}"
+                        target="_blank"
+                        rel="noopener"
+                        class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                    >
+                        Buka PDF
+                    </a>
+
                 </div>
 
-                <a
-                    href="{{ asset('storage/' . $post->document_path) }}"
-                    target="_blank"
-                    rel="noopener"
-                    class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-                >
-                    Buka PDF
-                </a>
+                <div class="bg-gray-100 p-2 sm:p-4">
+
+                    <iframe
+                        src="{{ route('posts.document.preview', $post) }}"
+                        title="Preview {{ $post->title }}"
+                        class="h-[700px] w-full rounded-md border border-gray-300 bg-white"
+                    ></iframe>
+
+                </div>
 
             </div>
 
-            <div class="bg-gray-100 p-2 sm:p-4">
-
-                <iframe
-                    src="{{ asset('storage/' . $post->document_path) }}"
-                    title="Preview {{ $post->title }}"
-                    class="h-[700px] w-full rounded-md border border-gray-300 bg-white"
-                ></iframe>
-
-            </div>
-
-        </div>
+        @endif
 
     @endif
 

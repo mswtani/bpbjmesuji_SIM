@@ -37,6 +37,8 @@ class PostController extends Controller
     {
         $regulations = Post::query()
             ->where('type', 'regulation')
+            ->whereKeyNot($post->id)
+            ->where('regulation_type_id', $post->regulation_type_id)
             ->orderByDesc('regulation_year')
             ->orderBy('title')
             ->get();
@@ -75,7 +77,11 @@ class PostController extends Controller
 
         $amendsPostId = $request->input('amends_post_id');
 
+        $amendedByPostId = $request->input('amended_by_post_id');
+
         $repealsPostId = $request->input('repeals_post_id');
+
+        $repealedByPostId = $request->input('repealed_by_post_id');
 
 
         /*
@@ -184,7 +190,9 @@ class PostController extends Controller
 
         unset(
             $data['amends_post_id'],
-            $data['repeals_post_id']
+            $data['amended_by_post_id'],
+            $data['repeals_post_id'],
+            $data['repealed_by_post_id']
         );
 
 
@@ -231,87 +239,82 @@ class PostController extends Controller
         | Simpan Hubungan Regulasi
         |--------------------------------------------------------------------------
         |
-        | Hanya Regulasi yang mempunyai hubungan.
+        | MENGUBAH  : post ini -> regulasi yang diubah
+        | DIUBAH    : regulasi yang dipilih -> post ini
+        | MENCABUT  : post ini -> regulasi yang dicabut
+        | DICABUT   : regulasi yang dipilih -> post ini
         |
         */
 
         if ($post->type === 'regulation') {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Status DIUBAH
-            |--------------------------------------------------------------------------
-            */
-
             if (
-                $post->legal_status === 'diubah' &&
+                $post->legal_status === 'mengubah' &&
                 $amendsPostId
             ) {
 
-                $relatedPost =
-                    Post::query()
-                        ->where(
-                            'type',
-                            'regulation'
-                        )
-                        ->whereKeyNot($post->id)
-                        ->findOrFail(
-                            $amendsPostId
-                        );
-
+                $relatedPost = Post::query()
+                    ->where('type', 'regulation')
+                    ->whereKeyNot($post->id)
+                    ->findOrFail($amendsPostId);
 
                 RegulationRelation::create([
-
-                    'post_id' =>
-                        $post->id,
-
-                    'related_post_id' =>
-                        $relatedPost->id,
-
-                    'relation_type' =>
-                        'amends',
-
+                    'post_id' => $post->id,
+                    'related_post_id' => $relatedPost->id,
+                    'relation_type' => 'amends',
                 ]);
             }
 
+            elseif (
+                $post->legal_status === 'diubah' &&
+                $amendedByPostId
+            ) {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Status DICABUT
-            |--------------------------------------------------------------------------
-            */
+                $relatedPost = Post::query()
+                    ->where('type', 'regulation')
+                    ->whereKeyNot($post->id)
+                    ->findOrFail($amendedByPostId);
+
+                RegulationRelation::create([
+                    'post_id' => $relatedPost->id,
+                    'related_post_id' => $post->id,
+                    'relation_type' => 'amends',
+                ]);
+            }
 
             elseif (
-                $post->legal_status === 'dicabut' &&
+                $post->legal_status === 'mencabut' &&
                 $repealsPostId
             ) {
 
-                $relatedPost =
-                    Post::query()
-                        ->where(
-                            'type',
-                            'regulation'
-                        )
-                        ->whereKeyNot($post->id)
-                        ->findOrFail(
-                            $repealsPostId
-                        );
-
+                $relatedPost = Post::query()
+                    ->where('type', 'regulation')
+                    ->whereKeyNot($post->id)
+                    ->findOrFail($repealsPostId);
 
                 RegulationRelation::create([
-
-                    'post_id' =>
-                        $post->id,
-
-                    'related_post_id' =>
-                        $relatedPost->id,
-
-                    'relation_type' =>
-                        'repeals',
-
+                    'post_id' => $post->id,
+                    'related_post_id' => $relatedPost->id,
+                    'relation_type' => 'repeals',
                 ]);
             }
 
+            elseif (
+                $post->legal_status === 'dicabut' &&
+                $repealedByPostId
+            ) {
+
+                $relatedPost = Post::query()
+                    ->where('type', 'regulation')
+                    ->whereKeyNot($post->id)
+                    ->findOrFail($repealedByPostId);
+
+                RegulationRelation::create([
+                    'post_id' => $relatedPost->id,
+                    'related_post_id' => $post->id,
+                    'relation_type' => 'repeals',
+                ]);
+            }
         }
 
 
@@ -409,7 +412,12 @@ class PostController extends Controller
         */
 
         $amendsPostId = $request->input('amends_post_id');
+
+        $amendedByPostId = $request->input('amended_by_post_id');
+
         $repealsPostId = $request->input('repeals_post_id');
+
+        $repealedByPostId = $request->input('repealed_by_post_id');
 
 
         /*
@@ -587,7 +595,13 @@ class PostController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            $post->regulationRelations()->delete();
+            RegulationRelation::query()
+                ->where(function ($query) use ($post) {
+                    $query
+                        ->where('post_id', $post->id)
+                        ->orWhere('related_post_id', $post->id);
+                })
+                ->delete();
 
         }
 
@@ -606,7 +620,25 @@ class PostController extends Controller
         | Sinkronisasi Hubungan Regulasi
         |--------------------------------------------------------------------------
         |
-        | Hanya berlaku untuk konten bertipe regulation.
+        | MENGUBAH:
+        |   post ini -> regulasi yang diubah
+        |
+        | DIUBAH:
+        |   regulasi yang dipilih -> post ini
+        |
+        | MENCABUT:
+        |   post ini -> regulasi yang dicabut
+        |
+        | DICABUT:
+        |   regulasi yang dipilih -> post ini
+        |
+        | Database tetap menggunakan satu arah kanonik:
+        |
+        |   source -> target
+        |
+        | relation_type:
+        |   amends
+        |   repeals
         |
         */
 
@@ -614,111 +646,177 @@ class PostController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Hapus hubungan lama terlebih dahulu
+            | Hapus hubungan KELUAR yang dibuat oleh regulasi ini
             |--------------------------------------------------------------------------
             |
-            | Dengan cara ini kita mencegah:
+            | Jangan menghapus hubungan masuk.
             |
-            | repeals lama tetap tersisa ketika status
-            | berubah menjadi amends.
+            | Ini penting untuk rantai:
+            |
+            | 16/2018
+            |    ↑
+            | 12/2021
+            |    ↑
+            | 46/2025
             |
             */
 
-            $post->regulationRelations()->delete();
+            RegulationRelation::query()
+                ->where('post_id', $post->id)
+                ->delete();
 
 
             /*
             |--------------------------------------------------------------------------
-            | Status BERLAKU / TIDAK BERLAKU
+            | MENGUBAH
             |--------------------------------------------------------------------------
             |
-            | Tidak boleh mempunyai hubungan regulasi.
+            | Contoh:
+            |
+            | 12/2021 -> 16/2018
             |
             */
 
             if (
-                in_array(
-                    $data['legal_status'] ?? null,
-                    [
-                        'berlaku',
-                        'tidak_berlaku',
-                    ],
-                    true
-                )
+                ($data['legal_status'] ?? null) === 'mengubah' &&
+                $amendsPostId
             ) {
 
-                // Tidak membuat relation apa pun.
+                $relatedPost = Post::query()
+                    ->where('type', 'regulation')
+                    ->whereKeyNot($post->id)
+                    ->findOrFail($amendsPostId);
 
+                RegulationRelation::updateOrCreate(
+                    [
+                        'post_id' => $post->id,
+                        'related_post_id' => $relatedPost->id,
+                        'relation_type' => 'amends',
+                    ]
+                );
             }
 
 
             /*
             |--------------------------------------------------------------------------
-            | Status DIUBAH
+            | DIUBAH
             |--------------------------------------------------------------------------
+            |
+            | Contoh:
+            |
+            | 12/2021 -> 16/2018
+            |
+            | Ketika sedang edit 16/2018:
+            |
+            | Diubah oleh = 12/2021
+            |
             */
 
             elseif (
                 ($data['legal_status'] ?? null) === 'diubah' &&
-                $amendsPostId
+                $amendedByPostId
             ) {
 
-                $relatedPost =
-                    Post::query()
-                        ->where('type', 'regulation')
-                        ->whereKeyNot($post->id)
-                        ->findOrFail($amendsPostId);
+                $relatedPost = Post::query()
+                    ->where('type', 'regulation')
+                    ->whereKeyNot($post->id)
+                    ->findOrFail($amendedByPostId);
 
-
-                RegulationRelation::create([
-
-                    'post_id' =>
-                        $post->id,
-
-                    'related_post_id' =>
-                        $relatedPost->id,
-
-                    'relation_type' =>
-                        'amends',
-
-                ]);
-
+                RegulationRelation::updateOrCreate(
+                    [
+                        'post_id' => $relatedPost->id,
+                        'related_post_id' => $post->id,
+                        'relation_type' => 'amends',
+                    ]
+                );
             }
 
 
             /*
             |--------------------------------------------------------------------------
-            | Status DICABUT
+            | MENCABUT
             |--------------------------------------------------------------------------
+            |
+            | Contoh:
+            |
+            | 16/2018 -> 54/2010
+            |
+            */
+
+            elseif (
+                ($data['legal_status'] ?? null) === 'mencabut' &&
+                $repealsPostId
+            ) {
+
+                $relatedPost = Post::query()
+                    ->where('type', 'regulation')
+                    ->whereKeyNot($post->id)
+                    ->findOrFail($repealsPostId);
+
+                RegulationRelation::updateOrCreate(
+                    [
+                        'post_id' => $post->id,
+                        'related_post_id' => $relatedPost->id,
+                        'relation_type' => 'repeals',
+                    ]
+                );
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | DICABUT
+            |--------------------------------------------------------------------------
+            |
+            | Contoh:
+            |
+            | 16/2018 -> 54/2010
+            |
+            | Ketika sedang edit 54/2010:
+            |
+            | Dicabut oleh = 16/2018
+            |
+            | Maka kita membuat:
+            |
+            | post_id         = 16
+            | related_post_id = 54
+            | relation_type   = repeals
+            |
             */
 
             elseif (
                 ($data['legal_status'] ?? null) === 'dicabut' &&
-                $repealsPostId
+                $repealedByPostId
             ) {
 
-                $relatedPost =
-                    Post::query()
-                        ->where('type', 'regulation')
-                        ->whereKeyNot($post->id)
-                        ->findOrFail($repealsPostId);
+                $relatedPost = Post::query()
+                    ->where('type', 'regulation')
+                    ->whereKeyNot($post->id)
+                    ->findOrFail($repealedByPostId);
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Hapus hubungan pencabutan lama yang menuju regulasi ini
+                |--------------------------------------------------------------------------
+                |
+                | Untuk pencabutan, satu regulasi dianggap memiliki satu
+                | regulasi pencabut utama.
+                |
+                */
+
+                RegulationRelation::query()
+                    ->where('related_post_id', $post->id)
+                    ->where('relation_type', 'repeals')
+                    ->delete();
 
 
                 RegulationRelation::create([
-
-                    'post_id' =>
-                        $post->id,
-
-                    'related_post_id' =>
-                        $relatedPost->id,
-
-                    'relation_type' =>
-                        'repeals',
-
+                    'post_id' => $relatedPost->id,
+                    'related_post_id' => $post->id,
+                    'relation_type' => 'repeals',
                 ]);
-
             }
-
         }
 
 
@@ -778,6 +876,21 @@ class PostController extends Controller
                 $post->document_path
             );
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Hapus seluruh hubungan regulasi
+        |--------------------------------------------------------------------------
+        */
+
+        RegulationRelation::query()
+            ->where(function ($query) use ($post) {
+                $query
+                    ->where('post_id', $post->id)
+                    ->orWhere('related_post_id', $post->id);
+            })
+            ->delete();
 
 
         /*
@@ -857,10 +970,37 @@ class PostController extends Controller
         }
 
         if (
+            ! auth()->check() &&
+            (
+                $post->status !== 'published' ||
+                ! $post->published_at
+            )
+        ) {
+            abort(404);
+        }
+
+        if (
             ! Storage::disk('public')->exists(
                 $post->document_path
             )
         ) {
+            abort(404);
+        }
+
+        $extension = strtolower(
+            pathinfo(
+                $post->document_path,
+                PATHINFO_EXTENSION
+            )
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Preview hanya PDF
+        |--------------------------------------------------------------------------
+        */
+
+        if ($extension !== 'pdf') {
             abort(404);
         }
 
@@ -874,15 +1014,37 @@ class PostController extends Controller
         );
     }
 
+     
+
 
     /**
-     * Download dokumen PDF regulasi.
+     * Download dokumen regulasi.
      */
     public function downloadDocument(Post $post)
     {
         if (
             $post->type !== 'regulation' ||
             ! $post->document_path
+        ) {
+            abort(404);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dokumen publik hanya boleh diakses jika sudah published.
+        |--------------------------------------------------------------------------
+        |
+        | Operator yang sudah login tetap dapat mengakses dokumen,
+        | termasuk dokumen yang belum dipublikasikan.
+        |
+        */
+
+        if (
+            ! auth()->check() &&
+            (
+                $post->status !== 'published' ||
+                ! $post->published_at
+            )
         ) {
             abort(404);
         }
@@ -897,7 +1059,7 @@ class PostController extends Controller
 
         return Storage::disk('public')->download(
             $post->document_path,
-            $post->document_original_name ?? 'dokumen-regulasi.pdf'
+            $post->document_original_name ?? 'dokumen-regulasi'
         );
     }
 
@@ -1001,5 +1163,4 @@ class PostController extends Controller
                 'Hubungan regulasi berhasil dihapus.'
             );
     }
-
 }

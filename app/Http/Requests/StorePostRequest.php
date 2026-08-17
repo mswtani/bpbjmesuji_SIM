@@ -134,44 +134,97 @@ class StorePostRequest extends FormRequest
                     'diubah',
                 ]),
             ],
+            
 
             /*
             |--------------------------------------------------------------------------
             | Hubungan Regulasi
             |--------------------------------------------------------------------------
             |
-            | Untuk sementara validasi hubungan tetap dibuat fleksibel.
-            | Logika hubungan banyak-ke-banyak akan kita sempurnakan
-            | pada tahap berikutnya.
+            | Regulasi yang berhubungan harus mempunyai
+            | jenis regulasi yang sama.
+            |
+            | mengubah → memilih regulasi yang diubah
+            | diubah   → memilih regulasi yang mengubah
+            | mencabut → memilih regulasi yang dicabut
+            | dicabut  → memilih regulasi yang mencabut
             |
             */
 
             'amends_post_id' => [
+                Rule::requiredIf(
+                    fn () => $isRegulation &&
+                        $this->input('legal_status') === 'mengubah'
+                ),
                 'nullable',
                 'integer',
-
                 Rule::exists('posts', 'id')
                     ->where(function ($query) {
-                        $query->where(
-                            'type',
-                            'regulation'
-                        );
+                        $query
+                            ->where('type', 'regulation')
+                            ->where(
+                                'regulation_type_id',
+                                $this->input('regulation_type_id')
+                            );
+                    }),
+            ],
+
+            'amended_by_post_id' => [
+                Rule::requiredIf(
+                    fn () => $isRegulation &&
+                        $this->input('legal_status') === 'diubah'
+                ),
+                'nullable',
+                'integer',
+                Rule::exists('posts', 'id')
+                    ->where(function ($query) {
+                        $query
+                            ->where('type', 'regulation')
+                            ->where(
+                                'regulation_type_id',
+                                $this->input('regulation_type_id')
+                            );
                     }),
             ],
 
             'repeals_post_id' => [
+                Rule::requiredIf(
+                    fn () => $isRegulation &&
+                        $this->input('legal_status') === 'mencabut'
+                ),
                 'nullable',
                 'integer',
-
                 Rule::exists('posts', 'id')
                     ->where(function ($query) {
-                        $query->where(
-                            'type',
-                            'regulation'
-                        );
+                        $query
+                            ->where('type', 'regulation')
+                            ->where(
+                                'regulation_type_id',
+                                $this->input('regulation_type_id')
+                            );
                     }),
             ],
 
+            'repealed_by_post_id' => [
+                Rule::requiredIf(
+                    fn () => $isRegulation &&
+                        $this->input('legal_status') === 'dicabut'
+                ),
+                'nullable',
+                'integer',
+                Rule::exists('posts', 'id')
+                    ->where(function ($query) {
+                        $query
+                            ->where('type', 'regulation')
+                            ->where(
+                                'regulation_type_id',
+                                $this->input('regulation_type_id')
+                            );
+                    }),
+            ],
+
+
+            
             /*
             |--------------------------------------------------------------------------
             | PDF
@@ -185,8 +238,8 @@ class StorePostRequest extends FormRequest
             'document' => [
                 'nullable',
                 'file',
-                'mimes:pdf',
-                'max:10240',
+                'mimes:pdf,zip,rar',
+                'max:20480',
             ],
         ];
     }
@@ -285,11 +338,29 @@ class StorePostRequest extends FormRequest
             |--------------------------------------------------------------------------
             */
 
+            'amends_post_id.required' =>
+                'Regulasi yang diubah wajib dipilih.',
+
             'amends_post_id.exists' =>
                 'Regulasi yang diubah tidak valid.',
 
+            'repeals_post_id.required' =>
+                'Regulasi yang dicabut wajib dipilih.',
+
             'repeals_post_id.exists' =>
                 'Regulasi yang dicabut tidak valid.',
+
+            'amended_by_post_id.required' =>
+                'Regulasi yang mengubah wajib dipilih.',
+
+            'amended_by_post_id.exists' =>
+                'Regulasi yang mengubah tidak valid.',
+
+            'repealed_by_post_id.required' =>
+                'Regulasi yang mencabut wajib dipilih.',
+
+            'repealed_by_post_id.exists' =>
+                'Regulasi yang mencabut tidak valid.',
 
             /*
             |--------------------------------------------------------------------------
@@ -301,10 +372,10 @@ class StorePostRequest extends FormRequest
                 'Dokumen regulasi tidak valid.',
 
             'document.mimes' =>
-                'Dokumen regulasi harus berupa PDF.',
+                'Dokumen regulasi harus berupa PDF, ZIP atau RAR.',
 
             'document.max' =>
-                'Ukuran dokumen PDF maksimal 10 MB.',
+                'Ukuran dokumen regulasi maksimal 20 MB.',
         ];
     }
 }

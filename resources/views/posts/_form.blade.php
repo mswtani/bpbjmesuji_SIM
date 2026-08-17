@@ -11,6 +11,11 @@
         'legal_status',
         $post?->legal_status
     );
+
+    $selectedRegulationTypeId = old(
+        'regulation_type_id',
+        $post?->regulation_type_id
+    );
 @endphp
 
 
@@ -88,8 +93,7 @@
 
     <div
         id="regulation-fields"
-        class="{{ $selectedType === 'regulation' ? '' : 'hidden' }}"
-    >
+        class="{{ $selectedType === 'regulation' ? '' : 'hidden' }}" >
 
         <div class="rounded-lg border border-purple-200 bg-purple-50 p-5">
 
@@ -369,7 +373,7 @@
                     id="document"
                     name="document"
                     type="file"
-                    accept="application/pdf,.pdf"
+                    accept="application/pdf,.pdf,application/zip,.zip,application/x-rar-compressed,.rar"
                     class="mt-1 block w-full text-sm text-gray-700
                         file:mr-4 file:rounded-md file:border-0
                         file:bg-white file:px-4 file:py-2
@@ -378,7 +382,8 @@
                 >
 
                 <p class="mt-1 text-xs text-gray-500">
-                    Format PDF. Maksimal 10 MB.
+                    Format PDF, ZIP, atau RAR. Maksimal 20 MB.
+                    PDF dapat dipreview langsung; ZIP/RAR hanya dapat didownload.
                 </p>
 
                 @error('document')
@@ -409,309 +414,311 @@
             </div>
 
 
-    {{-- =================================================
-        HUBUNGAN REGULASI
-        Muncul hanya untuk status:
-        - Mencabut
-        - Dicabut
-        - Mengubah
-        - Diubah
-    ================================================== --}}
+            {{-- =================================================
+                HUBUNGAN REGULASI
+                Muncul hanya untuk status:
+                - Mencabut
+                - Dicabut
+                - Mengubah
+                - Diubah
+            ================================================== --}}
 
-    <div
-        id="regulation-relation-section"
-        class="{{ in_array($selectedLegalStatus, ['mencabut', 'dicabut', 'mengubah', 'diubah'], true) ? '' : 'hidden' }}"
-    >
-
-        <div class="mt-6 border-t border-purple-200 pt-6">
-
-            <div class="mb-4">
-
-                <h3 class="text-base font-semibold text-purple-900">
-                    Hubungan Regulasi
-                </h3>
-
-                <p
-                    id="regulation-relation-description"
-                    class="mt-1 text-sm text-purple-700"
-                >
-                    Pilih regulasi yang berhubungan dengan status hukum ini.
-                </p>
-
-            </div>
-
-
-            {{-- MENCABUT --}}
             <div
-                id="repeals-relation-field"
-                class="{{ $selectedLegalStatus === 'mencabut' ? '' : 'hidden' }}"
-            >
+                id="regulation-relation-section"
+                class="{{ in_array($selectedLegalStatus, ['mencabut', 'dicabut', 'mengubah', 'diubah'], true) ? '' : 'hidden' }}" >
 
-                <label
-                    for="repeals_post_id"
-                    class="block text-sm font-medium text-gray-700"
-                >
-                    Regulasi yang Dicabut
-                </label>
+                <div class="mt-6 border-t border-purple-200 pt-6">
 
-                <select
-                    id="repeals_post_id"
-                    name="repeals_post_id"
-                    class="mt-1 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                >
+                    <div class="mb-4">
 
-                    <option value="">
-                        -- Pilih Regulasi yang Dicabut --
-                    </option>
+                        <h3 class="text-base font-semibold text-purple-900">
+                            Hubungan Regulasi
+                        </h3>
 
-                    @foreach (
-                        \App\Models\Post::query()
-                            ->where('type', 'regulation')
-                            ->where('id', '!=', $post?->id)
-                            ->where('status', '!=', 'archived')
-                            ->orderByDesc('regulation_year')
-                            ->orderBy('title')
-                            ->get()
-                        as $relatedPost
-                    )
-
-                        <option
-                            value="{{ $relatedPost->id }}"
-                            @selected(
-                                old(
-                                    'repeals_post_id',
-                                    $post?->repeals?->first()?->related_post_id
-                                ) == $relatedPost->id
-                            )
+                        <p
+                            id="regulation-relation-description"
+                            class="mt-1 text-sm text-purple-700"
                         >
-                            {{ $relatedPost->regulation_number
-                                ? $relatedPost->regulation_number . ' — '
-                                : ''
-                            }}
-                            {{ $relatedPost->title }}
-                        </option>
+                            Pilih regulasi yang berhubungan dengan status hukum ini.
+                        </p>
 
-                    @endforeach
+                    </div>
 
-                </select>
 
-                <p class="mt-1 text-xs text-gray-500">
-                    Pilih regulasi yang dicabut atau digantikan oleh regulasi ini.
-                </p>
+                    {{-- MENCABUT --}}
+                    <div
+                        id="repeals-relation-field"
+                        class="{{ $selectedLegalStatus === 'mencabut' ? '' : 'hidden' }}" >
 
-                @error('repeals_post_id')
-                    <p class="mt-1 text-sm text-red-600">
-                        {{ $message }}
-                    </p>
-                @enderror
+                        <label
+                            for="repeals_post_id"
+                            class="block text-sm font-medium text-gray-700"
+                        >
+                            Regulasi yang Dicabut
+                        </label>
+
+                        <select
+                            id="repeals_post_id"
+                            name="repeals_post_id"
+                            class="mt-1 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        >
+
+                            <option value="">
+                                -- Pilih Regulasi yang Dicabut --
+                            </option>
+
+                            @foreach (
+                                \App\Models\Post::query()
+                                    ->where('type', 'regulation')
+                                    ->where('id', '!=', $post?->id)
+                                    ->where('status', '!=', 'archived')
+                                    ->orderByDesc('regulation_year')
+                                    ->orderBy('title')
+                                    ->get()
+                                as $relatedPost
+                            )
+
+                                <option
+                                    value="{{ $relatedPost->id }}"
+                                    data-regulation-type-id="{{ $relatedPost->regulation_type_id }}"
+                                    @selected(
+                                        old(
+                                            'repeals_post_id',
+                                            $post?->repeals?->first()?->related_post_id
+                                        ) == $relatedPost->id
+                                    )
+                                >
+                                    {{ $relatedPost->regulation_number
+                                        ? $relatedPost->regulation_number . ' — '
+                                        : ''
+                                    }}
+                                    {{ $relatedPost->title }}
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                        <p class="mt-1 text-xs text-gray-500">
+                            Pilih regulasi yang dicabut atau digantikan oleh regulasi ini.
+                        </p>
+
+                        @error('repeals_post_id')
+                            <p class="mt-1 text-sm text-red-600">
+                                {{ $message }}
+                            </p>
+                        @enderror
+
+                    </div>
+
+
+                    {{-- DICABUT --}}
+                    <div
+                        id="repealed-by-relation-field"
+                        class="{{ $selectedLegalStatus === 'dicabut' ? '' : 'hidden' }}" >
+
+                        <label
+                            for="repealed_by_post_id"
+                            class="block text-sm font-medium text-gray-700"
+                        >
+                            Dicabut Oleh
+                        </label>
+
+                        <select
+                            id="repealed_by_post_id"
+                            name="repealed_by_post_id"
+                            class="mt-1 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        >
+
+                            <option value="">
+                                -- Pilih Regulasi yang Mencabut --
+                            </option>
+
+                            @foreach (
+                                \App\Models\Post::query()
+                                    ->where('type', 'regulation')
+                                    ->where('id', '!=', $post?->id)
+                                    ->where('status', '!=', 'archived')
+                                    ->orderByDesc('regulation_year')
+                                    ->orderBy('title')
+                                    ->get()
+                                as $relatedPost
+                            )
+
+                                <option
+                                    value="{{ $relatedPost->id }}"
+                                    data-regulation-type-id="{{ $relatedPost->regulation_type_id }}"
+                                    @selected(
+                                        old(
+                                            'repealed_by_post_id',
+                                            $post?->repealedBy?->first()?->post_id
+                                        ) == $relatedPost->id
+                                    )
+                                >
+                                    {{ $relatedPost->regulation_number
+                                        ? $relatedPost->regulation_number . ' — '
+                                        : ''
+                                    }}
+                                    {{ $relatedPost->title }}
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                        <p class="mt-1 text-xs text-gray-500">
+                            Pilih regulasi yang mencabut regulasi ini.
+                        </p>
+
+                        @error('repealed_by_post_id')
+                            <p class="mt-1 text-sm text-red-600">
+                                {{ $message }}
+                            </p>
+                        @enderror
+
+                    </div>
+
+
+                    {{-- MENGUBAH --}}
+                    <div
+                        id="amends-relation-field"
+                        class="{{ $selectedLegalStatus === 'mengubah' ? '' : 'hidden' }}" >
+
+                        <label
+                            for="amends_post_id"
+                            class="block text-sm font-medium text-gray-700"
+                        >
+                            Regulasi yang Diubah
+                        </label>
+
+                        <select
+                            id="amends_post_id"
+                            name="amends_post_id"
+                            class="mt-1 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        >
+
+                            <option value="">
+                                -- Pilih Regulasi yang Diubah --
+                            </option>
+
+                            @foreach (
+                                \App\Models\Post::query()
+                                    ->where('type', 'regulation')
+                                    ->where('id', '!=', $post?->id)
+                                    ->where('status', '!=', 'archived')
+                                    ->orderByDesc('regulation_year')
+                                    ->orderBy('title')
+                                    ->get()
+                                as $relatedPost
+                            )
+
+                                <option
+                                    value="{{ $relatedPost->id }}"
+                                data-regulation-type-id="{{ $relatedPost->regulation_type_id }}"
+                                @selected(
+                                    old(
+                                        'amends_post_id',
+                                        $post?->amends?->first()?->related_post_id
+                                    ) == $relatedPost->id
+                                )
+                            >
+                                    {{ $relatedPost->regulation_number
+                                        ? $relatedPost->regulation_number . ' — '
+                                        : ''
+                                    }}
+                                    {{ $relatedPost->title }}
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                        <p class="mt-1 text-xs text-gray-500">
+                            Pilih regulasi yang diubah oleh regulasi ini.
+                        </p>
+
+                        @error('amends_post_id')
+                            <p class="mt-1 text-sm text-red-600">
+                                {{ $message }}
+                            </p>
+                        @enderror
+
+                    </div>
+
+
+                    {{-- DIUBAH --}}
+                    <div
+                        id="amended-by-relation-field"
+                        class="{{ $selectedLegalStatus === 'diubah' ? '' : 'hidden' }}" >
+
+                        <label
+                            for="amended_by_post_id"
+                            class="block text-sm font-medium text-gray-700"
+                        >
+                            Diubah Oleh
+                        </label>
+
+                        <select
+                            id="amended_by_post_id"
+                            name="amended_by_post_id"
+                            class="mt-1 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        >
+
+                            <option value="">
+                                -- Pilih Regulasi yang Mengubah --
+                            </option>
+
+                            @foreach (
+                                \App\Models\Post::query()
+                                    ->where('type', 'regulation')
+                                    ->where('id', '!=', $post?->id)
+                                    ->where('status', '!=', 'archived')
+                                    ->orderByDesc('regulation_year')
+                                    ->orderBy('title')
+                                    ->get()
+                                as $relatedPost
+                            )
+
+                                <option
+                                    value="{{ $relatedPost->id }}"
+                                    data-regulation-type-id="{{ $relatedPost->regulation_type_id }}"
+                                    @selected(
+                                        old(
+                                            'amended_by_post_id',
+                                            $post?->amendedBy?->first()?->post_id
+                                        ) == $relatedPost->id
+                                    )
+                                >
+                                    {{ $relatedPost->regulation_number
+                                        ? $relatedPost->regulation_number . ' — '
+                                        : ''
+                                    }}
+                                    {{ $relatedPost->title }}
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                        <p class="mt-1 text-xs text-gray-500">
+                            Pilih regulasi yang mengubah regulasi ini.
+                        </p>
+
+                        @error('amended_by_post_id')
+                            <p class="mt-1 text-sm text-red-600">
+                                {{ $message }}
+                            </p>
+                        @enderror
+
+                    </div>
+
+                </div>
 
             </div>
-
-
-            {{-- DICABUT --}}
-            <div
-                id="repealed-by-relation-field"
-                class="{{ $selectedLegalStatus === 'dicabut' ? '' : 'hidden' }}"
-            >
-
-                <label
-                    for="repealed_by_post_id"
-                    class="block text-sm font-medium text-gray-700"
-                >
-                    Dicabut Oleh
-                </label>
-
-                <select
-                    id="repealed_by_post_id"
-                    name="repealed_by_post_id"
-                    class="mt-1 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                >
-
-                    <option value="">
-                        -- Pilih Regulasi yang Mencabut --
-                    </option>
-
-                    @foreach (
-                        \App\Models\Post::query()
-                            ->where('type', 'regulation')
-                            ->where('id', '!=', $post?->id)
-                            ->where('status', '!=', 'archived')
-                            ->orderByDesc('regulation_year')
-                            ->orderBy('title')
-                            ->get()
-                        as $relatedPost
-                    )
-
-                        <option
-                            value="{{ $relatedPost->id }}"
-                            @selected(
-                                old(
-                                    'repealed_by_post_id',
-                                    $post?->repealedBy?->first()?->post_id
-                                ) == $relatedPost->id
-                            )
-                        >
-                            {{ $relatedPost->regulation_number
-                                ? $relatedPost->regulation_number . ' — '
-                                : ''
-                            }}
-                            {{ $relatedPost->title }}
-                        </option>
-
-                    @endforeach
-
-                </select>
-
-                <p class="mt-1 text-xs text-gray-500">
-                    Pilih regulasi yang mencabut regulasi ini.
-                </p>
-
-                @error('repealed_by_post_id')
-                    <p class="mt-1 text-sm text-red-600">
-                        {{ $message }}
-                    </p>
-                @enderror
-
-            </div>
-
-
-            {{-- MENGUBAH --}}
-            <div
-                id="amends-relation-field"
-                class="{{ $selectedLegalStatus === 'mengubah' ? '' : 'hidden' }}"
-            >
-
-                <label
-                    for="amends_post_id"
-                    class="block text-sm font-medium text-gray-700"
-                >
-                    Regulasi yang Diubah
-                </label>
-
-                <select
-                    id="amends_post_id"
-                    name="amends_post_id"
-                    class="mt-1 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                >
-
-                    <option value="">
-                        -- Pilih Regulasi yang Diubah --
-                    </option>
-
-                    @foreach (
-                        \App\Models\Post::query()
-                            ->where('type', 'regulation')
-                            ->where('id', '!=', $post?->id)
-                            ->where('status', '!=', 'archived')
-                            ->orderByDesc('regulation_year')
-                            ->orderBy('title')
-                            ->get()
-                        as $relatedPost
-                    )
-
-                        <option
-                            value="{{ $relatedPost->id }}"
-                            @selected(
-                                old(
-                                    'amends_post_id',
-                                    $post?->amendments?->first()?->related_post_id
-                                ) == $relatedPost->id
-                            )
-                        >
-                            {{ $relatedPost->regulation_number
-                                ? $relatedPost->regulation_number . ' — '
-                                : ''
-                            }}
-                            {{ $relatedPost->title }}
-                        </option>
-
-                    @endforeach
-
-                </select>
-
-                <p class="mt-1 text-xs text-gray-500">
-                    Pilih regulasi yang diubah oleh regulasi ini.
-                </p>
-
-                @error('amends_post_id')
-                    <p class="mt-1 text-sm text-red-600">
-                        {{ $message }}
-                    </p>
-                @enderror
-
-            </div>
-
-
-            {{-- DIUBAH --}}
-            <div
-                id="amended-by-relation-field"
-                class="{{ $selectedLegalStatus === 'diubah' ? '' : 'hidden' }}"
-            >
-
-                <label
-                    for="amended_by_post_id"
-                    class="block text-sm font-medium text-gray-700"
-                >
-                    Diubah Oleh
-                </label>
-
-                <select
-                    id="amended_by_post_id"
-                    name="amended_by_post_id"
-                    class="mt-1 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                >
-
-                    <option value="">
-                        -- Pilih Regulasi yang Mengubah --
-                    </option>
-
-                    @foreach (
-                        \App\Models\Post::query()
-                            ->where('type', 'regulation')
-                            ->where('id', '!=', $post?->id)
-                            ->where('status', '!=', 'archived')
-                            ->orderByDesc('regulation_year')
-                            ->orderBy('title')
-                            ->get()
-                        as $relatedPost
-                    )
-
-                        <option
-                            value="{{ $relatedPost->id }}"
-                            @selected(
-                                old(
-                                    'amended_by_post_id',
-                                    $post?->amendedBy?->first()?->post_id
-                                ) == $relatedPost->id
-                            )
-                        >
-                            {{ $relatedPost->regulation_number
-                                ? $relatedPost->regulation_number . ' — '
-                                : ''
-                            }}
-                            {{ $relatedPost->title }}
-                        </option>
-
-                    @endforeach
-
-                </select>
-
-                <p class="mt-1 text-xs text-gray-500">
-                    Pilih regulasi yang mengubah regulasi ini.
-                </p>
-
-                @error('amended_by_post_id')
-                    <p class="mt-1 text-sm text-red-600">
-                        {{ $message }}
-                    </p>
-                @enderror
-
-            </div>
-
         </div>
 
     </div>
-
+    
 
     {{-- =========================================================
         JUDUL
@@ -1109,8 +1116,80 @@
         );
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Filter hubungan regulasi berdasarkan jenis regulasi
+        |--------------------------------------------------------------------------
+        |
+        | Perpres hanya boleh berhubungan dengan Perpres.
+        | Peraturan Lembaga hanya boleh berhubungan dengan Peraturan Lembaga.
+        | Demikian juga untuk jenis regulasi lainnya.
+        |
+        */
+        function filterRelatedRegulations() {
+
+            const regulationTypeId =
+                document.getElementById('regulation_type_id')?.value;
+
+            const relationSelectIds = [
+                'repeals_post_id',
+                'repealed_by_post_id',
+                'amends_post_id',
+                'amended_by_post_id',
+            ];
+
+            relationSelectIds.forEach(function (selectId) {
+
+                const select = document.getElementById(selectId);
+
+                if (!select) {
+                    return;
+                }
+
+                Array.from(select.options).forEach(function (option) {
+
+                    // Placeholder selalu ditampilkan.
+                    if (!option.value) {
+                        option.hidden = false;
+                        return;
+                    }
+
+                    const relatedTypeId =
+                        option.dataset.regulationTypeId;
+
+                    option.hidden =
+                        regulationTypeId &&
+                        relatedTypeId !== regulationTypeId;
+
+                });
+
+                // Jangan pertahankan pilihan yang berbeda jenis regulasinya.
+                const selectedOption =
+                    select.options[select.selectedIndex];
+
+                if (
+                    selectedOption &&
+                    selectedOption.value &&
+                    regulationTypeId &&
+                    selectedOption.dataset.regulationTypeId !== regulationTypeId
+                ) {
+                    select.value = '';
+                }
+            });
+        }
+
+
+        document
+            .getElementById('regulation_type_id')
+            ?.addEventListener(
+                'change',
+                filterRelatedRegulations
+            );
+
+
         toggleRegulationFields();
         toggleRegulationRelation();
+        filterRelatedRegulations();
 
     });
 

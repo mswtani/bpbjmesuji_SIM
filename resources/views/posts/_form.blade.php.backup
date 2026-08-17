@@ -88,8 +88,7 @@
 
     <div
         id="regulation-fields"
-        class="{{ $selectedType === 'regulation' ? '' : 'hidden' }}"
-    >
+        class="{{ $selectedType === 'regulation' ? '' : 'hidden' }}" >
 
         <div class="rounded-lg border border-purple-200 bg-purple-50 p-5">
 
@@ -369,7 +368,7 @@
                     id="document"
                     name="document"
                     type="file"
-                    accept="application/pdf,.pdf"
+                    accept="application/pdf,.pdf,application/zip,.zip,application/x-rar-compressed,.rar"
                     class="mt-1 block w-full text-sm text-gray-700
                         file:mr-4 file:rounded-md file:border-0
                         file:bg-white file:px-4 file:py-2
@@ -378,7 +377,8 @@
                 >
 
                 <p class="mt-1 text-xs text-gray-500">
-                    Format PDF. Maksimal 10 MB.
+                    Format PDF, ZIP, atau RAR. Maksimal 20 MB.
+                    PDF dapat dipreview langsung; ZIP/RAR hanya dapat didownload.
                 </p>
 
                 @error('document')
@@ -408,18 +408,23 @@
 
             </div>
 
+
             {{-- =================================================
                 HUBUNGAN REGULASI
+                Muncul hanya untuk status:
+                - Mencabut
+                - Dicabut
+                - Mengubah
+                - Diubah
             ================================================== --}}
 
             <div
-                id="regulation-relation-fields"
-                class="mt-5 hidden"
-            >
+                id="regulation-relation-section"
+                class="{{ in_array($selectedLegalStatus, ['mencabut', 'dicabut', 'mengubah', 'diubah'], true) ? '' : 'hidden' }}" >
 
-                <div class="rounded-lg border border-purple-200 bg-purple-50 p-5">
+                <div class="mt-6 border-t border-purple-200 pt-6">
 
-                    <div class="mb-5">
+                    <div class="mb-4">
 
                         <h3 class="text-base font-semibold text-purple-900">
                             Hubungan Regulasi
@@ -429,20 +434,16 @@
                             id="regulation-relation-description"
                             class="mt-1 text-sm text-purple-700"
                         >
-                            Pilih regulasi yang berhubungan dengan regulasi ini.
+                            Pilih regulasi yang berhubungan dengan status hukum ini.
                         </p>
 
                     </div>
 
 
-                    {{-- =================================================
-                        MENCABUT
-                    ================================================== --}}
-
+                    {{-- MENCABUT --}}
                     <div
-                        id="relation-repeals"
-                        class="hidden"
-                    >
+                        id="repeals-relation-field"
+                        class="{{ $selectedLegalStatus === 'mencabut' ? '' : 'hidden' }}" >
 
                         <label
                             for="repeals_post_id"
@@ -461,43 +462,55 @@
                                 -- Pilih Regulasi yang Dicabut --
                             </option>
 
-                            @foreach ($regulations ?? [] as $regulation)
+                            @foreach (
+                                \App\Models\Post::query()
+                                    ->where('type', 'regulation')
+                                    ->where('id', '!=', $post?->id)
+                                    ->where('status', '!=', 'archived')
+                                    ->orderByDesc('regulation_year')
+                                    ->orderBy('title')
+                                    ->get()
+                                as $relatedPost
+                            )
 
                                 <option
-                                    value="{{ $regulation->id }}"
+                                    value="{{ $relatedPost->id }}"
+                                    data-regulation-type-id="{{ $relatedPost->regulation_type_id }}"
                                     @selected(
                                         old(
                                             'repeals_post_id',
                                             $post?->repeals?->first()?->related_post_id
-                                        ) == $regulation->id
+                                        ) == $relatedPost->id
                                     )
                                 >
-                                    {{ $regulation->title }}
+                                    {{ $relatedPost->regulation_number
+                                        ? $relatedPost->regulation_number . ' — '
+                                        : ''
+                                    }}
+                                    {{ $relatedPost->title }}
                                 </option>
 
                             @endforeach
 
                         </select>
 
-                        @error('repeals_post_id')
+                        <p class="mt-1 text-xs text-gray-500">
+                            Pilih regulasi yang dicabut atau digantikan oleh regulasi ini.
+                        </p>
 
+                        @error('repeals_post_id')
                             <p class="mt-1 text-sm text-red-600">
                                 {{ $message }}
                             </p>
-
                         @enderror
 
                     </div>
 
 
-                    {{-- =================================================
-                        DICABUT
-                    ================================================== --}}
-
+                    {{-- DICABUT --}}
                     <div
-                        id="relation-repealed-by"
-                        class="hidden"
-                    >
+                        id="repealed-by-relation-field"
+                        class="{{ $selectedLegalStatus === 'dicabut' ? '' : 'hidden' }}" >
 
                         <label
                             for="repealed_by_post_id"
@@ -516,43 +529,55 @@
                                 -- Pilih Regulasi yang Mencabut --
                             </option>
 
-                            @foreach ($regulations ?? [] as $regulation)
+                            @foreach (
+                                \App\Models\Post::query()
+                                    ->where('type', 'regulation')
+                                    ->where('id', '!=', $post?->id)
+                                    ->where('status', '!=', 'archived')
+                                    ->orderByDesc('regulation_year')
+                                    ->orderBy('title')
+                                    ->get()
+                                as $relatedPost
+                            )
 
                                 <option
-                                    value="{{ $regulation->id }}"
+                                    value="{{ $relatedPost->id }}"
+                                    data-regulation-type-id="{{ $relatedPost->regulation_type_id }}"
                                     @selected(
                                         old(
                                             'repealed_by_post_id',
                                             $post?->repealedBy?->first()?->post_id
-                                        ) == $regulation->id
+                                        ) == $relatedPost->id
                                     )
                                 >
-                                    {{ $regulation->title }}
+                                    {{ $relatedPost->regulation_number
+                                        ? $relatedPost->regulation_number . ' — '
+                                        : ''
+                                    }}
+                                    {{ $relatedPost->title }}
                                 </option>
 
                             @endforeach
 
                         </select>
 
-                        @error('repealed_by_post_id')
+                        <p class="mt-1 text-xs text-gray-500">
+                            Pilih regulasi yang mencabut regulasi ini.
+                        </p>
 
+                        @error('repealed_by_post_id')
                             <p class="mt-1 text-sm text-red-600">
                                 {{ $message }}
                             </p>
-
                         @enderror
 
                     </div>
 
 
-                    {{-- =================================================
-                        MENGUBAH
-                    ================================================== --}}
-
+                    {{-- MENGUBAH --}}
                     <div
-                        id="relation-amends"
-                        class="hidden"
-                    >
+                        id="amends-relation-field"
+                        class="{{ $selectedLegalStatus === 'mengubah' ? '' : 'hidden' }}" >
 
                         <label
                             for="amends_post_id"
@@ -571,43 +596,55 @@
                                 -- Pilih Regulasi yang Diubah --
                             </option>
 
-                            @foreach ($regulations ?? [] as $regulation)
+                            @foreach (
+                                \App\Models\Post::query()
+                                    ->where('type', 'regulation')
+                                    ->where('id', '!=', $post?->id)
+                                    ->where('status', '!=', 'archived')
+                                    ->orderByDesc('regulation_year')
+                                    ->orderBy('title')
+                                    ->get()
+                                as $relatedPost
+                            )
 
                                 <option
-                                    value="{{ $regulation->id }}"
-                                    @selected(
-                                        old(
-                                            'amends_post_id',
-                                            $post?->amendments?->first()?->related_post_id
-                                        ) == $regulation->id
-                                    )
-                                >
-                                    {{ $regulation->title }}
+                                    value="{{ $relatedPost->id }}"
+                                data-regulation-type-id="{{ $relatedPost->regulation_type_id }}"
+                                @selected(
+                                    old(
+                                        'amended_by_post_id',
+                                        $post?->amendedBy?->first()?->post_id
+                                    ) == $relatedPost->id
+                                )
+                            >
+                                    {{ $relatedPost->regulation_number
+                                        ? $relatedPost->regulation_number . ' — '
+                                        : ''
+                                    }}
+                                    {{ $relatedPost->title }}
                                 </option>
 
                             @endforeach
 
                         </select>
 
-                        @error('amends_post_id')
+                        <p class="mt-1 text-xs text-gray-500">
+                            Pilih regulasi yang diubah oleh regulasi ini.
+                        </p>
 
+                        @error('amends_post_id')
                             <p class="mt-1 text-sm text-red-600">
                                 {{ $message }}
                             </p>
-
                         @enderror
 
                     </div>
 
 
-                    {{-- =================================================
-                        DIUBAH
-                    ================================================== --}}
-
+                    {{-- DIUBAH --}}
                     <div
-                        id="relation-amended-by"
-                        class="hidden"
-                    >
+                        id="amended-by-relation-field"
+                        class="{{ $selectedLegalStatus === 'diubah' ? '' : 'hidden' }}" >
 
                         <label
                             for="amended_by_post_id"
@@ -626,30 +663,45 @@
                                 -- Pilih Regulasi yang Mengubah --
                             </option>
 
-                            @foreach ($regulations ?? [] as $regulation)
+                            @foreach (
+                                \App\Models\Post::query()
+                                    ->where('type', 'regulation')
+                                    ->where('id', '!=', $post?->id)
+                                    ->where('status', '!=', 'archived')
+                                    ->orderByDesc('regulation_year')
+                                    ->orderBy('title')
+                                    ->get()
+                                as $relatedPost
+                            )
 
                                 <option
-                                    value="{{ $regulation->id }}"
+                                    value="{{ $relatedPost->id }}"
                                     @selected(
                                         old(
                                             'amended_by_post_id',
                                             $post?->amendedBy?->first()?->post_id
-                                        ) == $regulation->id
+                                        ) == $relatedPost->id
                                     )
                                 >
-                                    {{ $regulation->title }}
+                                    {{ $relatedPost->regulation_number
+                                        ? $relatedPost->regulation_number . ' — '
+                                        : ''
+                                    }}
+                                    {{ $relatedPost->title }}
                                 </option>
 
                             @endforeach
 
                         </select>
 
-                        @error('amended_by_post_id')
+                        <p class="mt-1 text-xs text-gray-500">
+                            Pilih regulasi yang mengubah regulasi ini.
+                        </p>
 
+                        @error('amended_by_post_id')
                             <p class="mt-1 text-sm text-red-600">
                                 {{ $message }}
                             </p>
-
                         @enderror
 
                     </div>
@@ -657,12 +709,10 @@
                 </div>
 
             </div>
-            
-
         </div>
 
     </div>
-
+    
 
     {{-- =========================================================
         JUDUL
@@ -902,44 +952,47 @@
 </form>
 
 
+{{-- =========================================================
+    JAVASCRIPT
+========================================================== --}}
+
 <script>
+
     document.addEventListener('DOMContentLoaded', function () {
 
-        const typeSelect =
-            document.getElementById('type');
+        const typeSelect = document.getElementById('type');
+        const regulationFields = document.getElementById('regulation-fields');
+        const legalStatusSelect = document.getElementById('legal_status');
 
-        const regulationFields =
-            document.getElementById('regulation-fields');
+        const regulationRelationSection =
+            document.getElementById('regulation-relation-section');
 
-        const legalStatus =
-            document.getElementById('legal_status');
+        const repealsRelationField =
+            document.getElementById('repeals-relation-field');
 
-        const relationFields =
-            document.getElementById('regulation-relation-fields');
+        const repealedByRelationField =
+            document.getElementById('repealed-by-relation-field');
 
-        const relationRepeals =
-            document.getElementById('relation-repeals');
+        const amendsRelationField =
+            document.getElementById('amends-relation-field');
 
-        const relationRepealedBy =
-            document.getElementById('relation-repealed-by');
-
-        const relationAmends =
-            document.getElementById('relation-amends');
-
-        const relationAmendedBy =
-            document.getElementById('relation-amended-by');
+        const amendedByRelationField =
+            document.getElementById('amended-by-relation-field');
 
         const relationDescription =
-            document.getElementById(
-                'regulation-relation-description'
-            );
+            document.getElementById('regulation-relation-description');
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Toggle Data Regulasi
-        |--------------------------------------------------------------------------
-        */
+        function hideAllRelationFields() {
+
+            regulationRelationSection?.classList.add('hidden');
+            repealsRelationField?.classList.add('hidden');
+            repealedByRelationField?.classList.add('hidden');
+            amendsRelationField?.classList.add('hidden');
+            amendedByRelationField?.classList.add('hidden');
+
+        }
+
 
         function toggleRegulationFields() {
 
@@ -955,103 +1008,54 @@
 
                 regulationFields.classList.add('hidden');
 
-                if (relationFields) {
-                    relationFields.classList.add('hidden');
-                }
+                hideAllRelationFields();
             }
-
-            toggleRelationFields();
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Toggle Hubungan Regulasi
-        |--------------------------------------------------------------------------
-        */
+        function toggleRegulationRelation() {
 
-        function toggleRelationFields() {
+            if (!legalStatusSelect) {
+                return;
+            }
 
+            const status = legalStatusSelect.value;
+
+            hideAllRelationFields();
+
+
+            // Berlaku / Tidak Berlaku
             if (
-                !legalStatus ||
-                !relationFields
+                status === '' ||
+                status === 'berlaku' ||
+                status === 'tidak_berlaku'
             ) {
                 return;
             }
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Sembunyikan semuanya terlebih dahulu
-            |--------------------------------------------------------------------------
-            */
+            // Mencabut
+            if (status === 'mencabut') {
 
-            relationFields.classList.add('hidden');
-
-            relationRepeals?.classList.add('hidden');
-
-            relationRepealedBy?.classList.add('hidden');
-
-            relationAmends?.classList.add('hidden');
-
-            relationAmendedBy?.classList.add('hidden');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Berlaku / Tidak Berlaku
-            |--------------------------------------------------------------------------
-            |
-            | Tidak mempunyai hubungan regulasi wajib.
-            |
-            */
-
-            if (
-                legalStatus.value === 'berlaku' ||
-                legalStatus.value === 'tidak_berlaku' ||
-                legalStatus.value === ''
-            ) {
-
-                return;
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Mencabut
-            |--------------------------------------------------------------------------
-            */
-
-            if (legalStatus.value === 'mencabut') {
-
-                relationFields.classList.remove('hidden');
-
-                relationRepeals?.classList.remove('hidden');
+                regulationRelationSection?.classList.remove('hidden');
+                repealsRelationField?.classList.remove('hidden');
 
                 if (relationDescription) {
-
                     relationDescription.textContent =
-                        'Pilih regulasi yang dicabut oleh regulasi ini.';
+                        'Pilih regulasi yang dicabut atau digantikan oleh regulasi ini.';
                 }
 
                 return;
             }
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Dicabut
-            |--------------------------------------------------------------------------
-            */
+            // Dicabut
+            if (status === 'dicabut') {
 
-            if (legalStatus.value === 'dicabut') {
-
-                relationFields.classList.remove('hidden');
-
-                relationRepealedBy?.classList.remove('hidden');
+                regulationRelationSection?.classList.remove('hidden');
+                repealedByRelationField?.classList.remove('hidden');
 
                 if (relationDescription) {
-
                     relationDescription.textContent =
                         'Pilih regulasi yang mencabut regulasi ini.';
                 }
@@ -1060,20 +1064,13 @@
             }
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Mengubah
-            |--------------------------------------------------------------------------
-            */
+            // Mengubah
+            if (status === 'mengubah') {
 
-            if (legalStatus.value === 'mengubah') {
-
-                relationFields.classList.remove('hidden');
-
-                relationAmends?.classList.remove('hidden');
+                regulationRelationSection?.classList.remove('hidden');
+                amendsRelationField?.classList.remove('hidden');
 
                 if (relationDescription) {
-
                     relationDescription.textContent =
                         'Pilih regulasi yang diubah oleh regulasi ini.';
                 }
@@ -1082,53 +1079,40 @@
             }
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Diubah
-            |--------------------------------------------------------------------------
-            */
+            // Diubah
+            if (status === 'diubah') {
 
-            if (legalStatus.value === 'diubah') {
-
-                relationFields.classList.remove('hidden');
-
-                relationAmendedBy?.classList.remove('hidden');
+                regulationRelationSection?.classList.remove('hidden');
+                amendedByRelationField?.classList.remove('hidden');
 
                 if (relationDescription) {
-
                     relationDescription.textContent =
                         'Pilih regulasi yang mengubah regulasi ini.';
                 }
-
-                return;
             }
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Event
-        |--------------------------------------------------------------------------
-        */
+        typeSelect?.addEventListener('change', function () {
 
-        typeSelect?.addEventListener(
+            toggleRegulationFields();
+
+            if (typeSelect.value === 'regulation') {
+                toggleRegulationRelation();
+            }
+
+        });
+
+
+        legalStatusSelect?.addEventListener(
             'change',
-            toggleRegulationFields
+            toggleRegulationRelation
         );
 
-        legalStatus?.addEventListener(
-            'change',
-            toggleRelationFields
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Initial state
-        |--------------------------------------------------------------------------
-        */
 
         toggleRegulationFields();
+        toggleRegulationRelation();
 
     });
+
 </script>

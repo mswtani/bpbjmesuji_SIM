@@ -45,16 +45,34 @@
                         Tidak Berlaku
                     </span>
 
+                @elseif ($post->legal_status === 'mencabut')
+
+                    <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-800">
+                        Mencabut
+                    </span>
+
                 @elseif ($post->legal_status === 'dicabut')
 
                     <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-800">
                         Dicabut
                     </span>
 
+                @elseif ($post->legal_status === 'mengubah')
+
+                    <span class="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">
+                        Mengubah
+                    </span>
+
                 @elseif ($post->legal_status === 'diubah')
 
                     <span class="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">
                         Diubah
+                    </span>
+
+                @else
+
+                    <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
+                        Belum ditentukan
                     </span>
 
                 @endif
@@ -380,7 +398,7 @@
                                     <div class="rounded-lg border border-red-200 bg-red-50 p-4">
 
                                         <p class="text-xs font-semibold uppercase tracking-wide text-red-800">
-                                            Dicabut Dengan
+                                            Dicabut Oleh
                                         </p>
 
                                         <a
@@ -440,17 +458,9 @@
                             </div>
 
 
-                            @if ($post->document_path)
-
-                                <a
-                                    href="{{ asset('storage/' . $post->document_path) }}"
-                                    download
-                                    class="inline-flex shrink-0 items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-                                >
-                                    Download PDF
-                                </a>
-
-                            @endif
+                            <a href="{{ asset('storage/' . $post->document_path) }}" download >
+                                Download Dokumen
+                            </a>
 
                         </div>
 
@@ -463,11 +473,152 @@
 
                             <div class="bg-gray-100 p-2 sm:p-4">
 
-                                <iframe
-                                    src="{{ asset('storage/' . $post->document_path) }}"
-                                    title="Preview {{ $post->title }}"
-                                    class="h-[700px] w-full rounded-lg border border-gray-300 bg-white"
-                                ></iframe>
+                                {{-- =====================================================
+                                    DOKUMEN REGULASI
+                                ====================================================== --}}
+
+                                <main class="lg:col-span-2">
+
+                                    @if ($post->document_path)
+
+                                        @php
+                                            $documentExtension = strtolower(
+                                                pathinfo(
+                                                    $post->document_path,
+                                                    PATHINFO_EXTENSION
+                                                )
+                                            );
+
+                                            $isPdf = $documentExtension === 'pdf';
+
+                                            $downloadLabel = match ($documentExtension) {
+                                                'pdf' => 'Download PDF',
+                                                'zip' => 'Download ZIP',
+                                                'rar' => 'Download RAR',
+                                                default => 'Download Dokumen',
+                                            };
+                                        @endphp
+
+                                        <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+
+                                            {{-- Header Dokumen --}}
+                                            <div class="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+
+                                                <div>
+
+                                                    <h2 class="font-semibold text-gray-900">
+                                                        Dokumen Regulasi
+                                                    </h2>
+
+                                                    @if ($post->document_original_name)
+
+                                                        <p class="mt-1 max-w-xl truncate text-xs text-gray-500">
+                                                            {{ $post->document_original_name }}
+                                                        </p>
+
+                                                    @endif
+
+                                                </div>
+
+
+                                                {{-- Download hanya melalui klik --}}
+                                                <a
+                                                    href="{{ asset('storage/' . $post->document_path) }}"
+                                                    download
+                                                    class="inline-flex shrink-0 items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                                                >
+                                                    {{ $downloadLabel }}
+                                                </a>
+
+                                            </div>
+
+
+                                            {{-- =================================================
+                                                PREVIEW HANYA UNTUK PDF
+                                            ================================================== --}}
+
+                                            @if (
+                                                $isPdf &&
+                                                \Illuminate\Support\Facades\Storage::disk('public')->exists(
+                                                    $post->document_path
+                                                )
+                                            )
+
+                                                <div class="bg-gray-100 p-2 sm:p-4">
+
+                                                    <iframe
+                                                        src="{{ asset('storage/' . $post->document_path) }}"
+                                                        title="Preview {{ $post->title }}"
+                                                        class="h-[700px] w-full rounded-lg border border-gray-300 bg-white"
+                                                    ></iframe>
+
+                                                </div>
+
+                                            @else
+
+                                                {{-- ZIP / RAR tidak boleh dimasukkan iframe --}}
+                                                <div class="flex min-h-[250px] items-center justify-center p-8 text-center">
+
+                                                    <div>
+
+                                                        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
+
+                                                            <svg
+                                                                class="h-7 w-7 text-gray-500"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path
+                                                                    stroke-linecap="round"
+                                                                    stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M12 4v16m8-8H4"
+                                                                />
+                                                            </svg>
+
+                                                        </div>
+
+                                                        <p class="font-medium text-gray-900">
+                                                            Dokumen tersedia untuk diunduh
+                                                        </p>
+
+                                                        <p class="mt-1 text-sm text-gray-500">
+                                                            Format dokumen:
+                                                            <span class="font-medium uppercase">
+                                                                {{ $documentExtension }}
+                                                            </span>
+                                                        </p>
+
+                                                    </div>
+
+                                                </div>
+
+                                            @endif
+
+                                        </div>
+
+                                    @else
+
+                                        <div class="flex min-h-[250px] items-center justify-center rounded-xl border border-gray-200 bg-white p-8 text-center shadow-sm">
+
+                                            <div>
+
+                                                <p class="font-medium text-gray-900">
+                                                    Dokumen belum tersedia
+                                                </p>
+
+                                                <p class="mt-1 text-sm text-gray-500">
+                                                    Dokumen regulasi belum diunggah.
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+
+                                    @endif
+
+                                </main>
 
                             </div>
 
