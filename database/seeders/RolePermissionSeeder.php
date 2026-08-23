@@ -24,5 +24,18 @@ class RolePermissionSeeder extends Seeder
         $superAdmin->permissions()->sync(
             $permissionIds
         );
+
+        $admin = Role::where('code', 'ADMIN')->first();
+
+        if ($admin) {
+            $adminPermissionIds = Permission::whereIn('code', [
+                'helpdesk.view',
+                'helpdesk.reply',
+            ])->pluck('id');
+
+            $admin->permissions()->syncWithoutDetaching(
+                $adminPermissionIds
+            );
+        }
     }
 }

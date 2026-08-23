@@ -19,6 +19,10 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             PositionSeeder::class,
             UserSeeder::class,
+            HelpdeskCategorySeeder::class,
         ]);
+
+
+        
     }
 }

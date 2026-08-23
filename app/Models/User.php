@@ -77,6 +77,37 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Tiket Helpdesk yang dibuat oleh user.
+     */
+    public function helpdeskTickets(): HasMany
+    {
+        return $this->hasMany(
+            HelpdeskTicket::class
+        );
+    }
+
+    /**
+     * Pesan Helpdesk yang dibuat oleh user.
+     */
+    public function helpdeskMessages(): HasMany
+    {
+        return $this->hasMany(
+            HelpdeskMessage::class
+        );
+    }
+
+    /**
+     * Lampiran Helpdesk yang diunggah oleh user.
+     */
+    public function helpdeskAttachments(): HasMany
+    {
+        return $this->hasMany(
+            HelpdeskAttachment::class,
+            'uploaded_by_user_id'
+        );
+    }
+
+    /**
      * Mengecek role berdasarkan kode role.
      */
     public function hasRole(string $roleCode): bool

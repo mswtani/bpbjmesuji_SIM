@@ -7,6 +7,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PublicPostController;
+use App\Http\Controllers\PublicHelpdeskController;
+use App\Http\Controllers\HelpdeskController;
 
 
 /*
@@ -37,24 +39,24 @@ Route::get('/dashboard', function () {
     ->name('dashboard');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Public Regulation Documents
-    |--------------------------------------------------------------------------
-    |
-    | Preview dan download dokumen regulasi harus dapat
-    | diakses oleh masyarakat tanpa login.
-    |
-    */
-    Route::get(
-        'posts/{post}/document/preview',
-        [PostController::class, 'previewDocument']
-    )->name('posts.document.preview');
+/*
+|--------------------------------------------------------------------------
+| Public Regulation Documents
+|--------------------------------------------------------------------------
+|
+| Preview dan download dokumen regulasi harus dapat
+| diakses oleh masyarakat tanpa login.
+|
+*/
+Route::get(
+    'posts/{post}/document/preview',
+    [PostController::class, 'previewDocument']
+)->name('posts.document.preview');
 
-    Route::get(
-        'posts/{post}/document/download',
-        [PostController::class, 'downloadDocument']
-    )->name('posts.document.download');
+Route::get(
+    'posts/{post}/document/download',
+    [PostController::class, 'downloadDocument']
+)->name('posts.document.download');
 /*
 |--------------------------------------------------------------------------
 | Authenticated Routes
@@ -137,6 +139,62 @@ Route::middleware('auth')->group(function () {
 
 
 
+         /*
+    |--------------------------------------------------------------------------
+    | Helpdesk
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/helpdesk-admin',
+        [HelpdeskController::class, 'index']
+        )->middleware('permission:helpdesk.view')
+        ->name('helpdesk.admin.index');
+
+    Route::get(
+        '/helpdesk-admin/tiket/{ticketNumber}',
+        [HelpdeskController::class, 'show']
+        )->middleware('permission:helpdesk.view')
+        ->name('helpdesk.admin.show');
+
+    Route::patch(
+        '/helpdesk-admin/tiket/{ticketNumber}/kelola',
+        [HelpdeskController::class, 'updateTicket']
+        )->middleware('permission:helpdesk.manage')
+        ->name('helpdesk.admin.ticket.update');
+
+    Route::post(
+        '/helpdesk-admin/tiket/{ticketNumber}/balas',
+        [HelpdeskController::class, 'reply']
+        )->middleware('permission:helpdesk.reply')
+        ->name('helpdesk.admin.reply');
+
+    Route::patch(
+        '/helpdesk-admin/tiket/{ticketNumber}/pesan/{message}',
+        [HelpdeskController::class, 'updateMessage']
+        )->middleware('permission:helpdesk.manage')
+        ->name('helpdesk.admin.message.update');
+
+    Route::delete(
+        '/helpdesk-admin/tiket/{ticketNumber}/pesan/{message}',
+        [HelpdeskController::class, 'deleteMessage']
+        )->middleware('permission:helpdesk.manage')
+        ->name('helpdesk.admin.message.delete');
+
+    Route::get(
+        '/helpdesk-admin/tiket/{ticketNumber}/attachment/{attachment}/view',
+        [HelpdeskController::class, 'viewAttachment']
+        )->middleware('permission:helpdesk.view')
+        ->name('helpdesk.admin.attachment.view');
+
+    Route::get(
+        '/helpdesk-admin/tiket/{ticketNumber}/attachment/{attachment}/download',
+        [HelpdeskController::class, 'downloadAttachment']
+        )->middleware('permission:helpdesk.view')
+        ->name('helpdesk.admin.attachment.download');
+
+
+
         /*
     |--------------------------------------------------------------------------
     | Content Management
@@ -155,7 +213,7 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:posts.create')
         ->name('posts.store');
 
-        Route::get('/posts/{post}', [PostController::class, 'show'])
+    Route::get('/posts/{post}', [PostController::class, 'show'])
         ->middleware('permission:posts.view')
         ->name('posts.show');
 
@@ -260,6 +318,38 @@ Route::get('/regulasi', [PublicPostController::class, 'regulations'])
 Route::get('/regulasi/{slug}', [PublicPostController::class, 'regulationShow'])
     ->name('public.regulations.show');
 
+
+
+/*
+|--------------------------------------------------------------------------
+| Public Helpdesk
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+        '/helpdesk',
+        [PublicHelpdeskController::class, 'index']
+    )->name('helpdesk.index');
+
+Route::get(
+        '/helpdesk/{slug}',
+        [PublicHelpdeskController::class, 'create']
+    )->name('helpdesk.create');
+
+Route::post(
+    '/helpdesk/{slug}',
+    [PublicHelpdeskController::class, 'store']
+    )->name('helpdesk.store');
+
+Route::get(
+    '/helpdesk/tiket/{ticketNumber}',
+    [PublicHelpdeskController::class, 'showTicket']
+    )->name('helpdesk.ticket');
+
+Route::post(
+    '/helpdesk/tiket/{ticketNumber}/messages',
+    [PublicHelpdeskController::class, 'storeMessage']
+    )->name('helpdesk.ticket.messages.store');
 
 /*
 |--------------------------------------------------------------------------

@@ -129,6 +129,30 @@ class PermissionSeeder extends Seeder
                 'name' => 'Hapus Konten',
                 'description' => 'Menghapus berita, pengumuman, atau regulasi.',
             ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Helpdesk Management
+            |--------------------------------------------------------------------------
+            */
+
+            [
+                'code' => 'helpdesk.view',
+                'name' => 'Lihat Helpdesk',
+                'description' => 'Melihat daftar dan detail tiket Helpdesk.',
+            ],
+
+            [
+                'code' => 'helpdesk.reply',
+                'name' => 'Balas Helpdesk',
+                'description' => 'Membalas pesan pada tiket Helpdesk.',
+            ],
+
+            [
+                'code' => 'helpdesk.manage',
+                'name' => 'Kelola Helpdesk',
+                'description' => 'Mengelola status dan prioritas tiket Helpdesk.',
+            ],
         ];
 
 

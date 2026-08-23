@@ -51,7 +51,144 @@
 
     @endif
 
+    {{-- Search & FIlter --}}
+    <div class="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
 
+        <form
+            method="GET"
+            action="{{ route('posts.index') }}"
+            class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5"
+        >
+
+            {{-- Search --}}
+            <div class="lg:col-span-2">
+                <label
+                    for="search"
+                    class="mb-1.5 block text-sm font-medium text-gray-700"
+                >
+                    Pencarian
+                </label>
+
+                <input
+                    type="search"
+                    id="search"
+                    name="search"
+                    value="{{ $search }}"
+                    placeholder="Judul, slug, atau nomor regulasi..."
+                    class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500"
+                >
+            </div>
+
+
+            {{-- Jenis --}}
+            <div>
+                <label
+                    for="type"
+                    class="mb-1.5 block text-sm font-medium text-gray-700"
+                >
+                    Jenis
+                </label>
+
+                <select
+                    id="type"
+                    name="type"
+                    class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 pr-8 text-sm text-gray-700 focus:border-indigo-500 focus:ring-indigo-500"
+                >
+                    <option value="">Semua Jenis</option>
+
+                    <option
+                        value="news"
+                        @selected($type === 'news')
+                    >
+                        Berita
+                    </option>
+
+                    <option
+                        value="announcement"
+                        @selected($type === 'announcement')
+                    >
+                        Pengumuman
+                    </option>
+
+                    <option
+                        value="regulation"
+                        @selected($type === 'regulation')
+                    >
+                        Regulasi
+                    </option>
+                </select>
+            </div>
+
+
+            {{-- Status --}}
+            <div>
+                <label
+                    for="status"
+                    class="mb-1.5 block text-sm font-medium text-gray-700"
+                >
+                    Status
+                </label>
+
+                <select
+                    id="status"
+                    name="status"
+                    class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 pr-8 text-sm text-gray-700 focus:border-indigo-500 focus:ring-indigo-500"
+                >
+                    <option value="">Semua Status</option>
+
+                    <option
+                        value="draft"
+                        @selected($status === 'draft')
+                    >
+                        Draft
+                    </option>
+
+                    <option
+                        value="published"
+                        @selected($status === 'published')
+                    >
+                        Published
+                    </option>
+
+                    <option
+                        value="archived"
+                        @selected($status === 'archived')
+                    >
+                        Archived
+                    </option>
+                </select>
+            </div>
+
+
+            {{-- Tombol --}}
+            <div class="flex items-end gap-2">
+
+                <button
+                    type="submit"
+                    class="inline-flex flex-1 items-center justify-center rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700"
+                >
+                    Cari
+                </button>
+
+                @if ($search !== '' || $type !== null || $status !== null)
+
+                    <a
+                        href="{{ route('posts.index') }}"
+                        class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                        Reset
+                    </a>
+
+                @endif
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    
     {{-- Table --}}
     <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
 
@@ -62,6 +199,12 @@
                 <thead class="bg-gray-50">
 
                     <tr>
+                        <th
+                            scope="col"
+                            class="w-16 px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-500"
+                        >
+                            No.
+                        </th>
 
                         <th
                             scope="col"
@@ -112,9 +255,14 @@
 
                 <tbody class="divide-y divide-gray-200 bg-white">
 
-                    @forelse ($posts as $post)
+                   @forelse ($posts as $post)
 
                         <tr class="hover:bg-gray-50">
+
+                            {{-- Nomor --}}
+                            <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
+                                {{ $posts->firstItem() + $loop->index }}
+                            </td>
 
                             {{-- Konten --}}
                             <td class="px-6 py-4">
@@ -358,15 +506,73 @@
 
 
         {{-- Pagination --}}
-        @if ($posts->hasPages())
+        <div class="border-t border-gray-200 px-6 py-4">
 
-            <div class="border-t border-gray-200 px-6 py-4">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
-                {{ $posts->links() }}
+                {{-- Jumlah data --}}
+                <form
+                    method="GET"
+                    action="{{ route('posts.index') }}"
+                    class="flex items-center gap-2"
+                >
+                    <label
+                        for="per_page"
+                        class="text-sm text-gray-600"
+                    >
+                        Tampilkan
+                    </label>
+
+                    <select
+                        id="per_page"
+                        name="per_page"
+                        onchange="this.form.submit()"
+                        class="w-16 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-indigo-500 focus:ring-indigo-500"
+                    >
+                        @foreach ([10, 25, 50, 100] as $option)
+                            <option
+                                value="{{ $option }}"
+                                @selected($perPage === $option)
+                            >
+                                {{ $option }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <span class="text-sm text-gray-600">
+                        data
+                    </span>
+                </form>
+
+
+                {{-- Informasi data --}}
+                <p class="text-sm text-gray-600">
+                    Menampilkan
+                    <span class="font-medium text-gray-900">
+                        {{ $posts->firstItem() ?? 0 }}
+                    </span>
+                    –
+                    <span class="font-medium text-gray-900">
+                        {{ $posts->lastItem() ?? 0 }}
+                    </span>
+                    dari
+                    <span class="font-medium text-gray-900">
+                        {{ $posts->total() }}
+                    </span>
+                    konten
+                </p>
+
+
+                {{-- Navigation --}}
+                @if ($posts->hasPages())
+                    <div>
+                        {{ $posts->links() }}
+                    </div>
+                @endif
 
             </div>
 
-        @endif
+        </div>
 
     </div>
 

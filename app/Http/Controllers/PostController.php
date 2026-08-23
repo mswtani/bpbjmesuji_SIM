@@ -17,16 +17,70 @@ class PostController extends Controller
     /**
      * Menampilkan daftar konten.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $posts = Post::with([
+        $perPage = (int) $request->query('per_page', 10);
+
+        if (! in_array($perPage, [10, 25, 50, 100], true)) {
+            $perPage = 10;
+        }
+
+        $search = trim($request->query('search', ''));
+
+        $type = $request->query('type');
+
+        if (! in_array($type, [
+            'news',
+            'announcement',
+            'regulation',
+        ], true)) {
+            $type = null;
+        }
+
+        $status = $request->query('status');
+
+        if (! in_array($status, [
+            'draft',
+            'published',
+            'archived',
+        ], true)) {
+            $status = null;
+        }
+
+        $posts = Post::query()
+            ->with([
                 'author',
                 'regulationType',
             ])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query
+                        ->where('title', 'like', '%' . $search . '%')
+                        ->orWhere('slug', 'like', '%' . $search . '%')
+                        ->orWhere(
+                            'regulation_number',
+                            'like',
+                            '%' . $search . '%'
+                        );
+                });
+            })
+            ->when($type, function ($query) use ($type) {
+                $query->where('type', $type);
+            })
+            ->when($status, function ($query) use ($status) {
+                $query->where('status', $status);
+            })
             ->latest()
-            ->paginate(15);
+            ->paginate($perPage)
+            ->withQueryString();
 
-        return view('posts.index', compact('posts'));
+        return view('posts.index', [
+            'posts' => $posts,
+            'perPage' => $perPage,
+            'search' => $search,
+            'type' => $type,
+            'status' => $status,
+        ]);
     }
 
 
@@ -37,8 +91,6 @@ class PostController extends Controller
     {
         $regulations = Post::query()
             ->where('type', 'regulation')
-            ->whereKeyNot($post->id)
-            ->where('regulation_type_id', $post->regulation_type_id)
             ->orderByDesc('regulation_year')
             ->orderBy('title')
             ->get();
