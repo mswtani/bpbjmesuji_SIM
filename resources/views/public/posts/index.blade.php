@@ -37,7 +37,7 @@
                         <img
                             src="{{ asset('storage/' . $post->featured_image) }}"
                             alt="{{ $post->title }}"
-                            class="h-52 w-full object-cover"
+                            class="h-52 w-full object-contain bg-gray-50"
                         >
                     </a>
 
@@ -111,13 +111,9 @@
     </div>
 
 
-    @if ($posts->hasPages())
-
-        <div class="mt-8">
-            {{ $posts->links() }}
-        </div>
-
-    @endif
+    <div class="mt-8">
+        <x-public.pagination :paginator="$posts" />
+    </div>
 
 </div>
 

@@ -286,50 +286,78 @@
 
             @if ($posts->count())
 
-                <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div class="space-y-4">
 
                     @foreach ($posts as $post)
 
-                        <article
-                            class="flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-                        >
+                        <article class="relative cursor-pointer rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-indigo-200 hover:shadow-md sm:p-6"onclick="window.location='{{ route('public.regulations.show', $post->slug) }}'">
 
-                            {{-- Card header --}}
-                            <div class="border-b border-gray-100 bg-gray-50 px-5 py-4">
+                            {{-- Header --}}
+                            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 
-                                <div class="flex flex-wrap items-center gap-2">
+                                <div class="min-w-0">
 
+                                    {{-- Jenis Regulasi --}}
                                     @if ($post->regulationType)
 
-                                        <span class="rounded-full bg-purple-100 px-2.5 py-1 text-xs font-medium text-purple-800">
+                                        <p class="text-xs font-semibold uppercase tracking-wide text-indigo-600">
                                             {{ $post->regulationType->name }}
-                                        </span>
+                                        </p>
 
                                     @endif
 
 
+                                    {{-- Judul --}}
+                                    <h3 class="mt-1 text-lg font-semibold leading-7 text-gray-900">
+                                        {{ $post->title }}
+                                    </h3>
+
+                                </div>
+
+
+                                {{-- Status Hukum --}}
+                                <div class="shrink-0">
+
                                     @if ($post->legal_status === 'berlaku')
 
-                                        <span class="rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-800">
+                                        <span class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
                                             Berlaku
                                         </span>
 
-                                    @elseif ($post->legal_status === 'tidak_berlaku')
+                                    @elseif ($post->legal_status === 'mengubah')
 
-                                        <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
-                                            Tidak Berlaku
+                                        <span class="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
+                                            Mengubah
                                         </span>
 
                                     @elseif ($post->legal_status === 'dicabut')
 
-                                        <span class="rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-800">
+                                        <span class="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
                                             Dicabut
+                                        </span>
+
+                                    @elseif ($post->legal_status === 'mencabut')
+
+                                        <span class="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">
+                                            Mencabut
                                         </span>
 
                                     @elseif ($post->legal_status === 'diubah')
 
-                                        <span class="rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-medium text-yellow-800">
+                                        <span class="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
                                             Diubah
+                                        </span>
+
+                                    @elseif ($post->legal_status === 'tidak_berlaku')
+
+                                        <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
+                                            Tidak Berlaku
+                                        </span>
+
+                                    @elseif ($post->legal_status)
+
+                                        <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
+                                            {{ ucfirst(str_replace('_', ' ', $post->legal_status)) }}
                                         </span>
 
                                     @endif
@@ -339,91 +367,82 @@
                             </div>
 
 
-                            {{-- Card body --}}
-                            <div class="flex flex-1 flex-col p-5">
+                            {{-- Metadata --}}
+                            {{-- <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-gray-500">
 
                                 @if ($post->regulation_number)
 
-                                    <p class="text-sm font-semibold text-gray-900">
-                                        {{ $post->regulation_number }}
-                                    </p>
+                                    <span>
+                                        Nomor:
+                                        <span class="font-medium text-gray-700">
+                                            {{ $post->regulation_number }}
+                                        </span>
+                                    </span>
 
                                 @endif
 
 
-                                <h3 class="mt-2 text-lg font-semibold leading-7 text-gray-900">
+                                @if ($post->regulation_year)
 
-                                    <a
-                                        href="{{ route('public.regulations.show', $post->slug) }}"
-                                        class="hover:text-indigo-600"
-                                    >
-                                        {{ $post->title }}
-                                    </a>
-
-                                </h3>
-
-
-                                <div class="mt-4 space-y-1 text-sm text-gray-500">
-
-                                    @if ($post->regulation_year)
-
-                                        <p>
-                                            Tahun:
-                                            <span class="font-medium text-gray-700">
-                                                {{ $post->regulation_year }}
-                                            </span>
-                                        </p>
-
-                                    @endif
-
-
-                                    @if ($post->regulation_date)
-
-                                        <p>
-                                            Tanggal:
-                                            <span class="font-medium text-gray-700">
-                                                {{ $post->regulation_date->format('d M Y') }}
-                                            </span>
-                                        </p>
-
-                                    @endif
-
-                                </div>
-
-
-                                @if ($post->excerpt)
-
-                                    <p class="mt-4 line-clamp-3 text-sm leading-6 text-gray-600">
-                                        {{ $post->excerpt }}
-                                    </p>
+                                    <span>
+                                        Tahun:
+                                        <span class="font-medium text-gray-700">
+                                            {{ $post->regulation_year }}
+                                        </span>
+                                    </span>
 
                                 @endif
 
 
-                                <div class="mt-auto pt-6">
+                                @if ($post->regulation_date)
 
-                                    <a
-                                        href="{{ route('public.regulations.show', $post->slug) }}"
-                                        class="inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-800"
+                                    <span>
+                                        Tanggal:
+                                        <span class="font-medium text-gray-700">
+                                            {{ $post->regulation_date->format('d/m/Y') }}
+                                        </span>
+                                    </span>
+
+                                @endif
+
+                            </div> --}}
+
+
+                            {{-- Ringkasan --}}
+                            {{-- @if ($post->excerpt)
+
+                                <p class="mt-4 line-clamp-2 text-sm leading-6 text-gray-600">
+                                    {{ $post->excerpt }}
+                                </p>
+
+                            @endif --}}
+
+
+                            {{-- Footer --}}
+                            <div class="mt-2 flex items-center justify-end border-t border-gray-100 pt-1">
+
+                                <a
+                                    href="{{ route('public.regulations.show', $post->slug) }}"
+                                    class="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-800"
+                                >
+                                    Lihat detail
+
+                                    <svg
+                                        class="h-4 w-4"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        aria-hidden="true"
                                     >
-                                        Lihat detail
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M9 5l7 7-7 7"
+                                        />
+                                    </svg>
 
-                                        <svg
-                                            class="ml-1 h-4 w-4"
-                                            viewBox="0 0 20 20"
-                                            fill="currentColor"
-                                            aria-hidden="true"
-                                        >
-                                            <path
-                                                fill-rule="evenodd"
-                                                d="M7.21 14.77a.75.75 0 0 1 0-1.06L10.94 10 7.21 6.29a.75.75 0 1 1 1.06-1.06l4.24 4.24a.75.75 0 0 1 0 1.06l-4.24 4.24a.75.75 0 0 1 0 1.06Z"
-                                                clip-rule="evenodd"
-                                            />
-                                        </svg>
-
-                                    </a>
-
-                                </div>
+                                </a>
 
                             </div>
 
@@ -435,13 +454,10 @@
 
 
                 {{-- Pagination --}}
-                @if ($posts->hasPages())
+                <div class="mt-10">
+                    <x-public.pagination :paginator="$posts" />
+                </div>
 
-                    <div class="mt-10">
-                        {{ $posts->links() }}
-                    </div>
-
-                @endif
 
             @else
 

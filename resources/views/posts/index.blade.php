@@ -545,30 +545,11 @@
                 </form>
 
 
-                {{-- Informasi data --}}
-                <p class="text-sm text-gray-600">
-                    Menampilkan
-                    <span class="font-medium text-gray-900">
-                        {{ $posts->firstItem() ?? 0 }}
-                    </span>
-                    –
-                    <span class="font-medium text-gray-900">
-                        {{ $posts->lastItem() ?? 0 }}
-                    </span>
-                    dari
-                    <span class="font-medium text-gray-900">
-                        {{ $posts->total() }}
-                    </span>
-                    konten
-                </p>
-
-
-                {{-- Navigation --}}
-                @if ($posts->hasPages())
-                    <div>
-                        {{ $posts->links() }}
-                    </div>
-                @endif
+                {{-- Pagination --}}
+                <x-admin.pagination
+                    :paginator="$posts"
+                    label="konten"
+                />
 
             </div>
 

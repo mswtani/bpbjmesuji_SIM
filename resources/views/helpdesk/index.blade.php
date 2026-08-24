@@ -329,25 +329,31 @@
 
                             <td class="px-6 py-4">
 
-                                @if ($ticket->status === 'open')
+                                @if ($ticket->status === 'baru')
 
                                     <span class="rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
-                                        Terbuka
+                                        Baru
                                     </span>
 
-                                @elseif ($ticket->status === 'in_progress')
+                                @elseif ($ticket->status === 'diproses')
 
                                     <span class="rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-medium text-yellow-700">
                                         Diproses
                                     </span>
 
-                                @elseif ($ticket->status === 'resolved')
+                                @elseif ($ticket->status === 'menunggu_pemohon')
+
+                                    <span class="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-medium text-orange-700">
+                                        Menunggu Pemohon
+                                    </span>
+
+                                @elseif ($ticket->status === 'selesai')
 
                                     <span class="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700">
                                         Selesai
                                     </span>
 
-                                @elseif ($ticket->status === 'closed')
+                                @elseif ($ticket->status === 'ditutup')
 
                                     <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
                                         Ditutup
@@ -364,7 +370,33 @@
                             </td>
 
                             <td class="px-6 py-4">
-                                {{ ucfirst($ticket->priority) }}
+
+                                @if ($ticket->priority === 'normal')
+
+                                    <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
+                                        Normal
+                                    </span>
+
+                                @elseif ($ticket->priority === 'tinggi')
+
+                                    <span class="rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-medium text-yellow-700">
+                                        Tinggi
+                                    </span>
+
+                                @elseif ($ticket->priority === 'mendesak')
+
+                                    <span class="rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700">
+                                        Mendesak
+                                    </span>
+
+                                @else
+
+                                    <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
+                                        {{ $ticket->priority }}
+                                    </span>
+
+                                @endif
+
                             </td>
 
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -401,15 +433,10 @@
         </div>
 
 
-        @if ($tickets->hasPages())
-
-            <div class="border-t border-gray-200 px-6 py-4">
-
-                {{ $tickets->links() }}
-
-            </div>
-
-        @endif
+        <x-admin.pagination
+            :paginator="$tickets"
+            label="data"
+        />
 
     </div>
 

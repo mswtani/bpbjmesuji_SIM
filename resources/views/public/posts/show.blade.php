@@ -41,7 +41,7 @@
             <img
                 src="{{ asset('storage/' . $post->featured_image) }}"
                 alt="{{ $post->title }}"
-                class="max-h-[550px] w-full object-cover"
+                class="mx-auto max-h-[700px] w-auto max-w-full object-contain"
             >
 
         @endif

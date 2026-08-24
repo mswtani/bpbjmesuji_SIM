@@ -21,10 +21,10 @@ class HelpdeskController extends Controller
      */
     public function index(Request $request): View
     {
-        $perPage = (int) $request->query('per_page', 15);
+        $perPage = (int) $request->query('per_page', 10);
 
         if (! in_array($perPage, [10, 25, 50, 100], true)) {
-            $perPage = 15;
+            $perPage = 10;
         }
 
         $search = trim($request->query('search', ''));
