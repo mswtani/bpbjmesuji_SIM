@@ -18,13 +18,41 @@
     );
 @endphp
 
+<style>
+    #content-editor a {
+        display: inline-block;
+        color: rgb(37 99 235);
+        text-decoration: none;
+        transform: scale(1);
+        transform-origin: center;
+        transition:
+            color 200ms ease,
+            text-decoration-color 200ms ease,
+            transform 200ms ease;
+    }
 
-<form
-    method="POST"
-    action="{{ $formAction }}"
-    enctype="multipart/form-data"
-    class="space-y-6"
->
+    #content-editor a:hover {
+        color: rgb(29 78 216);
+        text-decoration: underline;
+        transform: scale(1.1);
+    }
+</style>
+
+
+
+
+    <form
+        id="{{ $formId ?? 'post-form' }}"
+        method="POST"
+        action="{{ $formAction }}"
+        enctype="multipart/form-data"
+        class="space-y-6"
+        @if (($formId ?? '') === 'post-edit-form')
+            data-confirm="Perbarui konten ini?"
+            data-confirm-action="update"
+            data-confirm-button="Simpan Perubahan"
+        @endif
+    >
 
     @csrf
 
@@ -799,27 +827,85 @@
 
     {{-- =========================================================
         RINGKASAN
-    ========================================================== --}}
+    ========================================================= --}}
 
     <div>
 
         <label
-            for="excerpt"
+            for="excerpt-editor"
             class="block text-sm font-medium text-gray-700"
         >
             Ringkasan
+
             <span class="font-normal text-gray-500">
                 (opsional)
             </span>
         </label>
 
+
+        {{-- Editor Ringkasan --}}
+        <div class="mt-1 overflow-hidden rounded-md border border-gray-300 bg-white">
+
+            {{-- Toolbar --}}
+            <div class="flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50 p-2">
+
+                {{-- Bold --}}
+                <button
+                    type="button"
+                    data-excerpt-command="bold"
+                    class="rounded px-3 py-1.5 text-sm font-bold text-gray-700 hover:bg-gray-200"
+                    title="Tebal"
+                >
+                    B
+                </button>
+
+                {{-- Italic --}}
+                <button
+                    type="button"
+                    data-excerpt-command="italic"
+                    class="rounded px-3 py-1.5 text-sm italic text-gray-700 hover:bg-gray-200"
+                    title="Miring"
+                >
+                    I
+                </button>
+
+                {{-- Underline --}}
+                <button
+                    type="button"
+                    data-excerpt-command="underline"
+                    class="rounded px-3 py-1.5 text-sm font-medium text-gray-700 underline hover:bg-gray-200"
+                    title="Garis bawah"
+                >
+                    U
+                </button>
+
+            </div>
+
+
+            {{-- Editor --}}
+            <div
+                id="excerpt-editor"
+                contenteditable="true"
+                role="textbox"
+                aria-multiline="true"
+                class="min-h-[140px] w-full px-4 py-3 text-sm leading-7 text-gray-900 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+            ></div>
+
+        </div>
+
+
+        {{-- Nilai sebenarnya yang dikirim ke server --}}
         <textarea
             id="excerpt"
             name="excerpt"
-            rows="4"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            placeholder="Tuliskan ringkasan singkat konten"
+            class="hidden"
         >{{ old('excerpt', $post?->excerpt) }}</textarea>
+
+
+        <p class="mt-1 text-xs text-gray-500">
+            Gunakan B untuk tebal, I untuk miring, dan U untuk garis bawah.
+        </p>
+
 
         @error('excerpt')
 
@@ -834,25 +920,119 @@
 
     {{-- =========================================================
         ISI KONTEN
-    ========================================================== --}}
+    ========================================================= --}}
 
     <div>
-
         <label
-            for="content"
+            for="content-editor"
             class="block text-sm font-medium text-gray-700"
         >
             Isi Konten
         </label>
 
-        <textarea
-            id="content"
-            name="content"
-            rows="12"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            placeholder="Tuliskan isi konten di sini..."
-        >{{ old('content', $post?->content) }}</textarea>
+        @if ($selectedType !== 'regulation')
+
+            <div class="mt-1 overflow-hidden rounded-md border border-gray-300 bg-white">
+
+                {{-- Toolbar --}}
+                <div
+                    class="flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50 p-2"
+                    role="toolbar"
+                    aria-label="Pemformatan isi konten"
+                >
+
+                    {{-- Bold --}}
+                    <button
+                        type="button"
+                        data-editor-command="bold"
+                        class="editor-command rounded px-3 py-1.5 text-sm font-bold text-gray-700 hover:bg-gray-200"
+                        title="Tebal"
+                        aria-label="Tebal"
+                    >
+                        B
+                    </button>
+
+                    {{-- Italic --}}
+                    <button
+                        type="button"
+                        data-editor-command="italic"
+                        class="editor-command rounded px-3 py-1.5 text-sm italic text-gray-700 hover:bg-gray-200"
+                        title="Miring"
+                        aria-label="Miring"
+                    >
+                        I
+                    </button>
+
+                    {{-- Underline --}}
+                    <button
+                        type="button"
+                        data-editor-command="underline"
+                        class="editor-command rounded px-3 py-1.5 text-sm underline text-gray-700 hover:bg-gray-200"
+                        title="Garis bawah"
+                        aria-label="Garis bawah"
+                    >
+                        U
+                    </button>
+
+                    <span class="mx-1 h-6 w-px bg-gray-300"></span>
+
+                    {{-- Link --}}
+                    <button
+                        type="button"
+                        id="insert-link-button"
+                        class="rounded px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                        title="Sisipkan Link"
+                        aria-label="Sisipkan Link"
+                    >
+                        🔗 Link
+                    </button>
+
+                </div>
+
+
+                {{-- Editor --}}
+                <div
+                    id="content-editor"
+                    contenteditable="true"
+                    role="textbox"
+                    aria-multiline="true"
+                    class="min-h-[300px] w-full px-4 py-3 text-sm leading-7 text-gray-900 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                >{!! old('content', $post?->content) !!}</div>
+
+            </div>
+
+
+            {{-- Nilai sebenarnya yang dikirim ke server --}}
+            <textarea
+                id="content"
+                name="content"
+                class="hidden"
+                required
+            >{{ old('content', $post?->content) }}</textarea>
+
+
+            <p class="mt-1 text-xs text-gray-500">
+                Anda dapat menulis teks, membuat teks
+                <strong>tebal</strong>,
+                <em>miring</em>,
+                <u>garis bawah</u>,
+                dan membuat bagian tertentu menjadi link.
+            </p>
+
+        @else
+
+            {{-- Regulasi tetap menggunakan textarea biasa --}}
+            <textarea
+                id="content"
+                name="content"
+                rows="12"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                placeholder="Tuliskan isi konten di sini..."
+            >{{ old('content', $post?->content) }}</textarea>
+
+        @endif
+
 
         @error('content')
 
@@ -932,30 +1112,7 @@
     </div>
 
 
-    {{-- =========================================================
-        TOMBOL
-    ========================================================== --}}
-
-    <div class="flex items-center gap-3 border-t border-gray-200 pt-6">
-
-        <button
-            type="submit"
-            class="inline-flex items-center rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-        >
-            {{ $submitLabel }}
-        </button>
-
-        <a
-            href="{{ route('posts.index') }}"
-            class="inline-flex items-center rounded-md border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-            Batal
-        </a>
-
-    </div>
-
-
-</form>
+ </form>
 
 
 {{-- =========================================================
@@ -963,12 +1120,22 @@
 ========================================================== --}}
 
 <script>
-
     document.addEventListener('DOMContentLoaded', function () {
 
-        const typeSelect = document.getElementById('type');
-        const regulationFields = document.getElementById('regulation-fields');
-        const legalStatusSelect = document.getElementById('legal_status');
+        /*
+        |--------------------------------------------------------------------------
+        | ELEMENT REGULASI
+        |--------------------------------------------------------------------------
+        */
+
+        const typeSelect =
+            document.getElementById('type');
+
+        const regulationFields =
+            document.getElementById('regulation-fields');
+
+        const legalStatusSelect =
+            document.getElementById('legal_status');
 
         const regulationRelationSection =
             document.getElementById('regulation-relation-section');
@@ -989,30 +1156,410 @@
             document.getElementById('regulation-relation-description');
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | EDITOR ISI KONTEN
+        |--------------------------------------------------------------------------
+        */
+
+        const contentEditor =
+            document.getElementById('content-editor');
+
+        const contentTextarea =
+            document.getElementById('content');
+
+        const insertLinkButton =
+            document.getElementById('insert-link-button');
+
+        const excerptEditor =
+            document.getElementById('excerpt-editor');
+
+        const excerptTextarea =
+            document.getElementById('excerpt');
+
+
+        function syncExcerptEditor() {
+
+            if (!excerptEditor || !excerptTextarea) {
+                return;
+            }
+
+            excerptTextarea.value =
+                excerptEditor.innerHTML;
+        }
+
+
+        function initializeExcerptEditor() {
+
+            if (!excerptEditor || !excerptTextarea) {
+                return;
+            }
+
+            excerptEditor.innerHTML =
+                excerptTextarea.value || '';
+
+            excerptEditor.addEventListener(
+                'input',
+                syncExcerptEditor
+            );
+
+            excerptEditor.addEventListener(
+                'blur',
+                syncExcerptEditor
+            );
+
+            const excerptForm =
+                excerptEditor.closest('form');
+
+            excerptForm?.addEventListener(
+                'submit',
+                function () {
+                    syncExcerptEditor();
+                }
+            );
+        }
+
+
+        document
+            .querySelectorAll('[data-excerpt-command]')
+            .forEach(function (button) {
+
+                button.addEventListener(
+                    'mousedown',
+                    function (event) {
+
+                        /*
+                        * Jangan kehilangan selection
+                        * ketika toolbar diklik.
+                        */
+                        event.preventDefault();
+
+                        if (!excerptEditor) {
+                            return;
+                        }
+
+                        excerptEditor.focus();
+
+                        const command =
+                            button.dataset.excerptCommand;
+
+                        document.execCommand(
+                            command,
+                            false,
+                            null
+                        );
+
+                        syncExcerptEditor();
+                    }
+                );
+
+            });
+
+
+        initializeExcerptEditor();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Sinkronisasi editor -> textarea
+        |--------------------------------------------------------------------------
+        */
+
+        function syncContentEditor() {
+
+            if (!contentEditor || !contentTextarea) {
+                return;
+            }
+
+            contentTextarea.value =
+                contentEditor.innerHTML;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Inisialisasi editor
+        |--------------------------------------------------------------------------
+        */
+
+        function initializeContentEditor() {
+
+            if (!contentEditor || !contentTextarea) {
+                return;
+            }
+
+            /*
+            * Isi editor dari database / old input.
+            */
+            contentEditor.innerHTML =
+                contentTextarea.value || '';
+
+
+            /*
+            * Jika user mengetik.
+            */
+            contentEditor.addEventListener(
+                'input',
+                syncContentEditor
+            );
+
+
+            /*
+            * Pastikan nilai tersinkron ketika meninggalkan editor.
+            */
+            contentEditor.addEventListener(
+                'blur',
+                syncContentEditor
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Toolbar B / I / U
+        |--------------------------------------------------------------------------
+        */
+
+        const editorCommands =
+            document.querySelectorAll(
+                '[data-editor-command]'
+            );
+
+
+        editorCommands.forEach(function (button) {
+
+            /*
+            * Mousedown digunakan, bukan click,
+            * supaya selection teks tidak hilang
+            * ketika toolbar ditekan.
+            */
+            button.addEventListener(
+                'mousedown',
+                function (event) {
+
+                    event.preventDefault();
+
+                    if (!contentEditor) {
+                        return;
+                    }
+
+                    contentEditor.focus();
+
+                    const command =
+                        button.dataset.editorCommand;
+
+                    document.execCommand(
+                        command,
+                        false,
+                        null
+                    );
+
+                    syncContentEditor();
+                }
+            );
+
+        });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | INSERT LINK
+        |--------------------------------------------------------------------------
+        */
+
+        insertLinkButton?.addEventListener(
+            'mousedown',
+            function (event) {
+
+                event.preventDefault();
+
+                if (!contentEditor) {
+                    return;
+                }
+
+                contentEditor.focus();
+
+                const selection =
+                    window.getSelection();
+
+
+                if (
+                    !selection ||
+                    selection.rangeCount === 0 ||
+                    selection.isCollapsed
+                ) {
+
+                    alert(
+                        'Pilih teks yang ingin dijadikan hyperlink terlebih dahulu.'
+                    );
+
+                    return;
+                }
+
+
+                const selectedText =
+                    selection.toString().trim();
+
+
+                if (!selectedText) {
+
+                    alert(
+                        'Pilih teks yang ingin dijadikan hyperlink terlebih dahulu.'
+                    );
+
+                    return;
+                }
+
+
+                const url =
+                    window.prompt(
+                        'Masukkan URL hyperlink:',
+                        'https://'
+                    );
+
+
+                if (url === null) {
+                    return;
+                }
+
+
+                const trimmedUrl =
+                    url.trim();
+
+
+                if (
+                    !/^https?:\/\//i.test(trimmedUrl)
+                ) {
+
+                    alert(
+                        'URL harus diawali http:// atau https://'
+                    );
+
+                    return;
+                }
+
+
+                document.execCommand(
+                    'createLink',
+                    false,
+                    trimmedUrl
+                );
+
+
+                /*
+                * Beri target baru dan keamanan
+                * pada hyperlink yang dibuat.
+                */
+                const links =
+                    contentEditor.querySelectorAll(
+                        'a'
+                    );
+
+
+                links.forEach(function (link) {
+
+                    if (
+                        link.getAttribute('href') ===
+                        trimmedUrl
+                    ) {
+
+                        link.setAttribute(
+                            'target',
+                            '_blank'
+                        );
+
+                        link.setAttribute(
+                            'rel',
+                            'noopener noreferrer'
+                        );
+                    }
+
+                });
+
+
+                syncContentEditor();
+
+            }
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Submit form
+        |--------------------------------------------------------------------------
+        */
+
+        const contentForm =
+            contentEditor?.closest('form');
+
+
+        contentForm?.addEventListener(
+            'submit',
+            function () {
+
+                syncContentEditor();
+
+            }
+        );
+
+
+        initializeContentEditor();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REGULASI
+        |--------------------------------------------------------------------------
+        */
+
         function hideAllRelationFields() {
 
-            regulationRelationSection?.classList.add('hidden');
-            repealsRelationField?.classList.add('hidden');
-            repealedByRelationField?.classList.add('hidden');
-            amendsRelationField?.classList.add('hidden');
-            amendedByRelationField?.classList.add('hidden');
+            regulationRelationSection?.classList.add(
+                'hidden'
+            );
 
+            repealsRelationField?.classList.add(
+                'hidden'
+            );
+
+            repealedByRelationField?.classList.add(
+                'hidden'
+            );
+
+            amendsRelationField?.classList.add(
+                'hidden'
+            );
+
+            amendedByRelationField?.classList.add(
+                'hidden'
+            );
         }
 
 
         function toggleRegulationFields() {
 
-            if (!typeSelect || !regulationFields) {
+            if (
+                !typeSelect ||
+                !regulationFields
+            ) {
                 return;
             }
 
-            if (typeSelect.value === 'regulation') {
 
-                regulationFields.classList.remove('hidden');
+            if (
+                typeSelect.value ===
+                'regulation'
+            ) {
+
+                regulationFields.classList.remove(
+                    'hidden'
+                );
 
             } else {
 
-                regulationFields.classList.add('hidden');
+                regulationFields.classList.add(
+                    'hidden'
+                );
 
                 hideAllRelationFields();
             }
@@ -1025,12 +1572,20 @@
                 return;
             }
 
-            const status = legalStatusSelect.value;
+
+            const status =
+                legalStatusSelect.value;
+
 
             hideAllRelationFields();
 
 
-            // Berlaku / Tidak Berlaku
+            /*
+            |--------------------------------------------------------------------------
+            | Berlaku / Tidak Berlaku
+            |--------------------------------------------------------------------------
+            */
+
             if (
                 status === '' ||
                 status === 'berlaku' ||
@@ -1040,58 +1595,109 @@
             }
 
 
-            // Mencabut
+            /*
+            |--------------------------------------------------------------------------
+            | Mencabut
+            |--------------------------------------------------------------------------
+            */
+
             if (status === 'mencabut') {
 
-                regulationRelationSection?.classList.remove('hidden');
-                repealsRelationField?.classList.remove('hidden');
+                regulationRelationSection?.classList.remove(
+                    'hidden'
+                );
+
+                repealsRelationField?.classList.remove(
+                    'hidden'
+                );
+
 
                 if (relationDescription) {
+
                     relationDescription.textContent =
                         'Pilih regulasi yang dicabut atau digantikan oleh regulasi ini.';
                 }
 
+
                 return;
             }
 
 
-            // Dicabut
+            /*
+            |--------------------------------------------------------------------------
+            | Dicabut
+            |--------------------------------------------------------------------------
+            */
+
             if (status === 'dicabut') {
 
-                regulationRelationSection?.classList.remove('hidden');
-                repealedByRelationField?.classList.remove('hidden');
+                regulationRelationSection?.classList.remove(
+                    'hidden'
+                );
+
+                repealedByRelationField?.classList.remove(
+                    'hidden'
+                );
+
 
                 if (relationDescription) {
+
                     relationDescription.textContent =
                         'Pilih regulasi yang mencabut regulasi ini.';
                 }
 
+
                 return;
             }
 
 
-            // Mengubah
+            /*
+            |--------------------------------------------------------------------------
+            | Mengubah
+            |--------------------------------------------------------------------------
+            */
+
             if (status === 'mengubah') {
 
-                regulationRelationSection?.classList.remove('hidden');
-                amendsRelationField?.classList.remove('hidden');
+                regulationRelationSection?.classList.remove(
+                    'hidden'
+                );
+
+                amendsRelationField?.classList.remove(
+                    'hidden'
+                );
+
 
                 if (relationDescription) {
+
                     relationDescription.textContent =
                         'Pilih regulasi yang diubah oleh regulasi ini.';
                 }
 
+
                 return;
             }
 
 
-            // Diubah
+            /*
+            |--------------------------------------------------------------------------
+            | Diubah
+            |--------------------------------------------------------------------------
+            */
+
             if (status === 'diubah') {
 
-                regulationRelationSection?.classList.remove('hidden');
-                amendedByRelationField?.classList.remove('hidden');
+                regulationRelationSection?.classList.remove(
+                    'hidden'
+                );
+
+                amendedByRelationField?.classList.remove(
+                    'hidden'
+                );
+
 
                 if (relationDescription) {
+
                     relationDescription.textContent =
                         'Pilih regulasi yang mengubah regulasi ini.';
                 }
@@ -1099,15 +1705,130 @@
         }
 
 
-        typeSelect?.addEventListener('change', function () {
+        /*
+        |--------------------------------------------------------------------------
+        | Filter hubungan regulasi berdasarkan jenis regulasi
+        |--------------------------------------------------------------------------
+        */
 
-            toggleRegulationFields();
+        function filterRelatedRegulations() {
 
-            if (typeSelect.value === 'regulation') {
-                toggleRegulationRelation();
+            const regulationTypeId =
+                document
+                    .getElementById(
+                        'regulation_type_id'
+                    )
+                    ?.value;
+
+
+            const relationSelectIds = [
+
+                'repeals_post_id',
+
+                'repealed_by_post_id',
+
+                'amends_post_id',
+
+                'amended_by_post_id',
+
+            ];
+
+
+            relationSelectIds.forEach(
+                function (selectId) {
+
+                    const select =
+                        document.getElementById(
+                            selectId
+                        );
+
+
+                    if (!select) {
+                        return;
+                    }
+
+
+                    Array
+                        .from(select.options)
+                        .forEach(
+                            function (option) {
+
+                                /*
+                                * Placeholder selalu tampil.
+                                */
+                                if (!option.value) {
+
+                                    option.hidden =
+                                        false;
+
+                                    return;
+                                }
+
+
+                                const relatedTypeId =
+                                    option.dataset
+                                        .regulationTypeId;
+
+
+                                option.hidden =
+                                    regulationTypeId &&
+                                    relatedTypeId !==
+                                        regulationTypeId;
+                            }
+                        );
+
+
+                    /*
+                    * Jangan mempertahankan pilihan
+                    * yang berbeda jenis regulasi.
+                    */
+                    const selectedOption =
+                        select.options[
+                            select.selectedIndex
+                        ];
+
+
+                    if (
+                        selectedOption &&
+                        selectedOption.value &&
+                        regulationTypeId &&
+                        selectedOption
+                            .dataset
+                            .regulationTypeId !==
+                            regulationTypeId
+                    ) {
+
+                        select.value = '';
+                    }
+
+                }
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event regulasi
+        |--------------------------------------------------------------------------
+        */
+
+        typeSelect?.addEventListener(
+            'change',
+            function () {
+
+                toggleRegulationFields();
+
+
+                if (
+                    typeSelect.value ===
+                    'regulation'
+                ) {
+
+                    toggleRegulationRelation();
+                }
+
             }
-
-        });
+        );
 
 
         legalStatusSelect?.addEventListener(
@@ -1116,81 +1837,27 @@
         );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Filter hubungan regulasi berdasarkan jenis regulasi
-        |--------------------------------------------------------------------------
-        |
-        | Perpres hanya boleh berhubungan dengan Perpres.
-        | Peraturan Lembaga hanya boleh berhubungan dengan Peraturan Lembaga.
-        | Demikian juga untuk jenis regulasi lainnya.
-        |
-        */
-        function filterRelatedRegulations() {
-
-            const regulationTypeId =
-                document.getElementById('regulation_type_id')?.value;
-
-            const relationSelectIds = [
-                'repeals_post_id',
-                'repealed_by_post_id',
-                'amends_post_id',
-                'amended_by_post_id',
-            ];
-
-            relationSelectIds.forEach(function (selectId) {
-
-                const select = document.getElementById(selectId);
-
-                if (!select) {
-                    return;
-                }
-
-                Array.from(select.options).forEach(function (option) {
-
-                    // Placeholder selalu ditampilkan.
-                    if (!option.value) {
-                        option.hidden = false;
-                        return;
-                    }
-
-                    const relatedTypeId =
-                        option.dataset.regulationTypeId;
-
-                    option.hidden =
-                        regulationTypeId &&
-                        relatedTypeId !== regulationTypeId;
-
-                });
-
-                // Jangan pertahankan pilihan yang berbeda jenis regulasinya.
-                const selectedOption =
-                    select.options[select.selectedIndex];
-
-                if (
-                    selectedOption &&
-                    selectedOption.value &&
-                    regulationTypeId &&
-                    selectedOption.dataset.regulationTypeId !== regulationTypeId
-                ) {
-                    select.value = '';
-                }
-            });
-        }
-
-
         document
-            .getElementById('regulation_type_id')
+            .getElementById(
+                'regulation_type_id'
+            )
             ?.addEventListener(
                 'change',
                 filterRelatedRegulations
             );
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Inisialisasi awal
+        |--------------------------------------------------------------------------
+        */
+
         toggleRegulationFields();
+
         toggleRegulationRelation();
+
         filterRelatedRegulations();
 
     });
-
 </script>

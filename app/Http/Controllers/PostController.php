@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Mews\Purifier\Facades\Purifier;
 
 class PostController extends Controller
 {
@@ -115,6 +116,18 @@ class PostController extends Controller
         */
 
         $data = $request->validated();
+
+        if (in_array($data['type'], ['news', 'announcement'], true)) {
+            $data['content'] = Purifier::clean(
+                $data['content'],
+                'default'
+            );
+
+            $data['excerpt'] = Purifier::clean(
+            $data['excerpt'] ?? '',
+            'default'
+            );
+        }
 
 
         /*
@@ -410,6 +423,19 @@ class PostController extends Controller
      */
     public function edit(Post $post): View
     {
+        abort_if(
+            $post->status === 'archived',
+            403,
+            'Konten yang sudah diarsipkan tidak dapat diedit. Kembalikan ke draft terlebih dahulu.'
+        );
+
+        abort_if(
+            $post->status === 'published' &&
+            auth()->user()?->hasRole('OPERATOR'),
+            403,
+            'Operator hanya dapat mengedit konten yang masih berstatus draft.'
+        );
+
         $post->load([
             'author',
             'regulationType',
@@ -442,6 +468,18 @@ class PostController extends Controller
         UpdatePostRequest $request,
         Post $post
     ): RedirectResponse {
+            abort_if(
+                $post->status === 'archived',
+                403,
+                'Konten yang sudah diarsipkan tidak dapat diedit. Kembalikan ke draft terlebih dahulu.'
+            );
+
+            abort_if(
+                $post->status === 'published' &&
+                auth()->user()?->hasRole('OPERATOR'),
+                403,
+                'Operator hanya dapat mengedit konten yang masih berstatus draft.'
+            );
 
         /*
         |--------------------------------------------------------------------------
@@ -450,6 +488,18 @@ class PostController extends Controller
         */
 
         $data = $request->validated();
+
+        if (in_array($data['type'], ['news', 'announcement'], true)) {
+            $data['content'] = Purifier::clean(
+                $data['content'],
+                'default'
+            );
+
+            $data['excerpt'] = Purifier::clean(
+            $data['excerpt'] ?? '',
+            'default'
+            );
+        }
 
 
         /*
@@ -892,6 +942,11 @@ class PostController extends Controller
      */
     public function destroy(Post $post): RedirectResponse
     {
+        abort_unless(
+            $post->status === 'draft',
+            403,
+            'Konten yang sudah dipublikasikan atau diarsipkan tidak dapat dihapus. Silakan gunakan fitur arsip untuk konten yang sudah dipublikasikan.'
+        );
         /*
         |--------------------------------------------------------------------------
         | Hapus gambar utama
@@ -968,6 +1023,12 @@ class PostController extends Controller
      */
     public function publish(Post $post): RedirectResponse
     {
+        abort_unless(
+            $post->status === 'draft',
+            422,
+            'Hanya konten yang masih berstatus draft yang dapat dipublikasikan.'
+        );
+
         /*
         |--------------------------------------------------------------------------
         | Regulasi wajib mempunyai PDF
@@ -1121,6 +1182,12 @@ class PostController extends Controller
      */
     public function archive(Post $post): RedirectResponse
     {
+        abort_unless(
+            $post->status === 'published',
+            422,
+            'Hanya konten yang sudah dipublikasikan yang dapat diarsipkan.'
+        );
+
         $post->update([
             'status' => 'archived',
         ]);
@@ -1131,6 +1198,30 @@ class PostController extends Controller
             ->with(
                 'success',
                 'Konten berhasil diarsipkan.'
+            );
+    }
+
+    /**
+     * Mengembalikan konten yang diarsipkan menjadi draft.
+     */
+    public function restore(Post $post): RedirectResponse
+    {
+        abort_unless(
+            $post->status === 'archived',
+            422,
+            'Hanya konten yang diarsipkan yang dapat dikembalikan menjadi draft.'
+        );
+
+        $post->update([
+            'status' => 'draft',
+            'published_at' => null,
+        ]);
+
+        return redirect()
+            ->route('posts.show', $post)
+            ->with(
+                'success',
+                'Konten berhasil dikembalikan menjadi draft.'
             );
     }
 
@@ -1146,6 +1237,12 @@ class PostController extends Controller
         abort_unless(
             $post->type === 'regulation',
             404
+        );
+
+        abort_if(
+            $post->status === 'archived',
+            403,
+            'Konten yang sudah diarsipkan tidak dapat diubah. Kembalikan ke draft terlebih dahulu.'
         );
 
         $data = $request->validate([
@@ -1204,6 +1301,12 @@ class PostController extends Controller
         abort_unless(
             $relation->post_id === $post->id,
             403
+        );
+
+        abort_if(
+            $post->status === 'archived',
+            403,
+            'Konten yang sudah diarsipkan tidak dapat diubah. Kembalikan ke draft terlebih dahulu.'
         );
 
         $relation->delete();

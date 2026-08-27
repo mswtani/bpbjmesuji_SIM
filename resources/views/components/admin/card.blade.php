@@ -1,23 +1,40 @@
-<div class="bg-white rounded-lg border border-gray-200 shadow-sm max-w-6xl">
+@props([
+    'title' => null,
+    'description' => null,
+    'padding' => true,
+])
 
-    @isset($title)
+<div {{ $attributes->merge([
+    'class' => 'rounded-2xl border border-gray-200 bg-white shadow-sm'
+]) }}>
 
-        <div class="border-b px-6 py-4">
+    @if ($title)
+        <div class="border-b border-gray-100 px-4 py-4 sm:px-5">
 
-            <h2 class="text-lg font-semibold text-gray-800">
-
+            <h2 class="text-base font-semibold text-gray-900 sm:text-lg">
                 {{ $title }}
-
             </h2>
 
+            @if ($description)
+                <p class="mt-1 text-xs leading-5 text-gray-500 sm:text-sm">
+                    {{ $description }}
+                </p>
+            @endif
+
+        </div>
+    @endif
+
+
+    @if ($padding)
+
+        <div class="p-4 sm:p-5">
+            {{ $slot }}
         </div>
 
-    @endisset
-
-    <div class="p-6">
+    @else
 
         {{ $slot }}
 
-    </div>
+    @endif
 
 </div>

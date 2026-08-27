@@ -71,7 +71,14 @@
             <div class="flex flex-wrap gap-2">
 
                 {{-- Edit --}}
-                @if (auth()->user()?->hasPermission('posts.update'))
+                @if (
+                        auth()->user()?->hasPermission('posts.update') &&
+                        $post->status !== 'archived' &&
+                        ! (
+                            $post->status === 'published' &&
+                            auth()->user()?->hasRole('OPERATOR')
+                        )
+                    )
 
                     <a
                         href="{{ route('posts.edit', $post) }}"
@@ -96,6 +103,7 @@
                     >
 
                         @csrf
+                        @method('PATCH')
 
                         <button
                             type="submit"
@@ -112,7 +120,7 @@
                 {{-- Archive --}}
                 @if (
                     $post->status === 'published' &&
-                    auth()->user()?->hasPermission('posts.archive')
+                    auth()->user()?->hasPermission('posts.publish')
                 )
 
                     <form
@@ -122,6 +130,7 @@
                     >
 
                         @csrf
+                        @method('PATCH')
 
                         <button
                             type="submit"
@@ -133,6 +142,62 @@
                     </form>
 
                 @endif
+
+
+                {{-- Restore Archived --}}
+                @if (
+                    $post->status === 'archived' &&
+                    auth()->user()?->hasPermission('posts.restore')
+                )
+
+                    <form
+                        method="POST"
+                        action="{{ route('posts.restore', $post) }}"
+                        onsubmit="return confirm('Kembalikan konten ini menjadi draft?');"
+                    >
+
+                        @csrf
+                        @method('PATCH')
+
+                        <button
+                            type="submit"
+                            class="inline-flex items-center rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+                        >
+                            Kembalikan ke Draft
+                        </button>
+
+                    </form>
+
+                @endif
+
+
+                {{-- Delete Draft --}}
+                @if (
+                    $post->status === 'draft' &&
+                    auth()->user()?->hasPermission('posts.delete')
+                )
+
+                    <form
+                        method="POST"
+                        action="{{ route('posts.destroy', $post) }}"
+                        onsubmit="return confirm('Hapus draft ini secara permanen? Tindakan ini tidak dapat dibatalkan.');"
+                    >
+
+                        @csrf
+                        @method('DELETE')
+
+                        <button
+                            type="submit"
+                            class="inline-flex items-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                        >
+                            Hapus Draft
+                        </button>
+
+                    </form>
+
+                @endif
+
+            </div>
 
 
                 {{-- Kembali --}}
@@ -467,9 +532,9 @@
 
                 <div class="mb-8 rounded-lg bg-gray-50 p-5">
 
-                    <p class="text-base leading-7 text-gray-700">
-                        {{ $post->excerpt }}
-                    </p>
+                    <div class="post-excerpt prose prose-gray max-w-none text-base leading-7 text-gray-700">
+                        {!! $post->excerpt !!}
+                    </div>
 
                 </div>
 
@@ -539,10 +604,8 @@
 
             
             {{-- Content --}}
-            <div class="prose max-w-none">
-
-                {!! nl2br(e($post->content)) !!}
-
+            <div class="post-content prose max-w-none">
+                {!! $post->content !!}
             </div>
 
         </div>
@@ -616,5 +679,28 @@
     @endif
 
 </div>
+
+<style>
+    .post-content a {
+        display: inline-block;
+        color: rgb(37 99 235);
+        text-decoration: none;
+        transform: scale(1);
+        transform-origin: center;
+        transition:
+            color 200ms ease,
+            text-decoration-color 200ms ease,
+            transform 200ms ease;
+    }
+
+    .post-content a:hover {
+        color: rgb(29 78 216);
+        text-decoration: underline;
+        transform: scale(1.05);
+        font-weight: bold;
+        padding: 0 1rem;
+        box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    }
+</style>
 
 @endsection

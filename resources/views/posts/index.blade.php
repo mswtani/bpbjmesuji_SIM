@@ -4,38 +4,54 @@
 
 @section('content')
 
-<div class="mx-auto max-w-8xl">
+<x-admin.page
+    title="Konten"
+    description="Kelola berita, pengumuman, dan Regulasi PBJ."
+>
 
-    {{-- Header --}}
-    <div class="mb-6">
+    <x-slot:actions>
 
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        @if (auth()->user()?->hasPermission('posts.create'))
 
-            <div>
-                <h1 class="text-2xl font-semibold text-gray-900">
-                    Konten
-                </h1>
+            <a
+                href="{{ route('posts.create') }}"
+                class="
+                    inline-flex items-center justify-center
+                    rounded-lg
+                    bg-blue-600
+                    px-4 py-2
+                    text-sm font-medium
+                    text-white
+                    shadow-sm
+                    transition
+                    hover:bg-blue-700
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-blue-500/30
+                "
+            >
 
-                <p class="mt-1 text-sm text-gray-600">
-                    Kelola berita, pengumuman, dan konten lainnya.
-                </p>
-            </div>
-
-
-            @if (auth()->user()?->hasPermission('posts.create'))
-
-                <a
-                    href="{{ route('posts.create') }}"
-                    class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
+                <svg
+                    class="mr-2 h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
                 >
-                    + Tambah Konten
-                </a>
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 5v14M5 12h14"
+                    />
+                </svg>
 
-            @endif
+                Tambah Konten
 
-        </div>
+            </a>
 
-    </div>
+        @endif
+
+    </x-slot:actions>
 
 
     {{-- Flash message --}}
@@ -51,223 +67,359 @@
 
     @endif
 
-    {{-- Search & FIlter --}}
-    <div class="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+    {{-- =====================================================
+        SEARCH & FILTER
+    ====================================================== --}}
+
+    <x-admin.card class="mb-6">
 
         <form
             method="GET"
             action="{{ route('posts.index') }}"
-            class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5"
-        >
+            class="space-y-4" >
 
-            {{-- Search --}}
-            <div class="lg:col-span-2">
-                <label
-                    for="search"
-                    class="mb-1.5 block text-sm font-medium text-gray-700"
-                >
-                    Pencarian
-                </label>
+            {{-- Filter fields --}}
+            <div
+                class="
+                    grid grid-cols-1 gap-4
+                    md:grid-cols-2
+                    lg:grid-cols-12
+                    lg:gap-4
+                "
+            >
 
-                <input
-                    type="search"
-                    id="search"
-                    name="search"
-                    value="{{ $search }}"
-                    placeholder="Judul, slug, atau nomor regulasi..."
-                    class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500"
+                {{-- Pencarian --}}
+                <div class="md:col-span-2 lg:col-span-6">
+
+                    <label
+                        for="search"
+                        class="mb-1.5 block text-sm font-medium text-gray-700"
+                    >
+                        Pencarian
+                    </label>
+
+                    <input
+                        id="search"
+                        type="text"
+                        name="search"
+                        value="{{ $search }}"
+                        placeholder="Judul, slug, atau nomor regulasi..."
+                        class="
+                            block w-full rounded-lg
+                            border border-gray-300
+                            bg-white
+                            px-3 py-2.5
+                            text-sm text-gray-900
+                            placeholder:text-gray-400
+                            focus:border-blue-500
+                            focus:ring-blue-500
+                        "
+                    >
+
+                </div>
+
+
+                {{-- Jenis --}}
+                <div class="lg:col-span-2">
+
+                    <label
+                        for="type"
+                        class="mb-1.5 block text-sm font-medium text-gray-700"
+                    >
+                        Jenis
+                    </label>
+
+                    <select
+                        id="type"
+                        name="type"
+                        class="
+                            block w-full rounded-lg
+                            border border-gray-300
+                            bg-white
+                            px-3 py-2.5
+                            text-sm text-gray-900
+                            focus:border-blue-500
+                            focus:ring-blue-500
+                        "
+                    >
+
+                        <option value="">
+                            Semua Jenis
+                        </option>
+
+                        <option value="news" @selected(request('type') === 'news')>
+                            Berita
+                        </option>
+
+                        <option value="announcement" @selected(request('type') === 'announcement')>
+                            Pengumuman
+                        </option>
+
+                        <option value="regulation" @selected(request('type') === 'regulation')>
+                            Regulasi
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                {{-- Status --}}
+                <div class="lg:col-span-2">
+
+                    <label
+                        for="status"
+                        class="mb-1.5 block text-sm font-medium text-gray-700"
+                    >
+                        Status
+                    </label>
+
+                    <select
+                        id="status"
+                        name="status"
+                        class="
+                            block w-full rounded-lg
+                            border border-gray-300
+                            bg-white
+                            px-3 py-2.5
+                            text-sm text-gray-900
+                            focus:border-blue-500
+                            focus:ring-blue-500
+                        "
+                    >
+
+                        <option value="">
+                            Semua Status
+                        </option>
+
+                        <option value="draft" @selected(request('status') === 'draft')>
+                            Draft
+                        </option>
+
+                        <option value="published" @selected(request('status') === 'published')>
+                            Published
+                        </option>
+
+                        <option value="archived" @selected(request('status') === 'archived')>
+                            Archived
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                {{-- Tombol --}}
+                <div
+                    class="
+                        flex items-end gap-2
+                        lg:col-span-2
+                    "
                 >
+
+                    <button
+                        type="submit"
+                        class="
+                            inline-flex w-full
+                            items-center justify-center
+                            rounded-lg
+                            bg-blue-600
+                            px-4 py-2.5
+                            text-sm font-medium
+                            text-white
+                            shadow-sm
+                            transition
+                            hover:bg-blue-700
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-blue-500/30
+                        "
+                    >
+                        Cari
+                    </button>
+
+                </div>
+
             </div>
 
 
-            {{-- Jenis --}}
-            <div>
-                <label
-                    for="type"
-                    class="mb-1.5 block text-sm font-medium text-gray-700"
+            {{-- Reset --}}
+            @if ($search || $type || $status)
+
+                <div
+                    class="
+                        flex
+                        items-center
+                        justify-between
+                        border-t border-gray-100
+                        pt-4
+                    "
                 >
-                    Jenis
-                </label>
 
-                <select
-                    id="type"
-                    name="type"
-                    class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 pr-8 text-sm text-gray-700 focus:border-indigo-500 focus:ring-indigo-500"
-                >
-                    <option value="">Semua Jenis</option>
-
-                    <option
-                        value="news"
-                        @selected($type === 'news')
-                    >
-                        Berita
-                    </option>
-
-                    <option
-                        value="announcement"
-                        @selected($type === 'announcement')
-                    >
-                        Pengumuman
-                    </option>
-
-                    <option
-                        value="regulation"
-                        @selected($type === 'regulation')
-                    >
-                        Regulasi
-                    </option>
-                </select>
-            </div>
-
-
-            {{-- Status --}}
-            <div>
-                <label
-                    for="status"
-                    class="mb-1.5 block text-sm font-medium text-gray-700"
-                >
-                    Status
-                </label>
-
-                <select
-                    id="status"
-                    name="status"
-                    class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 pr-8 text-sm text-gray-700 focus:border-indigo-500 focus:ring-indigo-500"
-                >
-                    <option value="">Semua Status</option>
-
-                    <option
-                        value="draft"
-                        @selected($status === 'draft')
-                    >
-                        Draft
-                    </option>
-
-                    <option
-                        value="published"
-                        @selected($status === 'published')
-                    >
-                        Published
-                    </option>
-
-                    <option
-                        value="archived"
-                        @selected($status === 'archived')
-                    >
-                        Archived
-                    </option>
-                </select>
-            </div>
-
-
-            {{-- Tombol --}}
-            <div class="flex items-end gap-2">
-
-                <button
-                    type="submit"
-                    class="inline-flex flex-1 items-center justify-center rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700"
-                >
-                    Cari
-                </button>
-
-                @if ($search !== '' || $type !== null || $status !== null)
+                    <p class="text-xs text-gray-500 sm:text-sm">
+                        Filter sedang diterapkan.
+                    </p>
 
                     <a
                         href="{{ route('posts.index') }}"
-                        class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        class="
+                            text-sm font-medium
+                            text-gray-600
+                            hover:text-blue-600
+                        "
                     >
-                        Reset
+                        Reset filter
                     </a>
 
-                @endif
+                </div>
 
-            </div>
+            @endif
 
         </form>
 
-    </div>
+    </x-admin.card>
 
 
     
     {{-- Table --}}
-    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+    <x-admin.card
+        :padding="false"
+        class="overflow-hidden" >
 
-        <div class="overflow-x-auto">
+        <x-admin.table>
 
-            <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-100 text-xs uppercase text-gray-600">
 
-                <thead class="bg-gray-50">
+                <tr>
+                    <th
+                        scope="col"
+                        class="
+                            w-16
+                            whitespace-nowrap
+                            px-4 py-3
+                            text-center
+                            text-xs font-semibold
+                            uppercase tracking-wide
+                            text-gray-500">
+                        No.
+                    </th>
 
-                    <tr>
-                        <th
-                            scope="col"
-                            class="w-16 px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-500"
-                        >
-                            No.
-                        </th>
+                    <th
+                        scope="col"
+                        class="
+                            min-w-[420px]
+                            whitespace-nowrap
+                            px-4 py-3
+                            text-left
+                            text-xs font-semibold
+                            uppercase tracking-wide
+                            text-gray-500
+                        ">
+                        Konten
+                    </th>
 
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500"
-                        >
-                            Konten
-                        </th>
+                    <th
+                        scope="col"
+                        class="
+                            whitespace-nowrap
+                            px-4 py-3
+                            text-left
+                            text-xs font-semibold
+                            uppercase tracking-wide
+                            text-gray-500
+                        ">
+                        Jenis
+                    </th>
 
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500"
-                        >
-                            Jenis
-                        </th>
+                    <th
+                        scope="col"
+                        class="
+                            whitespace-nowrap
+                            px-4 py-3
+                            text-left
+                            text-xs font-semibold
+                            uppercase tracking-wide
+                            text-gray-500
+                        ">
+                        Status
+                    </th>
 
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500"
-                        >
-                            Status
-                        </th>
-
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500"
-                        >
+                    <th
+                        scope="col"
+                        class="
+                            whitespace-nowrap
+                            px-4 py-3
+                            text-left
+                            text-xs font-semibold
+                            uppercase tracking-wide<x-admin.pagination
+                            :paginator="$posts"
+                            label="konten"
+                            :per-page="$perPage"                
+                            text-gray-500">
                             Penulis
-                        </th>
+                    </th>
 
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500"
-                        >
-                            Tanggal
-                        </th>
+                    <th
+                        scope="col"
+                        class="
+                            whitespace-nowrap
+                            px-4 py-3
+                            text-left
+                            text-xs font-semibold
+                            uppercase tracking-wide
+                            text-gray-500
+                        " >
+                        Tanggal
+                    </th>
 
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500"
-                        >
-                            Aksi
-                        </th>
+                    <th
+                        scope="col"
+                        class="
+                            whitespace-nowrap
+                            px-4 py-3
+                            text-left
+                            text-xs font-semibold
+                            uppercase tracking-wide
+                            text-gray-500
+                        ">
+                        Aksi
+                    </th>
 
-                    </tr>
+                </tr>
 
-                </thead>
+            </thead>
 
 
-                <tbody class="divide-y divide-gray-200 bg-white">
+            <tbody class="divide-y divide-gray-200">
 
-                   @forelse ($posts as $post)
+                @forelse ($posts as $post)
 
-                        <tr class="hover:bg-gray-50">
+                    <tr class="
+                            odd:bg-white
+                            even:bg-gray-100/70
+                            hover:bg-blue-50
+                            transition-colors duration-150
+                        ">
 
-                            {{-- Nomor --}}
-                            <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
+                        {{-- Nomor --}}
+                        <td class="
+                                whitespace-nowrap
+                                px-4 py-4
+                                text-center
+                                text-sm
+                                font-medium
+                                text-gray-500
+                            ">
                                 {{ $posts->firstItem() + $loop->index }}
-                            </td>
+                        </td>
 
-                            {{-- Konten --}}
-                            <td class="px-6 py-4">
+                        {{-- Konten --}}
+                        <td class="min-w-[420px] px-4 py-4">
+                            
+                            <div class="flex min-w-0 items-center gap-3">
 
-                                <div class="flex items-center gap-4">
+                                {{-- Thumbnail --}}
+                                <div class="h-14 w-14 shrink-0 overflow-hidden rounded-lg">
 
                                     @if (
                                         $post->featured_image &&
@@ -277,44 +429,69 @@
                                         <img
                                             src="{{ asset('storage/' . $post->featured_image) }}"
                                             alt="{{ $post->title }}"
-                                            class="h-14 w-20 rounded-md border border-gray-200 object-cover"
+                                            class="h-full w-full object-cover"
                                         >
 
                                     @else
 
-                                        <div class="flex h-14 w-20 items-center justify-center rounded-md bg-gray-100 text-xs text-gray-400">
+                                        <div
+                                            class="
+                                                flex h-full w-full
+                                                items-center justify-center
+                                                bg-gray-100
+                                                text-xs text-gray-400
+                                            "
+                                        >
                                             No Image
                                         </div>
 
                                     @endif
 
+                                </div>
 
-                                    <div class="min-w-0">
 
-                                        <a
-                                            href="{{ route('posts.show', $post) }}"
-                                            class="font-medium text-gray-900 hover:text-indigo-600"
+                                {{-- Informasi konten --}}
+                                <div class="min-w-0 flex-1">
+
+                                    <a
+                                        href="{{ route('posts.show', $post) }}"
+                                        class="
+                                            block
+                                            font-medium
+                                            text-gray-900
+                                            hover:text-indigo-600
+                                        "
+                                    >
+                                        {{ $post->title }}
+                                    </a>
+
+                                    @if ($post->excerpt)
+
+                                        <div
+                                            class="
+                                                post-excerpt
+                                                mt-1
+                                                max-w-xl
+                                                truncate
+                                                text-sm
+                                                text-gray-500
+                                            "
                                         >
-                                            {{ $post->title }}
-                                        </a>
+                                            {!! $post->excerpt !!}
+                                        </div>
 
-                                        @if ($post->excerpt)
-
-                                            <p class="mt-1 max-w-xl truncate text-sm text-gray-500">
-                                                {{ $post->excerpt }}
-                                            </p>
-
-                                        @endif
-
-                                    </div>
+                                    @endif
 
                                 </div>
 
-                            </td>
+                            </div>
+
+                        </td>
 
 
-                            {{-- Jenis --}}
-                            <td class="whitespace-nowrap px-6 py-4">
+                        {{-- Jenis --}}
+                        <td class="px-4 py-4">
+                            <div class="flex min-w-0 items-center gap-3">
 
                                 @if ($post->type === 'news')
 
@@ -335,12 +512,13 @@
                                     </span>
 
                                 @endif
+                            </div>
+                        </td>
 
-                            </td>
 
-
-                            {{-- Status --}}
-                            <td class="whitespace-nowrap px-6 py-4">
+                        {{-- Status --}}
+                        <td class="px-4 py-4">
+                            <div class="flex min-w-0 items-center gap-3">
 
                                 @if ($post->status === 'draft')
 
@@ -367,143 +545,254 @@
                                     </span>
 
                                 @endif
+                            </div>
+                        </td>
 
-                            </td>
 
-
-                            {{-- Author --}}
-                            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
-
+                        {{-- Author --}}
+                        <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-600">
+                            <div class="flex min-w-0 items-center gap-3">
                                 {{ $post->author?->name ?? '-' }}
+                            </div>
+                        </td>
 
-                            </td>
 
-
-                            {{-- Date --}}
-                            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
-
+                        {{-- Date --}}
+                        <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-600">
+                            <div class="flex min-w-0 items-center gap-3">
                                 {{ $post->created_at?->format('d M Y') }}
+                            </div>
+                        </td>
 
-                            </td>
 
+                        {{-- Action --}}
+                        <td class="whitespace-nowrap px-4 py-4 text-right">
+                            <div class="flex items-center justify-end gap-1.5">
 
-                            {{-- Action --}}
-                            <td class="whitespace-nowrap px-6 py-4 text-right">
-
-                                <div class="flex flex-wrap justify-end gap-2">
-
-                                    {{-- Lihat --}}
-                                    <a
-                                        href="{{ route('posts.show', $post) }}"
-                                        class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                {{-- Lihat --}}
+                                <a
+                                    href="{{ route('posts.show', $post) }}"
+                                    title="Lihat"
+                                    aria-label="Lihat konten"
+                                    class="
+                                        inline-flex h-9 w-9 items-center justify-center
+                                        rounded-lg
+                                        text-gray-500
+                                        transition
+                                        text-indigo-500 hover:bg-indigo-50 hover:text-indigo-700
+                                        focus:outline-none
+                                        focus:ring-2 focus:ring-indigo-500/30
+                                    "
+                                >
+                                    <svg
+                                        class="h-5 w-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        viewBox="0 0 24 24"
                                     >
-                                        Lihat
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"
+                                        />
+                                        <circle
+                                            cx="12"
+                                            cy="12"
+                                            r="2.5"
+                                        />
+                                    </svg>
+                                </a>
+
+
+                                {{-- Edit --}}
+                                @if (
+                                    auth()->user()?->hasPermission('posts.update') &&
+                                    $post->status !== 'archived' &&
+                                    ! (
+                                        $post->status === 'published' &&
+                                        auth()->user()?->hasRole('OPERATOR')
+                                    )
+                                )
+
+                                    <a
+                                        href="{{ route('posts.edit', $post) }}"
+                                        title="Edit"
+                                        aria-label="Edit konten"
+                                        class="
+                                            inline-flex h-9 w-9 items-center justify-center
+                                            rounded-lg
+                                            text-gray-500
+                                            transition
+                                            text-amber-500 hover:bg-amber-50 hover:text-amber-700
+                                            focus:outline-none
+                                            focus:ring-2 focus:ring-indigo-500/30
+                                        "
+                                    >
+                                        <svg
+                                            class="h-5 w-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="1.8"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                d="m4 16 9.5-9.5a2.1 2.1 0 0 1 3 3L7 21H3v-4l1-1Z"
+                                            />
+                                            <path
+                                                stroke-linecap="round"
+                                                d="m13.5 7.5 3 3"
+                                            />
+                                        </svg>
                                     </a>
 
+                                @endif
 
-                                    {{-- Edit --}}
-                                    @if (auth()->user()?->hasPermission('posts.update'))
 
-                                        <a
-                                            href="{{ route('posts.edit', $post) }}"
-                                            class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
+                                {{-- Publish --}}
+                                @if (
+                                    $post->status === 'draft' &&
+                                    auth()->user()?->hasPermission('posts.publish')
+                                )
+
+                                    <form
+                                        method="POST"
+                                        action="{{ route('posts.publish', $post) }}"
+                                        class="inline"
+                                        data-confirm="Publikasikan konten ini?"
+                                        data-confirm-action="publish"
+                                        data-confirm-button="Publikasikan">
+                                        @csrf
+                                        @method('PATCH')
+
+                                        <button
+                                            type="submit"
+                                            title="Publish"
+                                            aria-label="Publish konten"
+                                            class="
+                                                inline-flex h-9 w-9 items-center justify-center
+                                                rounded-lg
+                                                text-gray-500
+                                                transition
+                                                text-green-500 hover:bg-emerald-50 hover:text-emerald-700
+                                                focus:outline-none
+                                                focus:ring-2 focus:ring-green-500/30
+                                            "
                                         >
-                                            Edit
-                                        </a>
-
-                                    @endif
-
-
-                                    {{-- Publish --}}
-                                    @if (
-                                        $post->status === 'draft' &&
-                                        auth()->user()?->hasPermission('posts.publish')
-                                    )
-
-                                        <form
-                                            method="POST"
-                                            action="{{ route('posts.publish', $post) }}"
-                                            class="inline"
-                                            onsubmit="return confirm('Publikasikan konten ini?');"
-                                        >
-
-                                            @csrf
-                                            @method('PATCH')
-
-                                            <button
-                                                type="submit"
-                                                class="rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700"
+                                            <svg
+                                                class="h-5 w-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="1.8"
+                                                viewBox="0 0 24 24"
                                             >
-                                                Publish
-                                            </button>
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    d="m5 12 4 4L19 6"
+                                                />
+                                            </svg>
+                                        </button>
+                                    </form>
 
-                                        </form>
-
-                                    @endif
+                                @endif
 
 
-                                    {{-- Archive --}}
-                                    @if (
-                                        $post->status === 'published' &&
-                                        auth()->user()?->hasPermission('posts.publish')
-                                    )
+                                {{-- Archive --}}
+                                @if (
+                                    $post->status === 'published' &&
+                                    auth()->user()?->hasPermission('posts.publish')
+                                )
 
-                                        <form
-                                            method="POST"
-                                            action="{{ route('posts.archive', $post) }}"
-                                            class="inline"
-                                            onsubmit="return confirm('Arsipkan konten ini?');"
+                                    <form
+                                        method="POST"
+                                        action="{{ route('posts.archive', $post) }}"
+                                        class="inline"
+                                        data-confirm="Arsipkan konten ini?"
+                                        data-confirm-action="archive"
+                                        data-confirm-button="Arsipkan"
+                                    >
+                                        @csrf
+                                        @method('PATCH')
+
+                                        <button
+                                            type="submit"
+                                            title="Arsipkan"
+                                            aria-label="Arsipkan konten"
+                                            class="
+                                                inline-flex h-9 w-9 items-center justify-center
+                                                rounded-lg
+                                                text-orange-500
+                                                transition
+                                                hover:bg-orange-50
+                                                hover:text-orange-700
+                                                focus:outline-none
+                                                focus:ring-2
+                                                focus:ring-orange-500/30
+                                            "
                                         >
-
-                                            @csrf
-                                            @method('PATCH')
-
-                                            <button
-                                                type="submit"
-                                                class="rounded-md bg-orange-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-orange-600"
+                                            <svg
+                                                class="h-5 w-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="1.8"
+                                                viewBox="0 0 24 24"
                                             >
-                                                Arsipkan
-                                            </button>
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    d="M4 7h16v13H4V7Z"
+                                                />
 
-                                        </form>
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    d="M3 7l2-4h14l2 4"
+                                                />
 
-                                    @endif
+                                                <path
+                                                    stroke-linecap="round"
+                                                    d="M9 12h6"
+                                                />
+                                            </svg>
+                                        </button>
+                                    </form>
 
-                                </div>
+                                @endif
 
-                            </td>
+                            </div>
+                        </td>
 
-                        </tr>
+                    </tr>
 
-                    @empty
+                @empty
 
-                        <tr>
+                    <tr>
 
-                            <td
-                                colspan="6"
-                                class="px-6 py-12 text-center"
-                            >
+                        <td
+                            colspan="7odd:bg-white"
+                            class="px-6 py-12 text-center"
+                        >
 
-                                <p class="text-sm font-medium text-gray-900">
-                                    Belum ada konten.
-                                </p>
+                            <p class="text-sm font-medium text-gray-900">
+                                Belum ada konten.
+                            </p>
 
-                                <p class="mt-1 text-sm text-gray-500">
-                                    Silakan tambahkan berita atau pengumuman baru.
-                                </p>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Silakan tambahkan berita atau pengumuman baru.
+                            </p>
 
-                            </td>
+                        </td>
 
-                        </tr>
+                    </tr>
 
-                    @endforelse
+                @endforelse
 
-                </tbody>
+            </tbody>
 
-            </table>
-
-        </div>
-
+        </x-admin.table>
 
         {{-- Pagination --}}
         <div class="border-t border-gray-200 px-6 py-4">
@@ -544,7 +833,6 @@
                     </span>
                 </form>
 
-
                 {{-- Pagination --}}
                 <x-admin.pagination
                     :paginator="$posts"
@@ -553,10 +841,10 @@
 
             </div>
 
-        </div>
+        </div>              
 
-    </div>
+    </x-admin.card>
 
-</div>
+</x-admin.page>
 
 @endsection

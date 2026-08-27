@@ -20,15 +20,17 @@ class UserController extends Controller
     {
         $currentUser = auth()->user();
 
+        $search = request('search');
+
         $query = User::with(['role', 'position'])
             ->orderBy('name');
 
         /*
-         * SUPER_ADMIN dapat melihat semua user.
-         *
-         * User selain SUPER_ADMIN hanya dapat melihat
-         * user dengan level role <= level dirinya.
-         */
+        * SUPER_ADMI
+        *
+        * User selain SUPER_ADMIN hanya dapat melihat
+        * user dengan level role <= level dirinya.
+        */
         if (! $currentUser->hasRole('SUPER_ADMIN')) {
             $currentLevel = $currentUser->role?->level ?? 0;
 
@@ -37,9 +39,32 @@ class UserController extends Controller
             });
         }
 
-        $users = $query->get();
+        /*
+        * Search user berdasarkan:
+        * - nama
+        * - NIP
+        * - email
+        */
+        if ($search) {
+            $query->where(function ($searchQuery) use ($search) {
+                $searchQuery
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('nip', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
 
-        return view('users.index', compact('users'));
+        /*
+        * Pagination
+        */
+        $users = $query
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('users.index', compact(
+            'users',
+            'search'
+        ));
     }
 
 
@@ -236,10 +261,10 @@ class UserController extends Controller
         );
 
         return redirect()
-            ->route('users.index')
+            ->route('users.edit', $user)
             ->with(
                 'success',
-                'User berhasil diperbarui.'
+                'Data user berhasil diperbarui.'
             );
     }
 
@@ -276,12 +301,10 @@ class UserController extends Controller
 
         return redirect()
             ->route('users.index')
-            ->with(
-                'success',
-                "Password user {$user->name} berhasil direset. " .
-                "Password sementara: {$temporaryPassword}"
-            );
-    }
+            ->with('success', 'Password berhasil direset.')
+            ->with('success_action', 'reset-password')
+            ->with('temporary_password', $temporaryPassword);
+            }
 
 
     /**
@@ -297,10 +320,8 @@ class UserController extends Controller
 
         return redirect()
             ->route('users.index')
-            ->with(
-                'success',
-                'User berhasil dinonaktifkan.'
-            );
+            ->with('success', 'User berhasil dinonaktifkan.')
+            ->with('success_action', 'deactivate');
     }
 
 
@@ -317,9 +338,7 @@ class UserController extends Controller
 
         return redirect()
             ->route('users.index')
-            ->with(
-                'success',
-                'User berhasil diaktifkan kembali.'
-            );
-    }
+            ->with('success', 'User berhasil diaktifkan.')
+            ->with('success_action', 'activate');
+            }
 }

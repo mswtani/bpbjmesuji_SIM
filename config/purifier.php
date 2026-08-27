@@ -30,6 +30,19 @@ return [
             'AutoFormat.AutoParagraph' => true,
             'AutoFormat.RemoveEmpty'   => true,
         ],
+         'news' => [
+            'HTML.Doctype' => 'HTML 5',
+
+            'HTML.Allowed' => 'p,strong,em,u,a[href|title|target],ul,ol,li,br',
+
+            'URI.AllowedSchemes' => [
+                'http' => true,
+                'https' => true,
+            ],
+
+            'AutoFormat.AutoParagraph' => true,
+            'AutoFormat.RemoveEmpty' => true,
+        ],
         'test'    => [
             'Attr.EnableID' => 'true',
         ],

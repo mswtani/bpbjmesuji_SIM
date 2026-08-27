@@ -92,17 +92,17 @@
 
                 <div class="mt-8 rounded-lg bg-gray-50 p-5">
 
-                    <p class="text-base leading-7 text-gray-700">
-                        {{ $post->excerpt }}
-                    </p>
+                    <div class="prose prose-gray max-w-none text-base leading-7 text-gray-700">
+                        {!! $post->excerpt !!}
+                    </div>
 
                 </div>
 
             @endif
 
 
-            <div class="mt-8 whitespace-pre-line text-base leading-8 text-gray-800">
-                {{ $post->content }}
+            <div class="post-content prose prose-gray mt-8 max-w-none text-base leading-8 text-gray-800">
+                {!! $post->content !!}
             </div>
 
         </div>
@@ -110,5 +110,29 @@
     </article>
 
 </div>
+
+
+<style>
+    .post-content a {
+        display: inline-block;
+        color: rgb(37 99 235);
+        text-decoration: none;
+        transform: scale(1);
+        transform-origin: center;
+        transition:
+            color 200ms ease,
+            text-decoration-color 200ms ease,
+            transform 200ms ease;
+    }
+
+    .post-content a:hover {
+        color: rgb(29 78 216);
+        text-decoration: underline;
+        transform: scale(1.05);
+        font-weight: bold;
+        padding: 0 1rem;
+        box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    }
+</style>
 
 @endsection

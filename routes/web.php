@@ -233,6 +233,10 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:posts.publish')
         ->name('posts.archive');
 
+    Route::patch('/posts/{post}/restore', [PostController::class, 'restore'])
+        ->middleware('permission:posts.restore')
+        ->name('posts.restore');
+
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])
         ->middleware('permission:posts.delete')
         ->name('posts.destroy');
@@ -245,12 +249,16 @@ Route::middleware('auth')->group(function () {
     Route::post(
         'posts/{post}/relations',
         [PostController::class, 'storeRelation']
-    )->name('posts.relations.store');
+    )
+        ->middleware('permission:posts.update')
+        ->name('posts.relations.store');
 
     Route::delete(
         'posts/{post}/relations/{relation}',
         [PostController::class, 'destroyRelation']
-    )->name('posts.relations.destroy');
+    )
+        ->middleware('permission:posts.update')
+        ->name('posts.relations.destroy');
 
 
     /*

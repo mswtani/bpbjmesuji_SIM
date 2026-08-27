@@ -242,44 +242,102 @@
     </div>
     
 
-    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+    <x-admin.card :padding="false" class="overflow-hidden" >
 
         <div class="overflow-x-auto">
 
-            <table class="w-full text-left text-sm text-gray-600">
+            <x-admin.table>
 
-                <thead class="bg-gray-50 text-xs uppercase text-gray-700">
+                <thead class="bg-gray-100 text-xs uppercase text-gray-600">
 
                     <tr>
-                        <th class="w-16 px-6 py-4 text-center">
+                        <th class="
+                            w-16
+                            whitespace-nowrap
+                            px-4 py-3
+                            text-center
+                            text-xs font-semibold
+                            uppercase tracking-wide
+                            text-gray-600
+                            ">
                             No.
                         </th>
                         
-                        <th class="px-6 py-4">
+                        <th class="
+                            whitespace-nowrap
+                            px-4 py-3
+                            text-left
+                            text-xs font-semibold
+                            uppercase tracking-wide
+                            text-gray-600
+                            ">
                             Tiket
                         </th>
 
-                        <th class="px-6 py-4">
+                        <th class="
+                            whitespace-nowrap
+                            px-4 py-3
+                            text-left
+                            text-xs font-semibold
+                            uppercase tracking-wide
+                            text-gray-600
+                            ">
                             Pemohon
                         </th>
 
-                        <th class="px-6 py-4">
+                        <th class="
+                                whitespace-nowrap
+                                px-4 py-3
+                                text-left
+                                text-xs font-semibold
+                                uppercase tracking-wide
+                                text-gray-600
+                            ">
                             Kategori
                         </th>
 
-                        <th class="px-6 py-4">
+                        <th class="
+                                min-w-[280px]
+                                whitespace-nowrap
+                                px-4 py-3
+                                text-left
+                                text-xs font-semibold
+                                uppercase tracking-wide
+                                text-gray-600
+                            ">
                             Subjek
                         </th>
 
-                        <th class="px-6 py-4">
+                        <th class="
+                                whitespace-nowrap
+                                px-4 py-3
+                                text-left
+                                text-xs font-semibold
+                                uppercase tracking-wide
+                                text-gray-600
+                            ">
                             Status
                         </th>
 
-                        <th class="px-6 py-4">
+                        <th class="
+                            whitespace-nowrap
+                            px-4 py-3
+                            text-left
+                            text-xs font-semibold
+                            uppercase tracking-wide
+                            text-gray-600
+                        ">
                             Prioritas
                         </th>
 
-                        <th class="px-6 py-4">
+                        <th class="
+                                whitespace-nowrap
+                                px-4 py-3
+                                text-left
+                                text-xs font-semibold
+                                uppercase tracking-wide
+                                text-gray-600
+                            ">
                             Pesan Terakhir
                         </th>
                     </tr>
@@ -290,9 +348,21 @@
 
                     @forelse ($tickets as $ticket)
 
-                        <tr class="hover:bg-gray-50">
+                        <tr class="
+                                odd:bg-white
+                                even:bg-gray-100/70
+                                hover:bg-blue-50
+                                transition-colors duration-150
+                            ">
                             {{-- Nomor --}}
-                            <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
+                            <td class="
+                                    whitespace-nowrap
+                                    px-4 py-4
+                                    text-center
+                                    text-sm
+                                    font-medium
+                                    text-gray-500
+                                ">
                                 {{ $tickets->firstItem() + $loop->index }}
                             </td>
 
@@ -300,34 +370,41 @@
 
                                 <a
                                     href="{{ route('helpdesk.admin.show', $ticket->ticket_number) }}"
-                                    class="text-blue-700 hover:underline"
+                                    class="
+                                        font-semibold
+                                        text-blue-700
+                                        transition-colors
+                                        hover:text-blue-900
+                                    "
                                 >
                                     {{ $ticket->ticket_number }}
                                 </a>
 
                             </td>
 
-                            <td class="px-6 py-4">
+                            <td class="px-4 py-4">
 
-                                <div class="font-medium text-gray-900">
+                                <div class="font-medium text-gray-700">
                                     {{ $ticket->requester_name }}
                                 </div>
 
-                                <div class="text-xs text-gray-500">
+                                <div class="mt-0.5 text-xs text-gray-500">
                                     {{ $ticket->requester_email }}
                                 </div>
 
                             </td>
 
-                            <td class="px-6 py-4">
+                            <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-600">
                                 {{ $ticket->category?->name ?? '-' }}
                             </td>
 
-                            <td class="px-6 py-4">
-                                {{ $ticket->subject }}
+                            <td class="min-w-[280px] px-4 py-4">
+                                <div class="font-medium text-gray-700">
+                                    {{ $ticket->subject }}
+                                </div>
                             </td>
 
-                            <td class="px-6 py-4">
+                            <td class="whitespace-nowrap px-4 py-4">
 
                                 @if ($ticket->status === 'baru')
 
@@ -399,7 +476,12 @@
 
                             </td>
 
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="
+                                    whitespace-nowrap
+                                    px-4 py-4
+                                    text-sm
+                                    text-gray-500
+                                ">
 
                                 @if ($ticket->last_message_at)
                                     {{ $ticket->last_message_at->format('d/m/Y H:i') }}
@@ -428,7 +510,7 @@
 
                 </tbody>
 
-            </table>
+            </x-admin.table>
 
         </div>
 
@@ -438,7 +520,7 @@
             label="data"
         />
 
-    </div>
+    </x-admin.card>
 
 </x-admin.page>
 

@@ -1,25 +1,76 @@
-<div class="space-y-6">
+@props([
+    'title',
+    'description' => null,
+])
 
-    <div>
+<div class="w-full space-y-5 sm:space-y-6">
 
-        <h1 class="text-3xl font-bold">
+    {{-- =========================================================
+         PAGE HEADER
+    ========================================================== --}}
 
-            {{ $title }}
+    <div
+        class="
+            flex flex-col gap-4
+            sm:flex-row sm:items-center sm:justify-between
+        "
+    >
 
-        </h1>
+        {{-- TITLE --}}
 
-        @isset($description)
+        <div class="min-w-0">
 
-            <p class="mt-2 text-gray-500">
+            <h1
+                class="
+                    text-xl font-bold tracking-tight text-gray-900
+                    sm:text-2xl
+                "
+            >
+                {{ $title }}
+            </h1>
 
-                {{ $description }}
+            @if ($description)
 
-            </p>
+                <p
+                    class="
+                        mt-1
+                        text-xs leading-5 text-gray-500
+                        sm:text-sm
+                    "
+                >
+                    {{ $description }}
+                </p>
+
+            @endif
+
+        </div>
+
+
+        {{-- ACTIONS --}}
+
+        @isset($actions)
+
+            <div
+                class="
+                    flex shrink-0 flex-wrap items-center gap-2
+                "
+            >
+                {{ $actions }}
+            </div>
 
         @endisset
 
     </div>
 
-    {{ $slot }}
+
+    {{-- =========================================================
+         PAGE CONTENT
+    ========================================================== --}}
+
+    <div class="space-y-5 sm:space-y-6">
+
+        {{ $slot }}
+
+    </div>
 
 </div>

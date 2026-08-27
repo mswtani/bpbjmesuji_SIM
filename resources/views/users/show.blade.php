@@ -4,124 +4,486 @@
 
 @section('content')
 
-    <div class="max-w-5xl">
+    <div class="mx-auto max-w-5xl space-y-6">
 
-        <div class="mb-6 flex items-center justify-between">
+        {{-- =====================================================
+             HEADER
+        ====================================================== --}}
 
-            <div>
-                <h1 class="text-2xl font-semibold text-gray-900">
+        <div class="flex items-start justify-between gap-4">
+
+            <div class="min-w-0">
+
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
                     Detail User
                 </h1>
 
-                <p class="mt-1 text-sm text-gray-600">
+                <p class="mt-1.5 text-sm text-gray-500">
                     Informasi lengkap pengguna.
                 </p>
+
             </div>
 
-            <a
-                href="{{ route('users.edit', $user) }}"
-                class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-            >
-                Edit User
-            </a>
+
+            {{-- Edit --}}
+            @if (auth()->user()->hasPermission('users.update'))
+
+                <a
+                    href="{{ route('users.edit', $user) }}"
+                    title="Edit user"
+                    aria-label="Edit user"
+                    class="
+                        inline-flex h-10 w-10 shrink-0
+                        items-center justify-center
+                        rounded-lg
+                        text-amber-500
+                        transition
+                        hover:bg-amber-50
+                        hover:text-amber-700
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-amber-500/30
+                    "
+                >
+
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M12 20h9"
+                        />
+
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z"
+                        />
+                    </svg>
+
+                </a>
+
+            @endif
 
         </div>
 
-        <x-admin.card>
 
-            <dl class="divide-y divide-gray-200">
+        {{-- =====================================================
+             USER PROFILE CARD
+        ====================================================== --}}
 
-                <div class="grid grid-cols-1 gap-2 py-4 sm:grid-cols-3">
-                    <dt class="font-medium text-gray-500">
-                        NIP
-                    </dt>
+        <x-admin.card :padding="false">
 
-                    <dd class="sm:col-span-2 text-gray-900">
-                        {{ $user->nip }}
-                    </dd>
+            {{-- Profile Header --}}
+            <div
+                class="
+                    flex flex-col gap-4
+                    border-b border-gray-100
+                    px-5 py-5
+                    sm:flex-row sm:items-center sm:px-6
+                "
+            >
+
+                {{-- Avatar --}}
+                <div
+                    class="
+                        flex h-14 w-14 shrink-0
+                        items-center justify-center
+                        rounded-2xl
+                        bg-amber-50
+                        text-amber-600
+                    "
+                >
+
+                    <svg
+                        class="h-7 w-7"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                        />
+
+                        <circle
+                            cx="9"
+                            cy="7"
+                            r="4"
+                        />
+
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M19 8v6M16 11h6"
+                        />
+                    </svg>
+
                 </div>
 
-                <div class="grid grid-cols-1 gap-2 py-4 sm:grid-cols-3">
-                    <dt class="font-medium text-gray-500">
-                        Nama Lengkap
-                    </dt>
 
-                    <dd class="sm:col-span-2 text-gray-900">
+                {{-- Name --}}
+                <div class="min-w-0">
+
+                    <h2 class="truncate text-lg font-bold text-gray-900 sm:text-xl">
                         {{ $user->name }}
-                    </dd>
-                </div>
+                    </h2>
 
-                <div class="grid grid-cols-1 gap-2 py-4 sm:grid-cols-3">
-                    <dt class="font-medium text-gray-500">
-                        Email
-                    </dt>
-
-                    <dd class="sm:col-span-2 text-gray-900">
+                    <p class="mt-0.5 truncate text-sm text-gray-500">
                         {{ $user->email }}
-                    </dd>
+                    </p>
+
                 </div>
 
-                <div class="grid grid-cols-1 gap-2 py-4 sm:grid-cols-3">
-                    <dt class="font-medium text-gray-500">
-                        Nomor HP
-                    </dt>
 
-                    <dd class="sm:col-span-2 text-gray-900">
-                        {{ $user->phone ?: '-' }}
-                    </dd>
+                {{-- Status --}}
+                <div class="sm:ml-auto">
+
+                    @if ($user->is_active)
+
+                        <span
+                            class="
+                                inline-flex items-center gap-1.5
+                                rounded-full
+                                bg-green-100
+                                px-2.5 py-1
+                                text-xs font-semibold
+                                text-green-800
+                            "
+                        >
+                            <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                            Aktif
+                        </span>
+
+                    @else
+
+                        <span
+                            class="
+                                inline-flex items-center gap-1.5
+                                rounded-full
+                                bg-red-100
+                                px-2.5 py-1
+                                text-xs font-semibold
+                                text-red-800
+                            "
+                        >
+                            <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                            Tidak Aktif
+                        </span>
+
+                    @endif
+
                 </div>
 
-                <div class="grid grid-cols-1 gap-2 py-4 sm:grid-cols-3">
-                    <dt class="font-medium text-gray-500">
-                        Role
-                    </dt>
+            </div>
 
-                    <dd class="sm:col-span-2 text-gray-900">
-                        {{ $user->role?->name ?? '-' }}
-                    </dd>
-                </div>
 
-                <div class="grid grid-cols-1 gap-2 py-4 sm:grid-cols-3">
-                    <dt class="font-medium text-gray-500">
-                        Jabatan dalam PBJ
-                    </dt>
+            {{-- =================================================
+                 INFORMATION
+            ================================================== --}}
 
-                    <dd class="sm:col-span-2 text-gray-900">
-                        {{ $user->position?->name ?? '-' }}
-                    </dd>
-                </div>
+            <div class="px-5 py-2 sm:px-6">
 
-                <div class="grid grid-cols-1 gap-2 py-4 sm:grid-cols-3">
-                    <dt class="font-medium text-gray-500">
-                        Status
-                    </dt>
+                <dl class="divide-y divide-gray-100">
 
-                    <dd class="sm:col-span-2">
+                    {{-- NIP --}}
+                    <div
+                        class="
+                            grid grid-cols-1 gap-1
+                            py-4
+                            sm:grid-cols-3 sm:gap-6
+                        "
+                    >
 
-                        @if ($user->is_active)
-                            <span class="rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-800">
-                                Aktif
-                            </span>
-                        @else
-                            <span class="rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-800">
-                                Tidak Aktif
-                            </span>
-                        @endif
+                        <dt class="text-sm font-medium text-gray-500">
+                            NIP
+                        </dt>
 
-                    </dd>
-                </div>
+                        <dd
+                            class="
+                                break-words
+                                text-sm font-medium
+                                text-gray-900
+                                sm:col-span-2
+                            "
+                        >
+                            {{ $user->nip ?: '-' }}
+                        </dd>
 
-            </dl>
+                    </div>
+
+
+                    {{-- Nama --}}
+                    <div
+                        class="
+                            grid grid-cols-1 gap-1
+                            py-4
+                            sm:grid-cols-3 sm:gap-6
+                        "
+                    >
+
+                        <dt class="text-sm font-medium text-gray-500">
+                            Nama Lengkap
+                        </dt>
+
+                        <dd
+                            class="
+                                break-words
+                                text-sm font-medium
+                                text-gray-900
+                                sm:col-span-2
+                            "
+                        >
+                            {{ $user->name }}
+                        </dd>
+
+                    </div>
+
+
+                    {{-- Email --}}
+                    <div
+                        class="
+                            grid grid-cols-1 gap-1
+                            py-4
+                            sm:grid-cols-3 sm:gap-6
+                        "
+                    >
+
+                        <dt class="text-sm font-medium text-gray-500">
+                            Email
+                        </dt>
+
+                        <dd
+                            class="
+                                break-words
+                                text-sm
+                                text-gray-700
+                                sm:col-span-2
+                            "
+                        >
+                            {{ $user->email }}
+                        </dd>
+
+                    </div>
+
+
+                    {{-- Nomor HP --}}
+                    <div
+                        class="
+                            grid grid-cols-1 gap-1
+                            py-4
+                            sm:grid-cols-3 sm:gap-6
+                        "
+                    >
+
+                        <dt class="text-sm font-medium text-gray-500">
+                            Nomor HP
+                        </dt>
+
+                        <dd
+                            class="
+                                break-words
+                                text-sm
+                                text-gray-700
+                                sm:col-span-2
+                            "
+                        >
+                            {{ $user->phone ?: '-' }}
+                        </dd>
+
+                    </div>
+
+
+                    {{-- Role --}}
+                    <div
+                        class="
+                            grid grid-cols-1 gap-1
+                            py-4
+                            sm:grid-cols-3 sm:gap-6
+                        "
+                    >
+
+                        <dt class="text-sm font-medium text-gray-500">
+                            Role
+                        </dt>
+
+                        <dd class="sm:col-span-2">
+
+                            @if ($user->role)
+
+                                <span
+                                    class="
+                                        inline-flex
+                                        rounded-full
+                                        bg-indigo-100
+                                        px-2.5 py-1
+                                        text-xs font-semibold
+                                        text-indigo-700
+                                    "
+                                >
+                                    {{ $user->role->name }}
+                                </span>
+
+                            @else
+
+                                <span class="text-sm text-gray-500">
+                                    -
+                                </span>
+
+                            @endif
+
+                        </dd>
+
+                    </div>
+
+
+                    {{-- Jabatan --}}
+                    <div
+                        class="
+                            grid grid-cols-1 gap-1
+                            py-4
+                            sm:grid-cols-3 sm:gap-6
+                        "
+                    >
+
+                        <dt class="text-sm font-medium text-gray-500">
+                            Jabatan dalam PBJ
+                        </dt>
+
+                        <dd
+                            class="
+                                break-words
+                                text-sm
+                                text-gray-700
+                                sm:col-span-2
+                            "
+                        >
+                            {{ $user->position?->name ?? '-' }}
+                        </dd>
+
+                    </div>
+
+
+                    {{-- Status --}}
+                    <div
+                        class="
+                            grid grid-cols-1 gap-1
+                            py-4
+                            sm:grid-cols-3 sm:gap-6
+                        "
+                    >
+
+                        <dt class="text-sm font-medium text-gray-500">
+                            Status
+                        </dt>
+
+                        <dd class="sm:col-span-2">
+
+                            @if ($user->is_active)
+
+                                <span
+                                    class="
+                                        inline-flex items-center gap-1.5
+                                        rounded-full
+                                        bg-green-100
+                                        px-2.5 py-1
+                                        text-xs font-semibold
+                                        text-green-800
+                                    "
+                                >
+                                    <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                                    Aktif
+                                </span>
+
+                            @else
+
+                                <span
+                                    class="
+                                        inline-flex items-center gap-1.5
+                                        rounded-full
+                                        bg-red-100
+                                        px-2.5 py-1
+                                        text-xs font-semibold
+                                        text-red-800
+                                    "
+                                >
+                                    <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                                    Tidak Aktif
+                                </span>
+
+                            @endif
+
+                        </dd>
+
+                    </div>
+
+                </dl>
+
+            </div>
 
         </x-admin.card>
 
-        <div class="mt-6">
+
+        {{-- =====================================================
+             BACK
+        ====================================================== --}}
+
+        <div>
 
             <a
                 href="{{ route('users.index') }}"
-                class="text-sm text-gray-600 hover:text-gray-900"
+                class="
+                    inline-flex
+                    items-center
+                    gap-2
+                    rounded-lg
+                    border border-gray-200
+                    bg-red-500
+                    px-4 py-2.5
+                    text-sm font-medium
+                    text-white
+                    shadow-sm
+                    transition
+                    hover:border-gray-300
+                    hover:bg-gray-100
+                    hover:text-gray-900
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-gray-500/20
+                "
             >
-                ← Kembali ke daftar user
+
+                <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M19 12H5"
+                    />
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m12 19-7-7 7-7"
+                    />
+                </svg>
+
+                <span>
+                    Kembali ke daftar user
+                </span>
+
             </a>
 
         </div>

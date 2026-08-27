@@ -4,166 +4,185 @@
 
 @section('content')
 
-    <div class="max-w-7xl mx-auto space-y-6">
+    <div class="w-full space-y-5 sm:space-y-6">
 
-        {{-- Header Dashboard --}}
+        {{-- =====================================================
+             HEADER
+        ====================================================== --}}
+
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">
+            <h1 class="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
                 Dashboard
             </h1>
 
-            <p class="mt-1 text-sm text-gray-600">
-                Selamat datang di sistem BPBJ Mesuji.
+            <p class="mt-1 text-xs text-gray-500 sm:text-sm">
+                Sistem Informasi Manajemen BPBJ Mesuji.
             </p>
         </div>
 
 
-        {{-- Welcome Card --}}
-        <div class="bg-white overflow-hidden rounded-lg border border-gray-200 shadow-sm">
-            <div class="p-6">
+        {{-- =====================================================
+             MENU CEPAT
+        ====================================================== --}}
 
-                <h2 class="text-lg font-semibold text-gray-900">
-                    Selamat datang,
-                    {{ auth()->user()->name }}.
-                </h2>
+        <x-admin.card
+            title="Menu Cepat"
+            description="Akses fitur yang paling sering digunakan."
+        >
 
-                <p class="mt-2 text-sm text-gray-600">
-                    Anda berhasil login ke sistem.
-                </p>
+            <div
+                class="
+                    grid grid-cols-1 gap-3
+                    sm:grid-cols-2 sm:gap-4
+                    lg:grid-cols-3
+                "
+            >
 
-            </div>
-        </div>
+                {{-- Konten --}}
 
+                @if (auth()->user()?->hasPermission('posts.view'))
 
-        {{-- Informasi Akun --}}
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <x-admin.menu-card
+                        href="{{ route('posts.index') }}"
+                        title="Kelola Konten"
+                        description="Kelola berita, pengumuman, dan regulasi."
+                        icon="document"
+                    />
 
-            {{-- Role --}}
-            <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-
-                <p class="text-sm font-medium text-gray-500">
-                    Role
-                </p>
-
-                <p class="mt-2 text-lg font-semibold text-gray-900">
-                    {{ auth()->user()->role?->name ?? '-' }}
-                </p>
-
-            </div>
-
-
-            {{-- Jabatan --}}
-            <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-
-                <p class="text-sm font-medium text-gray-500">
-                    Jabatan dalam PBJ
-                </p>
-
-                <p class="mt-2 text-lg font-semibold text-gray-900">
-                    {{ auth()->user()->position?->name ?? '-' }}
-                </p>
-
-            </div>
-
-
-            {{-- Status --}}
-            <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-
-                <p class="text-sm font-medium text-gray-500">
-                    Status Akun
-                </p>
-
-                @if (auth()->user()->is_active)
-                    <span class="mt-2 inline-flex rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
-                        Aktif
-                    </span>
-                @else
-                    <span class="mt-2 inline-flex rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-800">
-                        Tidak Aktif
-                    </span>
                 @endif
 
-            </div>
 
-        </div>
+                {{-- Helpdesk --}}
+
+                @if (auth()->user()?->hasPermission('helpdesk.view'))
+
+                    <x-admin.menu-card
+                        href="{{ route('helpdesk.admin.index') }}"
+                        title="Helpdesk"
+                        description="Kelola pertanyaan dan layanan pengguna."
+                        icon="helpdesk"
+                    />
+
+                @endif
 
 
-        {{-- Quick Menu --}}
-        <div>
+                {{-- Pengguna --}}
 
-            <h2 class="mb-4 text-lg font-semibold text-gray-900">
-                Menu Cepat
-            </h2>
+                @if (auth()->user()?->hasPermission('users.view'))
 
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
-                {{-- Kelola User --}}
-                @if (auth()->user()->hasPermission('users.view'))
-
-                    <a
+                    <x-admin.menu-card
                         href="{{ route('users.index') }}"
-                        class="block rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-                    >
-                        <div class="text-2xl">
-                            👤
-                        </div>
-
-                        <h3 class="mt-4 font-semibold text-gray-900">
-                            Kelola User
-                        </h3>
-
-                        <p class="mt-1 text-sm text-gray-600">
-                            Kelola data dan akun pengguna.
-                        </p>
-                    </a>
+                        title="Kelola Pengguna"
+                        description="Kelola data dan akun pengguna."
+                        icon="users"
+                    />
 
                 @endif
 
 
-                {{-- Kelola Role --}}
-                @if (auth()->user()->hasPermission('roles.view'))
+                {{-- Role & Permission --}}
 
-                    <a
+                @if (auth()->user()?->hasPermission('roles.view'))
+
+                    <x-admin.menu-card
                         href="{{ route('roles.index') }}"
-                        class="block rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-                    >
-                        <div class="text-2xl">
-                            🔐
-                        </div>
-
-                        <h3 class="mt-4 font-semibold text-gray-900">
-                            Kelola Role
-                        </h3>
-
-                        <p class="mt-1 text-sm text-gray-600">
-                            Kelola role dan permission sistem.
-                        </p>
-                    </a>
+                        title="Role & Permission"
+                        description="Kelola role dan permission sistem."
+                        icon="roles"
+                    />
 
                 @endif
 
 
                 {{-- Profil --}}
-                <a
+
+                <x-admin.menu-card
                     href="{{ route('profile.edit') }}"
-                    class="block rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-                >
-                    <div class="text-2xl">
-                        👤
-                    </div>
-
-                    <h3 class="mt-4 font-semibold text-gray-900">
-                        Profil Saya
-                    </h3>
-
-                    <p class="mt-1 text-sm text-gray-600">
-                        Lihat dan ubah informasi profil Anda.
-                    </p>
-                </a>
+                    title="Profil Saya"
+                    description="Lihat dan ubah informasi profil Anda."
+                    icon="profile"
+                />
 
             </div>
 
-        </div>
+        </x-admin.card>
+
+
+        {{-- =====================================================
+             RINGKASAN SISTEM
+        ====================================================== --}}
+
+        <x-admin.card
+            title="Ringkasan Sistem"
+            description="Informasi singkat mengenai kondisi sistem."
+        >
+
+            <div
+                class="
+                    grid grid-cols-1 gap-3
+                    sm:grid-cols-2
+                    lg:grid-cols-3
+                "
+            >
+
+                <x-admin.stat-card
+                    title="Konten"
+                    value="—"
+                    description="Statistik konten akan tersedia."
+                    icon="document"
+                />
+
+                <x-admin.stat-card
+                    title="Helpdesk"
+                    value="—"
+                    description="Statistik layanan akan tersedia."
+                    icon="helpdesk"
+                />
+
+                <x-admin.stat-card
+                    title="Pengguna"
+                    value="—"
+                    description="Statistik pengguna akan tersedia."
+                    icon="users"
+                />
+
+            </div>
+
+        </x-admin.card>
+
+
+        {{-- =====================================================
+             NOTIFIKASI
+        ====================================================== --}}
+
+        <x-admin.card
+            title="Notifikasi"
+            description="Pemberitahuan yang membutuhkan perhatian Anda."
+        >
+
+            <div class="divide-y divide-gray-100">
+
+                <x-admin.notification-item
+                    title="Approval konten"
+                    description="Notifikasi draft yang membutuhkan proses publikasi akan muncul di sini."
+                    type="warning"
+                />
+
+                <x-admin.notification-item
+                    title="Helpdesk"
+                    description="Notifikasi pertanyaan atau balasan pengguna akan muncul di sini."
+                    type="info"
+                />
+
+                <x-admin.notification-item
+                    title="Informasi sistem"
+                    description="Notifikasi sistem akan ditampilkan di bagian ini."
+                    type="success"
+                />
+
+            </div>
+
+        </x-admin.card>
 
     </div>
 
