@@ -12,75 +12,139 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Mews\Purifier\Facades\Purifier;
+use App\Models\User;
 
 class PostController extends Controller
 {
+
     /**
      * Menampilkan daftar konten.
      */
     public function index(Request $request): View
     {
-        $perPage = (int) $request->query('per_page', 10);
+        /*
+        * Jumlah data per halaman.
+        */
+        $perPage = (int) $request->input(
+            'per_page',
+            10
+        );
 
-        if (! in_array($perPage, [10, 25, 50, 100], true)) {
+        /*
+        * Pastikan hanya nilai yang diizinkan.
+        */
+        if (! in_array(
+            $perPage,
+            [10, 25, 50, 100]
+        )) {
             $perPage = 10;
         }
 
-        $search = trim($request->query('search', ''));
 
-        $type = $request->query('type');
+        $query = Post::with('author')
+            ->latest('created_at');
 
-        if (! in_array($type, [
-            'news',
-            'announcement',
-            'regulation',
-        ], true)) {
-            $type = null;
+
+        /*
+        * Filter jenis konten.
+        */
+        if ($request->filled('type')) {
+
+            $query->where(
+                'type',
+                $request->string('type')->toString()
+            );
+
         }
 
-        $status = $request->query('status');
 
-        if (! in_array($status, [
-            'draft',
-            'published',
-            'archived',
-        ], true)) {
-            $status = null;
+        /*
+        * Filter status.
+        */
+        if ($request->filled('status')) {
+
+            $query->where(
+                'status',
+                $request->string('status')->toString()
+            );
+
         }
 
-        $posts = Post::query()
-            ->with([
-                'author',
-                'regulationType',
-            ])
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where(function ($query) use ($search) {
-                    $query
-                        ->where('title', 'like', '%' . $search . '%')
-                        ->orWhere('slug', 'like', '%' . $search . '%')
-                        ->orWhere(
-                            'regulation_number',
-                            'like',
-                            '%' . $search . '%'
-                        );
-                });
-            })
-            ->when($type, function ($query) use ($type) {
-                $query->where('type', $type);
-            })
-            ->when($status, function ($query) use ($status) {
-                $query->where('status', $status);
-            })
-            ->latest()
+
+        /*
+        * Filter penulis.
+        */
+        if ($request->filled('author')) {
+
+            $query->where(
+                'author_id',
+                $request->integer('author')
+            );
+
+        }
+
+
+        /*
+        * Pencarian konten.
+        */
+        if ($request->filled('search')) {
+
+            $search = $request
+                ->string('search')
+                ->toString();
+
+            $query->where(function ($q) use ($search) {
+
+                $q->where(
+                    'title',
+                    'like',
+                    "%{$search}%"
+                )
+                ->orWhere(
+                    'excerpt',
+                    'like',
+                    "%{$search}%"
+                );
+
+            });
+
+        }
+
+
+        /*
+        * Ambil daftar penulis yang memiliki konten.
+        */
+        $authors = User::query()
+            ->whereIn(
+                'id',
+                Post::query()
+                    ->select('author_id')
+                    ->whereNotNull('author_id')
+                    ->distinct()
+            )
+            ->orderBy('name')
+            ->get([
+                'id',
+                'name',
+            ]);
+
+
+        /*
+        * Pagination.
+        */
+        $posts = $query
             ->paginate($perPage)
             ->withQueryString();
 
+
         return view('posts.index', [
+
             'posts' => $posts,
+
+            'authors' => $authors,
+
             'perPage' => $perPage,
-            'search' => $search,
-            'type' => $type,
-            'status' => $status,
+
         ]);
     }
 
@@ -116,6 +180,20 @@ class PostController extends Controller
         */
 
         $data = $request->validated();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Default Status Hukum Regulasi
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $data['type'] === 'regulation' &&
+            empty($data['legal_status'])
+        ) {
+            $data['legal_status'] = 'berlaku';
+        }
+
 
         if (in_array($data['type'], ['news', 'announcement'], true)) {
             $data['content'] = Purifier::clean(
@@ -265,9 +343,6 @@ class PostController extends Controller
         |--------------------------------------------------------------------------
         | Jika bukan Regulasi
         |--------------------------------------------------------------------------
-        |
-        | Bersihkan seluruh metadata regulasi.
-        |--------------------------------------------------------------------------
         */
 
         if ($data['type'] !== 'regulation') {
@@ -292,6 +367,35 @@ class PostController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | Normalisasi Status Hukum Regulasi
+        |--------------------------------------------------------------------------
+        */
+
+        if ($data['type'] === 'regulation') {
+
+            if (
+                empty($data['legal_status']) ||
+                in_array(
+                    $data['legal_status'],
+                    [
+                        'mengubah',
+                        'mencabut',
+                        'diubah',
+                        'dicabut',
+                    ],
+                    true
+                )
+            ) {
+
+                $data['legal_status'] = 'berlaku';
+
+            }
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
         | Simpan Post
         |--------------------------------------------------------------------------
         */
@@ -309,12 +413,26 @@ class PostController extends Controller
         | MENCABUT  : post ini -> regulasi yang dicabut
         | DICABUT   : regulasi yang dipilih -> post ini
         |
+        | Untuk hubungan pencabutan:
+        |
+        | Regulasi yang mencabut
+        |     status = mencabut
+        |
+        | Regulasi yang dicabut
+        |     status = tidak_berlaku
+        |
         */
 
         if ($post->type === 'regulation') {
 
+            /*
+            |--------------------------------------------------------------------------
+            | MENGUBAH
+            |--------------------------------------------------------------------------
+            */
+
             if (
-                $post->legal_status === 'mengubah' &&
+                $regulationRelationStatus === 'mengubah' &&
                 $amendsPostId
             ) {
 
@@ -330,8 +448,15 @@ class PostController extends Controller
                 ]);
             }
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | DIUBAH
+            |--------------------------------------------------------------------------
+            */
+
             elseif (
-                $post->legal_status === 'diubah' &&
+                $regulationRelationStatus === 'diubah' &&
                 $amendedByPostId
             ) {
 
@@ -347,25 +472,74 @@ class PostController extends Controller
                 ]);
             }
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | MENCABUT
+            |--------------------------------------------------------------------------
+            |
+            | Contoh:
+            |
+            | Perpres 16 Tahun 2018
+            |        mencabut
+            |             ↓
+            | Perpres 54 Tahun 2010
+            |
+            */
+
             elseif (
-                $post->legal_status === 'mencabut' &&
+                $regulationRelationStatus === 'mencabut' &&
                 $repealsPostId
-            ) {
+            ){
 
                 $relatedPost = Post::query()
                     ->where('type', 'regulation')
                     ->whereKeyNot($post->id)
                     ->findOrFail($repealsPostId);
 
+
+                /*
+                |--------------------------------------------------------------------------
+                | Simpan hubungan pencabutan
+                |--------------------------------------------------------------------------
+                */
+
                 RegulationRelation::create([
                     'post_id' => $post->id,
                     'related_post_id' => $relatedPost->id,
                     'relation_type' => 'repeals',
                 ]);
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Regulasi yang dicabut otomatis tidak berlaku
+                |--------------------------------------------------------------------------
+                */
+
+                $relatedPost->update([
+                    'legal_status' => 'tidak_berlaku',
+                ]);
             }
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | DICABUT
+            |--------------------------------------------------------------------------
+            |
+            | Contoh ketika membuat regulasi lama:
+            |
+            | Perpres 54 Tahun 2010
+            | status: Dicabut
+            |
+            | Dicabut oleh:
+            | Perpres 16 Tahun 2018
+            |
+            */
+
             elseif (
-                $post->legal_status === 'dicabut' &&
+                $regulationRelationStatus === 'dicabut' &&
                 $repealedByPostId
             ) {
 
@@ -374,10 +548,31 @@ class PostController extends Controller
                     ->whereKeyNot($post->id)
                     ->findOrFail($repealedByPostId);
 
+
+                /*
+                |--------------------------------------------------------------------------
+                | Simpan hubungan kanonik
+                |--------------------------------------------------------------------------
+                |
+                | Regulasi pencabut -> regulasi yang dicabut
+                |
+                */
+
                 RegulationRelation::create([
                     'post_id' => $relatedPost->id,
                     'related_post_id' => $post->id,
                     'relation_type' => 'repeals',
+                ]);
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Regulasi ini otomatis tidak berlaku
+                |--------------------------------------------------------------------------
+                */
+
+                $post->update([
+                    'legal_status' => 'tidak_berlaku',
                 ]);
             }
         }
@@ -429,12 +624,13 @@ class PostController extends Controller
             'Konten yang sudah diarsipkan tidak dapat diedit. Kembalikan ke draft terlebih dahulu.'
         );
 
-        abort_if(
-            $post->status === 'published' &&
-            auth()->user()?->hasRole('OPERATOR'),
-            403,
-            'Operator hanya dapat mengedit konten yang masih berstatus draft.'
-        );
+        if ($post->status === 'published') {
+            abort_unless(
+                auth()->user()?->hasPermission('posts.update-published'),
+                403,
+                'Anda tidak memiliki izin untuk mengedit konten yang sudah dipublikasikan.'
+            );
+        }
 
         $post->load([
             'author',
@@ -465,22 +661,23 @@ class PostController extends Controller
  * Memperbarui konten.
  */
     public function update(
-        UpdatePostRequest $request,
-        Post $post
+    UpdatePostRequest $request,
+    Post $post
     ): RedirectResponse {
-            abort_if(
-                $post->status === 'archived',
-                403,
-                'Konten yang sudah diarsipkan tidak dapat diedit. Kembalikan ke draft terlebih dahulu.'
-            );
 
-            abort_if(
-                $post->status === 'published' &&
-                auth()->user()?->hasRole('OPERATOR'),
-                403,
-                'Operator hanya dapat mengedit konten yang masih berstatus draft.'
-            );
+        abort_if(
+            $post->status === 'archived',
+            403,
+            'Konten yang sudah diarsipkan tidak dapat diedit. Kembalikan ke draft terlebih dahulu.'
+        );
 
+        if ($post->status === 'published') {
+            abort_unless(
+                auth()->user()?->hasPermission('posts.update-published'),
+                403,
+                'Anda tidak memiliki izin untuk mengedit konten yang sudah dipublikasikan.'
+            );
+        }
         /*
         |--------------------------------------------------------------------------
         | Ambil data yang sudah divalidasi
@@ -489,15 +686,36 @@ class PostController extends Controller
 
         $data = $request->validated();
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Default Status Hukum Regulasi
+        |--------------------------------------------------------------------------
+        |
+        | Jika regulasi belum memiliki status hukum,
+        | gunakan status hukum yang sudah tersimpan.
+        |
+        */
+
+        if (
+            $data['type'] === 'regulation' &&
+            empty($data['legal_status'])
+        ) {
+            $data['legal_status'] =
+                $post->legal_status ?? 'berlaku';
+        }
+
+
         if (in_array($data['type'], ['news', 'announcement'], true)) {
+
             $data['content'] = Purifier::clean(
                 $data['content'],
                 'default'
             );
 
             $data['excerpt'] = Purifier::clean(
-            $data['excerpt'] ?? '',
-            'default'
+                $data['excerpt'] ?? '',
+                'default'
             );
         }
 
@@ -520,6 +738,16 @@ class PostController extends Controller
         $repealsPostId = $request->input('repeals_post_id');
 
         $repealedByPostId = $request->input('repealed_by_post_id');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Simpan pilihan jenis hubungan regulasi
+        |--------------------------------------------------------------------------
+        */
+
+        $regulationRelationStatus =
+            $data['legal_status'] ?? null;
 
 
         /*
@@ -708,6 +936,28 @@ class PostController extends Controller
         }
 
 
+       /*
+        |--------------------------------------------------------------------------
+        | Simpan hubungan pencabutan lama
+        |--------------------------------------------------------------------------
+        |
+        | Digunakan untuk mengembalikan status regulasi lama apabila
+        | hubungan pencabutan diubah atau dihapus.
+        |
+        */
+
+        $previousRepealedPostIds = [];
+
+        if ($post->type === 'regulation') {
+
+            $previousRepealedPostIds = RegulationRelation::query()
+                ->where('post_id', $post->id)
+                ->where('relation_type', 'repeals')
+                ->pluck('related_post_id')
+                ->all();
+        }
+
+
         /*
         |--------------------------------------------------------------------------
         | Update Post
@@ -766,6 +1016,26 @@ class PostController extends Controller
             RegulationRelation::query()
                 ->where('post_id', $post->id)
                 ->delete();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Kembalikan status regulasi yang sebelumnya dicabut
+            |--------------------------------------------------------------------------
+            |
+            | Jika hubungan pencabutan lama dihapus atau diganti,
+            | regulasi lama dikembalikan menjadi "berlaku".
+            |
+            */
+
+            if (!empty($previousRepealedPostIds)) {
+
+                Post::query()
+                    ->whereIn('id', $previousRepealedPostIds)
+                    ->update([
+                        'legal_status' => 'berlaku',
+                    ]);
+            }
 
 
             /*
@@ -855,6 +1125,7 @@ class PostController extends Controller
                     ->whereKeyNot($post->id)
                     ->findOrFail($repealsPostId);
 
+
                 RegulationRelation::updateOrCreate(
                     [
                         'post_id' => $post->id,
@@ -862,6 +1133,18 @@ class PostController extends Controller
                         'relation_type' => 'repeals',
                     ]
                 );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Otomatis ubah status regulasi yang dicabut
+                |--------------------------------------------------------------------------
+                */
+
+                $relatedPost->update([
+                    'legal_status' => 'tidak_berlaku',
+                ]);
+
             }
 
 
@@ -918,7 +1201,19 @@ class PostController extends Controller
                     'related_post_id' => $post->id,
                     'relation_type' => 'repeals',
                 ]);
+
+                /*
+                |--------------------------------------------------------------------------
+                | Regulasi ini otomatis tidak berlaku
+                |--------------------------------------------------------------------------
+                */
+
+                $post->update([
+                    'legal_status' => 'tidak_berlaku',
+                ]);
+
             }
+            
         }
 
 
@@ -929,11 +1224,8 @@ class PostController extends Controller
         */
 
         return redirect()
-            ->route('posts.show', $post)
-            ->with(
-                'success',
-                'Konten berhasil diperbarui.'
-            );
+            ->route('posts.show', $post);
+            
     }
 
 

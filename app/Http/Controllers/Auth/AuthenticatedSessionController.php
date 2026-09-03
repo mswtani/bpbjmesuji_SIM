@@ -12,44 +12,95 @@ use Illuminate\View\View;
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * Display login form.
      */
     public function create(): View
     {
         return view('auth.login');
     }
 
+
     /**
-     * Handle an incoming authentication request.
+     * Handle login request.
      */
-   public function store(LoginRequest $request): RedirectResponse
-    {
+    public function store(
+        LoginRequest $request
+    ): RedirectResponse {
+
         $request->authenticate();
 
         $request->session()->regenerate();
 
         $user = $request->user();
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Password sementara dari administrator
+        |--------------------------------------------------------------------------
+        */
+
         if ($user->must_change_password) {
+
             return redirect()
                 ->route('password.change');
+
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Public User
+        |--------------------------------------------------------------------------
+        */
+
+        if ($user->isPublic()) {
+
+            /*
+             * Public belum verifikasi email.
+             */
+            if (! $user->email_verified_at) {
+
+                return redirect()
+                    ->route('verification.notice');
+
+            }
+
+            return redirect()
+                ->route('home');
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ASN / Internal User
+        |--------------------------------------------------------------------------
+        */
+
         return redirect()
-            ->intended(route('dashboard', absolute: false));
+            ->intended(
+                route(
+                    'dashboard',
+                    absolute: false
+                )
+            );
     }
 
+
     /**
-     * Destroy an authenticated session.
+     * Logout.
      */
-    public function destroy(Request $request): RedirectResponse
-    {
+    public function destroy(
+        Request $request
+    ): RedirectResponse {
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()
+            ->route('home');
     }
 }

@@ -1,19 +1,29 @@
+@php
+    $isPublic = old(
+        'user_type',
+        $user->user_type ?? 'asn'
+    ) === 'public';
+@endphp
+
+
 {{-- NIP --}}
-<div>
-    <x-admin.form.label for="nip">
-        NIP <span class="text-red-500">*</span>
-    </x-admin.form.label>
+@if (! $isPublic)
+    <div>
+        <x-admin.form.label for="nip">
+            NIP <span class="text-red-500">*</span>
+        </x-admin.form.label>
 
-    <x-admin.form.input
-        id="nip"
-        name="nip"
-        type="text"
-        :value="old('nip', $user->nip ?? '')"
-        required
-    />
+        <x-admin.form.input
+            id="nip"
+            name="nip"
+            type="text"
+            :value="old('nip', $user->nip ?? '')"
+            required
+        />
 
-    <x-admin.form.error field="nip" />
-</div>
+        <x-admin.form.error field="nip" />
+    </div>
+@endif
 
 
 {{-- Nama Lengkap --}}
@@ -52,90 +62,78 @@
 </div>
 
 
-{{-- Nomor HP --}}
-<div>
-    <x-admin.form.label for="phone">
-        Nomor HP
-    </x-admin.form.label>
+@if (! $isPublic)
 
-    <x-admin.form.input
-        id="phone"
-        name="phone"
-        type="tel"
-        :value="old('phone', $user->phone ?? '')"
-    />
+    {{-- Role --}}
+    <div>
+        <x-admin.form.label for="role_id">
+            Role <span class="text-red-500">*</span>
+        </x-admin.form.label>
 
-    <x-admin.form.error field="phone" />
-</div>
-
-
-{{-- Role --}}
-<div>
-    <x-admin.form.label for="role_id">
-        Role <span class="text-red-500">*</span>
-    </x-admin.form.label>
-
-    <select
-        id="role_id"
-        name="role_id"
-        required
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-    >
-
-        <option value="">
-            -- Pilih Role --
-        </option>
-
-        @foreach ($roles as $role)
-
-            <option
-                value="{{ $role->id }}"
-                @selected(
-                    old('role_id', $user->role_id ?? '') == $role->id
-                )
-            >
-                {{ $role->name }}
+        <select
+            id="role_id"
+            name="role_id"
+            required
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        >
+            <option value="">
+                -- Pilih Role --
             </option>
 
-        @endforeach
+            @foreach ($roles as $role)
 
-    </select>
+                <option
+                    value="{{ $role->id }}"
+                    @selected(
+                        old('role_id', $user->role_id ?? '') == $role->id
+                    )
+                >
+                    {{ $role->name }}
+                </option>
 
-    <x-admin.form.error field="role_id" />
-</div>
+            @endforeach
+
+        </select>
+
+        <x-admin.form.error field="role_id" />
+    </div>
 
 
-{{-- Jabatan --}}
-<div>
-    <x-admin.form.label for="position_id">
-        Jabatan dalam PBJ <span class="text-red-500">*</span>
-    </x-admin.form.label>
+    {{-- Jabatan --}}
+    <div>
+        <x-admin.form.label for="position_id">
+            Jabatan dalam PBJ <span class="text-red-500">*</span>
+        </x-admin.form.label>
 
-    <select
-        id="position_id"
-        name="position_id"
-        required
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-    >
-
-        <option value="">
-            -- Pilih Jabatan --
-        </option>
-
-        @foreach ($positions as $position)
-
-            <option
-                value="{{ $position->id }}"
-                @selected(
-                    old('position_id', $user->position_id ?? '') == $position->id
-                )
-            >
-                {{ $position->name }}
+        <select
+            id="position_id"
+            name="position_id"
+            required
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        >
+            <option value="">
+                -- Pilih Jabatan --
             </option>
 
-        @endforeach
+            @foreach ($positions as $position)
 
-    </select>
+                <option
+                    value="{{ $position->id }}"
+                    @selected(
+                        old(
+                            'position_id',
+                            $user->position_id ?? ''
+                        ) == $position->id
+                    )
+                >
+                    {{ $position->name }}
+                </option>
 
-    <x-admin.form.error field="position_id" />
-</div>
+            @endforeach
+
+        </select>
+
+        <x-admin.form.error field="position_id" />
+    </div>
+
+@endif

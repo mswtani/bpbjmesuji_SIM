@@ -366,7 +366,7 @@
                                     <div class="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
 
                                         <p class="text-xs font-semibold uppercase tracking-wide text-yellow-800">
-                                            Diubah Dengan
+                                            Mengubah
                                         </p>
 
                                         <a
@@ -689,7 +689,9 @@
 
         </div>
 
+       
     </section>
+
 
 </div>
 

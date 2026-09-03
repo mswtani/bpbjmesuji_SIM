@@ -1,3 +1,6 @@
+// console.log("APP JS BERHASIL DIMUAT");
+// alert("APP JS BERHASIL DIMUAT");
+
 import Alpine from "alpinejs";
 
 window.Alpine = Alpine;
@@ -168,11 +171,11 @@ document.addEventListener("DOMContentLoaded", () => {
             buttonHover = "#c2410c";
             focusColor = "rgba(234, 88, 12, 0.30)";
         } else if (action === "restore") {
-            iconBg = "#eff6ff";
-            iconColor = "#2563eb";
-            buttonBg = "#2563eb";
-            buttonHover = "#1d4ed8";
-            focusColor = "rgba(37, 99, 235, 0.30)";
+            iconBg = "#f59e0b";
+            iconColor = "#ffffff";
+            buttonBg = "#f59e0b";
+            buttonHover = "#d97706";
+            focusColor = "rgba(245, 158, 11, 0.30)";
         } else if (action === "delete") {
             iconBg = "#fef2f2";
             iconColor = "#dc2626";
@@ -349,6 +352,221 @@ document.addEventListener("DOMContentLoaded", () => {
             openConfirmModal(form, message);
         });
     });
+
+    /*
+|--------------------------------------------------------------------------
+| Global Success Modal
+|--------------------------------------------------------------------------
+*/
+
+    const successModal = document.getElementById("admin-success-modal");
+    const successOverlay = document.getElementById("admin-success-overlay");
+    const successClose = document.getElementById("admin-success-close");
+    const successOk = document.getElementById("admin-success-ok");
+    const successMessage = document.getElementById("admin-success-message");
+    const successIcon = document.getElementById("admin-success-icon");
+
+    /*
+|--------------------------------------------------------------------------
+| Close Success Modal
+|--------------------------------------------------------------------------
+*/
+
+    function closeSuccessModal() {
+        if (!successModal) {
+            return;
+        }
+
+        successModal.classList.add("hidden");
+        successModal.setAttribute("aria-hidden", "true");
+
+        document.body.classList.remove("overflow-hidden");
+    }
+
+    /*
+|--------------------------------------------------------------------------
+| Open Success Modal
+|--------------------------------------------------------------------------
+*/
+
+    function openSuccessModal(message, type = "create") {
+        if (!successModal || !successMessage) {
+            return;
+        }
+
+        successMessage.textContent = message;
+
+        /*
+    |--------------------------------------------------------------------------
+    | Reset warna
+    |--------------------------------------------------------------------------
+    */
+
+        const colorClasses = [
+            "bg-blue-50",
+            "text-blue-600",
+            "bg-blue-600",
+            "hover:bg-blue-700",
+            "focus:ring-blue-500/30",
+
+            "bg-emerald-50",
+            "text-emerald-600",
+            "bg-emerald-600",
+            "hover:bg-emerald-700",
+            "focus:ring-emerald-500/30",
+
+            "bg-orange-50",
+            "text-orange-600",
+            "bg-orange-600",
+            "hover:bg-orange-700",
+            "focus:ring-orange-500/30",
+
+            "bg-red-50",
+            "text-red-600",
+            "bg-red-600",
+            "hover:bg-red-700",
+            "focus:ring-red-500/30",
+        ];
+
+        successIcon?.classList.remove(...colorClasses);
+        successOk?.classList.remove(...colorClasses);
+
+        /*
+    |--------------------------------------------------------------------------
+    | Default → BLUE
+    |
+    | Create / Update
+    |--------------------------------------------------------------------------
+    */
+
+        let iconClasses = ["bg-blue-50", "text-blue-600"];
+
+        let buttonClasses = [
+            "bg-blue-600",
+            "hover:bg-blue-700",
+            "focus:ring-2",
+            "focus:ring-blue-500/30",
+        ];
+
+        /*
+    |--------------------------------------------------------------------------
+    | Publish → GREEN
+    |--------------------------------------------------------------------------
+    */
+
+        if (type === "publish") {
+            iconClasses = ["bg-emerald-50", "text-emerald-600"];
+
+            buttonClasses = [
+                "bg-emerald-600",
+                "hover:bg-emerald-700",
+                "focus:ring-2",
+                "focus:ring-emerald-500/30",
+            ];
+        } else if (type === "archive" || type === "restore") {
+            /*
+    |--------------------------------------------------------------------------
+    | Archive / Restore → ORANGE
+    |--------------------------------------------------------------------------
+    */
+            iconClasses = ["bg-orange-50", "text-orange-600"];
+
+            buttonClasses = [
+                "bg-orange-600",
+                "hover:bg-orange-700",
+                "focus:ring-2",
+                "focus:ring-orange-500/30",
+            ];
+        } else if (type === "delete") {
+            /*
+    |--------------------------------------------------------------------------
+    | Delete → RED
+    |--------------------------------------------------------------------------
+    */
+            iconClasses = ["bg-red-50", "text-red-600"];
+
+            buttonClasses = [
+                "bg-red-600",
+                "hover:bg-red-700",
+                "focus:ring-2",
+                "focus:ring-red-500/30",
+            ];
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | Apply warna
+    |--------------------------------------------------------------------------
+    */
+
+        successIcon?.classList.add(...iconClasses);
+        successOk?.classList.add(...buttonClasses);
+
+        /*
+    |--------------------------------------------------------------------------
+    | Open
+    |--------------------------------------------------------------------------
+    */
+
+        successModal.classList.remove("hidden");
+
+        successModal.setAttribute("aria-hidden", "false");
+
+        document.body.classList.add("overflow-hidden");
+
+        requestAnimationFrame(() => {
+            successOk?.focus();
+        });
+    }
+
+    /*
+|--------------------------------------------------------------------------
+| Success Modal Events
+|--------------------------------------------------------------------------
+*/
+
+    if (successModal) {
+        successClose?.addEventListener("click", () => {
+            closeSuccessModal();
+        });
+
+        successOk?.addEventListener("click", () => {
+            const redirectUrl = document.body.dataset.successRedirect;
+
+            closeSuccessModal();
+
+            if (redirectUrl) {
+                window.location.href = redirectUrl;
+            }
+        });
+
+        successOverlay?.addEventListener("click", () => {
+            closeSuccessModal();
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (
+                event.key === "Escape" &&
+                !successModal.classList.contains("hidden")
+            ) {
+                closeSuccessModal();
+            }
+        });
+    }
+
+    /*
+|--------------------------------------------------------------------------
+| Laravel Success Flash Message
+|--------------------------------------------------------------------------
+*/
+
+    const laravelSuccessMessage = document.body.dataset.successMessage;
+
+    const laravelSuccessType = document.body.dataset.successType || "create";
+
+    if (laravelSuccessMessage) {
+        openSuccessModal(laravelSuccessMessage, laravelSuccessType);
+    }
 
     /*
 |--------------------------------------------------------------------------
@@ -857,4 +1075,70 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 1800);
         });
     }
+
+    /*
+|--------------------------------------------------------------------------
+| Validasi Form Bahasa Indonesia
+|--------------------------------------------------------------------------
+*/
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const forms = document.querySelectorAll(
+            "form[data-indonesian-validation]",
+        );
+
+        forms.forEach(function (form) {
+            const fields = form.querySelectorAll("input, select, textarea");
+
+            fields.forEach(function (field) {
+                /*
+            |--------------------------------------------------------------------------
+            | Pesan ketika validasi gagal
+            |--------------------------------------------------------------------------
+            */
+
+                field.addEventListener("invalid", function () {
+                    let message = "";
+
+                    const label =
+                        field.dataset.label ||
+                        field.getAttribute("name") ||
+                        "Kolom ini";
+
+                    if (field.validity.valueMissing) {
+                        message = label + " wajib diisi.";
+                    } else if (
+                        field.validity.typeMismatch &&
+                        field.type === "email"
+                    ) {
+                        message = "Masukkan alamat email yang valid.";
+                    } else if (field.validity.tooShort) {
+                        message =
+                            label +
+                            " minimal terdiri dari " +
+                            field.minLength +
+                            " karakter.";
+                    } else if (field.validity.patternMismatch) {
+                        message = "Format " + label + " tidak sesuai.";
+                    }
+
+                    field.setCustomValidity(message);
+                });
+
+                /*
+            |--------------------------------------------------------------------------
+            | Hapus pesan ketika user mulai mengetik
+            |--------------------------------------------------------------------------
+            */
+
+                field.addEventListener("input", function () {
+                    field.setCustomValidity("");
+                });
+
+                field.addEventListener("change", function () {
+                    field.setCustomValidity("");
+                });
+            });
+        });
+    });
 });

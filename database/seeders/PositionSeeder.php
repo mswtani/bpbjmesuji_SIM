@@ -12,7 +12,7 @@ class PositionSeeder extends Seeder
      */
     public function run(): void
     {
-        $positions= [
+        $positions = [
             [
                 'code' => 'PA',
                 'name' => 'Pengguna Anggaran',
@@ -34,26 +34,56 @@ class PositionSeeder extends Seeder
             [
                 'code' => 'PP',
                 'name' => 'Pejabat Pengadaan',
-                'description' => 'Pejabaat pengadaan.',
+                'description' => 'Pejabat Pengadaan.',
             ],
 
             [
-                'code' => 'PENYEDIA',
-                'name' => 'Penyedia barang jasa',
-                'description' => 'Pelaku usaha penyedia barang dan jasa.',
+                'code' => 'POKJA',
+                'name' => 'Kelompok Kerja Pemilihan',
+                'description' => 'Kelompok Kerja Pemilihan.',
             ],
 
             [
-                'code' => 'NON_PENYEDIA',
-                'name' => 'Non penydia',
-                'description' => 'Masyarakat, Aparat Pengawas, Akademisi, atau pihak lain di luar penyedia.',
+                'code' => 'AUDITOR',
+                'name' => 'Auditor',
+                'description' => 'Auditor internal atau pihak pengawasan.',
             ],
 
+            [
+                'code' => 'KEPALA_BPBJ',
+                'name' => 'Kepala BPBJ',
+                'description' => 'Kepala Bagian Pengadaan Barang dan Jasa.',
+            ],
+
+            [
+                'code' => 'SEKDA',
+                'name' => 'Sekretaris Daerah',
+                'description' => 'Sekretaris Daerah.',
+            ],
+
+            [
+                'code' => 'WAKIL_BUPATI',
+                'name' => 'Wakil Bupati',
+                'description' => 'Wakil Bupati.',
+            ],
+
+            [
+                'code' => 'BUPATI',
+                'name' => 'Bupati',
+                'description' => 'Bupati.',
+            ],
         ];
 
-        foreach($positions as $position)
-        {
-            Position::create($position);
+        foreach ($positions as $position) {
+            Position::updateOrCreate(
+                [
+                    'code' => $position['code'],
+                ],
+                [
+                    'name' => $position['name'],
+                    'description' => $position['description'],
+                ]
+            );
         }
     }
 }

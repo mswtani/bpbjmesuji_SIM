@@ -115,13 +115,34 @@ class Post extends Model
 
 
     /**
+     * Regulasi yang diubah oleh regulasi ini.
+     *
+     * Contoh:
+     *
+     * Perpres 46/2025
+     *     ↓
+     * Perpres 12/2021
+     */
+    public function amends(): HasMany
+    {
+        return $this->hasMany(
+            RegulationRelation::class,
+            'post_id'
+        )->where(
+            'relation_type',
+            'amends'
+        );
+    }
+
+
+    /**
      * Regulasi yang mengubah regulasi ini.
      *
-     * Misalnya:
+     * Contoh:
      *
-     * Perbup 12/2021
+     * Perpres 12/2021
      *     ↑
-     * Perbup 5/2026
+     * Perpres 46/2025
      */
     public function amendedBy(): HasMany
     {

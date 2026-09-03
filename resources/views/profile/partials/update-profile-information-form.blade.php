@@ -172,30 +172,6 @@
     </div>
 
 
-    {{-- Nomor HP --}}
-    <div>
-        <x-input-label
-            for="phone"
-            :value="__('Nomor HP')"
-        />
-
-        <x-text-input
-            id="phone"
-            name="phone"
-            type="tel"
-            class="mt-1 block w-full"
-            :value="old('phone', $user->phone)"
-            autocomplete="tel"
-            maxlength="20"
-        />
-
-        <x-input-error
-            class="mt-2"
-            :messages="$errors->get('phone')"
-        />
-    </div>
-
-
     {{-- Tombol Simpan --}}
     <div class="flex items-center gap-4">
 

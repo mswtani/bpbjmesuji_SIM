@@ -190,17 +190,6 @@
 
     </div>
 
-    {{-- Flash Success --}}
-    @if (session('success'))
-
-        <div
-            class="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
-        >
-            {{ session('success') }}
-        </div>
-
-    @endif
-
 
     {{-- Flash Error --}}
     @if (session('error'))
@@ -566,8 +555,7 @@
                 <form
                     method="GET"
                     action="{{ route('roles.index') }}"
-                    class="flex items-center gap-2"
-                >
+                    class="flex items-center justify-center gap-2 self-center sm:self-auto">
 
                     @foreach (request()->except(['page', 'per_page']) as $key => $value)
 

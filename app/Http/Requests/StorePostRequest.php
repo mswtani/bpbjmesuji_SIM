@@ -45,13 +45,13 @@ class StorePostRequest extends FormRequest
             'title' => [
                 'required',
                 'string',
-                'max:255',
+                'max:5000',
             ],
 
             'slug' => [
                 'nullable',
                 'string',
-                'max:255',
+                'max:5000',
                 'alpha_dash',
                 'unique:posts,slug',
             ],

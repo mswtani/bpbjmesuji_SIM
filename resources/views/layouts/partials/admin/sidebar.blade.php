@@ -173,7 +173,7 @@
 
         @endif
 
-
+        
         {{-- =====================================================
              HELPDESK
         ====================================================== --}}
@@ -249,7 +249,7 @@
                     stroke="currentColor"
                     stroke-width="1.8"
                     viewBox="0 0 24 24"
-                >
+                    >
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -323,6 +323,59 @@
 
         @endif
 
+        {{-- =====================================================
+            JENIS REGULASI
+        ===================================================== --}}
+
+        @if (auth()->user()?->hasPermission('regulation-types.view'))
+
+            <a
+                href="{{ route('regulation-types.index') }}"
+                class="
+                    mb-2 flex h-11 items-center gap-3 rounded-lg px-3
+                    text-sm font-medium transition
+                    {{ request()->routeIs('regulation-types.*')
+                        ? 'bg-sky-50 text-sky-700'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-sky-600' }}
+                "
+                title="Jenis Regulasi"
+            >
+
+                <svg
+                    class="h-5 w-5 shrink-0 text-sky-500"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M4 5a2 2 0 0 1 2-2h10l4 4v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Z"
+                    />
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M14 3v5h5"
+                    />
+
+                    <path
+                        stroke-linecap="round"
+                        d="M8 12h8M8 16h8"
+                    />
+
+                </svg>
+
+                <span class="admin-sidebar-label whitespace-nowrap">
+                    Jenis Regulasi
+                </span>
+
+            </a>
+
+        @endif
+
+
     </nav>
 
 
@@ -331,6 +384,63 @@
     ========================================================== --}}
 
     <div class="shrink-0 border-t border-gray-200 px-3 py-4">
+
+        {{-- =====================================================
+            LIHAT WEBSITE PUBLIK
+        ===================================================== --}}
+
+        <a
+            href="{{ url('/') }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="
+                mb-2 flex h-11 items-center gap-3 rounded-lg px-3
+                text-sm font-medium text-gray-600
+                transition
+                hover:bg-blue-50
+                hover:text-blue-600
+            "
+            title="Lihat Website"
+        >
+
+            <svg
+                class="h-5 w-5 shrink-0 text-blue-500"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                viewBox="0 0 24 24"
+            >
+                <circle
+                    cx="12"
+                    cy="12"
+                    r="9"
+                />
+
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3 12h18"
+                />
+
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 3a14.5 14.5 0 0 1 0 18"
+                />
+
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 3a14.5 14.5 0 0 0 0 18"
+                />
+
+            </svg>
+
+            <span class="admin-sidebar-label whitespace-nowrap">
+                Lihat Website
+            </span>
+
+        </a>
 
         <a
             href="{{ route('profile.edit') }}"

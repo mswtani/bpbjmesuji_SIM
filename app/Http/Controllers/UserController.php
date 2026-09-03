@@ -22,54 +22,110 @@ class UserController extends Controller
 
         $search = request('search');
 
-        $query = User::with(['role', 'position'])
-            ->orderBy('name');
+        $query = User::with([
+            'role',
+            'position',
+        ])->orderBy('name');
 
         /*
-        * SUPER_ADMI
-        *
-        * User selain SUPER_ADMIN hanya dapat melihat
-        * user dengan level role <= level dirinya.
+        |--------------------------------------------------------------------------
+        | Filter akses berdasarkan role
+        |--------------------------------------------------------------------------
+        |
+        | SUPER_ADMIN:
+        | - dapat melihat semua user.
+        |
+        | Selain SUPER_ADMIN:
+        | - tidak boleh melihat SUPER_ADMIN.
+        | - boleh melihat role lain:
+        |   - role di atas
+        |   - role selevel
+        |   - role di bawah
+        |
         */
-        if (! $currentUser->hasRole('SUPER_ADMIN')) {
-            $currentLevel = $currentUser->role?->level ?? 0;
 
-            $query->whereHas('role', function ($roleQuery) use ($currentLevel) {
-                $roleQuery->where('level', '<=', $currentLevel);
+        if (! $currentUser->hasRole('SUPER_ADMIN')) {
+            $query->whereHas('role', function ($roleQuery) {
+                $roleQuery->where(
+                    'code',
+                    '!=',
+                    'SUPER_ADMIN'
+                );
             });
         }
 
         /*
-        * Search user berdasarkan:
-        * - nama
-        * - NIP
-        * - email
+        |--------------------------------------------------------------------------
+        | Search user
+        |--------------------------------------------------------------------------
         */
+
         if ($search) {
             $query->where(function ($searchQuery) use ($search) {
                 $searchQuery
-                    ->where('name', 'like', "%{$search}%")
-                    ->orWhere('nip', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                    ->where(
+                        'name',
+                        'like',
+                        "%{$search}%"
+                    )
+                    ->orWhere(
+                        'nip',
+                        'like',
+                        "%{$search}%"
+                    )
+                    ->orWhere(
+                        'email',
+                        'like',
+                        "%{$search}%"
+                    );
             });
         }
 
         /*
-        * Pagination
+        |--------------------------------------------------------------------------
+        | Pagination
+        |--------------------------------------------------------------------------
         */
+
+        $allowedPerPage = [
+            10,
+            25,
+            50,
+            100,
+        ];
+
+        $perPage = (int) request(
+            'per_page',
+            10
+        );
+
+        if (
+            ! in_array(
+                $perPage,
+                $allowedPerPage,
+                true
+            )
+        ) {
+            $perPage = 10;
+        }
+
         $users = $query
-            ->paginate(10)
+            ->paginate($perPage)
             ->withQueryString();
 
-        return view('users.index', compact(
-            'users',
-            'search'
-        ));
+        return view(
+            'users.index',
+            compact(
+                'users',
+                'search',
+                'perPage'
+            )
+        );
     }
 
 
     /**
-     * Mendapatkan Role yang boleh diberikan
+     * Mendapatkan role yang boleh diberikan
      * oleh user yang sedang login.
      */
     private function availableRoles()
@@ -88,13 +144,17 @@ class UserController extends Controller
         }
 
         /*
-         * User lain hanya boleh memberikan
-         * role dengan level lebih rendah.
+         * User selain SUPER_ADMIN hanya dapat
+         * memberikan role dengan level lebih rendah.
          */
         $currentLevel = $currentUser->role?->level ?? 0;
 
         return $query
-            ->where('level', '<', $currentLevel)
+            ->where(
+                'level',
+                '<',
+                $currentLevel
+            )
             ->get();
     }
 
@@ -102,10 +162,21 @@ class UserController extends Controller
     /**
      * Memastikan user boleh melihat target user.
      *
-     * Level sama masih boleh dilihat.
+     * Aturan:
+     *
+     * - SUPER_ADMIN dapat melihat semua user.
+     *
+     * - User selain SUPER_ADMIN:
+     *   tidak dapat melihat SUPER_ADMIN.
+     *
+     * - Selain itu boleh melihat:
+     *   - role di atas
+     *   - role selevel
+     *   - role di bawah
      */
-    private function ensureCanViewUser(User $user): void
-    {
+    private function ensureCanViewUser(
+        User $user
+    ): void {
         $currentUser = auth()->user();
 
         if (! $currentUser) {
@@ -119,25 +190,39 @@ class UserController extends Controller
             return;
         }
 
-        $currentLevel = $currentUser->role?->level ?? 0;
-        $targetLevel = $user->role?->level ?? 0;
-
-        if ($targetLevel > $currentLevel) {
+        /*
+         * User selain SUPER_ADMIN tidak boleh
+         * melihat akun SUPER_ADMIN.
+         */
+        if ($user->hasRole('SUPER_ADMIN')) {
             abort(
                 403,
-                'Anda tidak memiliki izin untuk melihat user dengan level lebih tinggi.'
+                'Anda tidak memiliki izin untuk melihat akun Super Administrator.'
             );
         }
     }
 
 
     /**
-     * Memastikan user boleh mengelola target user.
+     * Memastikan user boleh mengedit
+     * target user.
      *
-     * Target harus mempunyai level lebih rendah.
+     * Aturan:
+     *
+     * SUPER_ADMIN:
+     * - dapat mengedit semua user.
+     * - termasuk akun sendiri.
+     *
+     * Selain SUPER_ADMIN:
+     * - tidak dapat mengedit SUPER_ADMIN.
+     * - dapat mengedit akun sendiri.
+     * - dapat mengedit role yang lebih rendah.
+     * - tidak dapat mengedit role selevel.
+     * - tidak dapat mengedit role yang lebih tinggi.
      */
-    private function ensureCanManageUser(User $user): void
-    {
+    private function ensureCanManageUser(
+        User $user
+    ): void {
         $currentUser = auth()->user();
 
         if (! $currentUser) {
@@ -145,36 +230,83 @@ class UserController extends Controller
         }
 
         /*
-         * Tidak boleh mengelola akun sendiri
-         * melalui Manajemen User.
-         */
-        if ($user->is($currentUser)) {
-            abort(
-                403,
-                'Anda tidak dapat mengelola akun sendiri melalui Manajemen User.'
-            );
-        }
-
-        /*
-         * SUPER_ADMIN dapat mengelola semua user lain.
+         * SUPER_ADMIN dapat mengedit semua user,
+         * termasuk dirinya sendiri.
          */
         if ($currentUser->hasRole('SUPER_ADMIN')) {
             return;
         }
 
+        /*
+         * Tidak boleh mengelola akun SUPER_ADMIN.
+         */
+        if ($user->hasRole('SUPER_ADMIN')) {
+            abort(
+                403,
+                'Anda tidak memiliki izin untuk mengelola akun Super Administrator.'
+            );
+        }
+
+        /*
+         * User boleh mengedit akun sendiri.
+         */
+        if ($user->is($currentUser)) {
+            return;
+        }
+
         $currentLevel = $currentUser->role?->level ?? 0;
+
         $targetLevel = $user->role?->level ?? 0;
 
         /*
-         * Target harus berada di bawah level user
-         * yang sedang login.
+         * User hanya boleh mengelola role
+         * yang berada di bawah levelnya.
          */
         if ($targetLevel >= $currentLevel) {
             abort(
                 403,
-                'Anda tidak memiliki izin untuk mengelola user dengan level yang sama atau lebih tinggi.'
+                'Anda hanya dapat mengelola user dengan role yang berada di bawah level Anda.'
             );
         }
+    }
+
+
+    /**
+     * Memastikan user boleh melakukan
+     * aksi sensitif terhadap target user.
+     *
+     * Aksi sensitif:
+     * - reset password
+     * - aktifkan akun
+     * - nonaktifkan akun
+     *
+     * User tidak boleh melakukan aksi
+     * sensitif terhadap akun sendiri.
+     */
+    private function ensureCanManageSensitiveAction(
+        User $user
+    ): void {
+        $currentUser = auth()->user();
+
+        if (! $currentUser) {
+            abort(403);
+        }
+
+        /*
+         * Tidak boleh melakukan aksi sensitif
+         * terhadap akun sendiri.
+         */
+        if ($user->is($currentUser)) {
+            abort(
+                403,
+                'Anda tidak dapat melakukan tindakan ini pada akun sendiri.'
+            );
+        }
+
+        /*
+         * Gunakan aturan pengelolaan user.
+         */
+        $this->ensureCanManageUser($user);
     }
 
 
@@ -185,25 +317,54 @@ class UserController extends Controller
     {
         $roles = $this->availableRoles();
 
-        $positions = Position::orderBy('name')->get();
+        $positions = Position::orderBy(
+            'name'
+        )->get();
 
-        return view('users.create', compact(
-            'roles',
-            'positions'
-        ));
+        return view(
+            'users.create',
+            compact(
+                'roles',
+                'positions'
+            )
+        );
     }
 
 
     /**
      * Menyimpan user baru.
      */
-    public function store(StoreUserRequest $request): RedirectResponse
-    {
+    public function store(
+        StoreUserRequest $request
+    ): RedirectResponse {
         $data = $request->validated();
 
+
         /*
-         * Generate password sementara.
-         */
+        |--------------------------------------------------------------------------
+        | Tentukan role
+        |--------------------------------------------------------------------------
+        */
+
+        $role = Role::findOrFail($data['role_id']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tentukan jenis user
+        |--------------------------------------------------------------------------
+        */
+
+        $data['user_type'] =
+            $role->code === 'PUBLIC_USER'
+                ? 'public'
+                : 'asn';
+
+        /*
+        |--------------------------------------------------------------------------
+        | Generate password sementara
+        |--------------------------------------------------------------------------
+        */
+
         $temporaryPassword = Str::random(12);
 
         $data['password'] = $temporaryPassword;
@@ -211,19 +372,44 @@ class UserController extends Controller
         $data['is_active'] = true;
 
         /*
-         * Buat user.
-         */
+        |--------------------------------------------------------------------------
+        | User dibuat oleh administrator
+        |--------------------------------------------------------------------------
+        |
+        | Karena akun dibuat langsung melalui Manajemen User,
+        | email dianggap telah diverifikasi.
+        |
+        */
+
+        $data['email_verified_at'] = now();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Buat user
+        |--------------------------------------------------------------------------
+        */
+
         $user = User::create($data);
 
         /*
-         * Kembali ke daftar user.
+         * Kembali ke halaman edit user.
          */
         return redirect()
-            ->route('users.index')
+            ->route(
+                'users.edit',
+                $user
+            )
             ->with(
                 'success',
-                "User {$user->name} berhasil ditambahkan. " .
-                "Password sementara: {$temporaryPassword}"
+                'Data user berhasil ditambahkan.'
+            )
+            ->with(
+                'success_type',
+                'create'
+            )
+            ->with(
+                'success_redirect',
+                route('users.index')
             );
     }
 
@@ -231,19 +417,25 @@ class UserController extends Controller
     /**
      * Form edit user.
      */
-    public function edit(User $user): View
-    {
+    public function edit(
+        User $user
+    ): View {
         $this->ensureCanManageUser($user);
 
         $roles = $this->availableRoles();
 
-        $positions = Position::orderBy('name')->get();
+        $positions = Position::orderBy(
+            'name'
+        )->get();
 
-        return view('users.edit', compact(
-            'user',
-            'roles',
-            'positions'
-        ));
+        return view(
+            'users.edit',
+            compact(
+                'user',
+                'roles',
+                'positions'
+            )
+        );
     }
 
 
@@ -253,18 +445,48 @@ class UserController extends Controller
     public function update(
         UpdateUserRequest $request,
         User $user
-    ): RedirectResponse {
+        ): RedirectResponse {
         $this->ensureCanManageUser($user);
 
-        $user->update(
-            $request->validated()
-        );
+        $data = $request->validated();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tentukan role baru
+        |--------------------------------------------------------------------------
+        */
+
+        $role = Role::findOrFail($data['role_id']);
+        
+        /*
+        |--------------------------------------------------------------------------
+        | Sinkronkan user type dengan role
+        |--------------------------------------------------------------------------
+        */
+
+        $data['user_type'] =
+            $role->code === 'PUBLIC_USER'
+                ? 'public'
+                : 'asn';
+
+        $user->update($data);
 
         return redirect()
-            ->route('users.edit', $user)
+            ->route(
+                'users.edit',
+                $user
+            )
             ->with(
                 'success',
                 'Data user berhasil diperbarui.'
+            )
+            ->with(
+                'success_type',
+                'update'
+            )
+            ->with(
+                'success_redirect',
+                route('users.index')
             );
     }
 
@@ -272,8 +494,9 @@ class UserController extends Controller
     /**
      * Detail user.
      */
-    public function show(User $user): View
-    {
+    public function show(
+        User $user
+    ): View {
         $this->ensureCanViewUser($user);
 
         $user->load([
@@ -281,18 +504,26 @@ class UserController extends Controller
             'position',
         ]);
 
-        return view('users.show', compact('user'));
+        return view(
+            'users.show',
+            compact('user')
+        );
     }
 
 
     /**
      * Reset password user.
      */
-    public function resetPassword(User $user): RedirectResponse
-    {
-        $this->ensureCanManageUser($user);
+    public function resetPassword(
+        User $user
+    ): RedirectResponse {
+        $this->ensureCanManageSensitiveAction($user);
 
-        $temporaryPassword = Str::random(12);
+        $temporaryPassword =
+            'BPBJ-' .
+            Str::upper(Str::random(4)) .
+            '-' .
+            random_int(1000, 9999);
 
         $user->update([
             'password' => $temporaryPassword,
@@ -301,18 +532,28 @@ class UserController extends Controller
 
         return redirect()
             ->route('users.index')
-            ->with('success', 'Password berhasil direset.')
-            ->with('success_action', 'reset-password')
-            ->with('temporary_password', $temporaryPassword);
-            }
+            ->with(
+                'success',
+                'Password berhasil direset.'
+            )
+            ->with(
+                'success_type',
+                'reset-password'
+            )
+            ->with(
+                'temporary_password',
+                $temporaryPassword
+            );
+    }
 
 
     /**
      * Menonaktifkan user.
      */
-    public function deactivate(User $user): RedirectResponse
-    {
-        $this->ensureCanManageUser($user);
+    public function deactivate(
+        User $user
+    ): RedirectResponse {
+        $this->ensureCanManageSensitiveAction($user);
 
         $user->update([
             'is_active' => false,
@@ -320,17 +561,24 @@ class UserController extends Controller
 
         return redirect()
             ->route('users.index')
-            ->with('success', 'User berhasil dinonaktifkan.')
-            ->with('success_action', 'deactivate');
+            ->with(
+                'success',
+                'User berhasil dinonaktifkan.'
+            )
+            ->with(
+                'success_type',
+                'deactivate'
+            );
     }
 
 
     /**
      * Mengaktifkan kembali user.
      */
-    public function activate(User $user): RedirectResponse
-    {
-        $this->ensureCanManageUser($user);
+    public function activate(
+        User $user
+    ): RedirectResponse {
+        $this->ensureCanManageSensitiveAction($user);
 
         $user->update([
             'is_active' => true,
@@ -338,7 +586,13 @@ class UserController extends Controller
 
         return redirect()
             ->route('users.index')
-            ->with('success', 'User berhasil diaktifkan.')
-            ->with('success_action', 'activate');
-            }
+            ->with(
+                'success',
+                'User berhasil diaktifkan.'
+            )
+            ->with(
+                'success_type',
+                'activate'
+            );
+    }
 }

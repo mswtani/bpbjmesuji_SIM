@@ -64,7 +64,8 @@ class RoleController extends Controller
 
         return redirect()
             ->route('roles.index')
-            ->with('success', 'Role berhasil ditambahkan.');
+            ->with('success', 'Role berhasil ditambahkan.')
+            ->with('success_type', 'create');
     }
 
 
@@ -90,7 +91,8 @@ class RoleController extends Controller
 
         return redirect()
             ->route('roles.index')
-            ->with('success', 'Role berhasil diperbarui.');
+            ->with('success', 'Role berhasil diperbarui.')
+            ->with('success_type', 'update');
     }
 
 
@@ -128,10 +130,8 @@ class RoleController extends Controller
 
         return redirect()
             ->route('roles.index')
-            ->with(
-                'success',
-                'Permission role berhasil diperbarui.'
-            );
+            ->with('success', 'Permission role berhasil diperbarui.')
+            ->with('succes_type', 'delete');
     }
 
 

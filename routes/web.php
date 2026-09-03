@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserApprovalController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PublicPostController;
 use App\Http\Controllers\PublicHelpdeskController;
 use App\Http\Controllers\HelpdeskController;
+use App\Http\Controllers\RegulationTypeController;
 
 
 /*
@@ -19,7 +21,7 @@ use App\Http\Controllers\HelpdeskController;
 
 Route::get('/', function () {
     return view('home');
-});
+})  ->name('home');
 
 
 /*
@@ -31,12 +33,14 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })
-    ->middleware([
-        'auth',
-        'verified',
-        'password-changed',
-    ])
-    ->name('dashboard');
+->middleware([
+    'auth',
+    'verified',
+    'approved',
+    'password-changed',
+    'not-public',
+])
+->name('dashboard');
 
 
 /*
@@ -94,7 +98,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/change-password', [ChangePasswordController::class, 'update'])
         ->name('password.change.update');
 
+    });
 
+
+Route::middleware(['auth','approved',])->group(function () {
     /*
     |--------------------------------------------------------------------------
     | User Management
@@ -137,7 +144,23 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:users.reset-password')
         ->name('users.reset-password');
 
+    /*
+    |--------------------------------------------------------------------------
+    | User Approval
+    |--------------------------------------------------------------------------
+    */
 
+    Route::get('/users/approvals', [UserApprovalController::class, 'index'])
+        ->middleware('permission:users.approve')
+        ->name('users.approvals.index');
+
+    Route::patch('/users/{user}/approve', [UserApprovalController::class, 'approve'])
+        ->middleware('permission:users.approve')
+        ->name('users.approve');
+
+    Route::patch('/users/{user}/reject', [UserApprovalController::class, 'reject'])
+        ->middleware('permission:users.reject')
+        ->name('users.reject');
 
          /*
     |--------------------------------------------------------------------------
@@ -230,7 +253,7 @@ Route::middleware('auth')->group(function () {
         ->name('posts.publish');
 
     Route::patch('/posts/{post}/archive', [PostController::class, 'archive'])
-        ->middleware('permission:posts.publish')
+        ->middleware('permission:posts.archive')
         ->name('posts.archive');
 
     Route::patch('/posts/{post}/restore', [PostController::class, 'restore'])
@@ -241,6 +264,68 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:posts.delete')
         ->name('posts.destroy');
 
+
+        /*
+    |--------------------------------------------------------------------------
+    | Regulation Type Management
+    |--------------------------------------------------------------------------
+    */
+    
+    Route::get(
+        '/regulation-types/check-position',
+        [RegulationTypeController::class, 'checkPosition']
+        )
+            ->middleware('permission:regulation-types.view')
+            ->name('regulation-types.check-position');
+
+    Route::get(
+        '/regulation-types',
+        [RegulationTypeController::class, 'index']
+    )
+        ->middleware('permission:regulation-types.view')
+        ->name('regulation-types.index');
+
+    Route::get(
+        '/regulation-types/create',
+        [RegulationTypeController::class, 'create']
+    )
+        ->middleware('permission:regulation-types.create')
+        ->name('regulation-types.create');
+
+    Route::post(
+        '/regulation-types',
+        [RegulationTypeController::class, 'store']
+    )
+        ->middleware('permission:regulation-types.create')
+        ->name('regulation-types.store');
+
+    Route::get(
+        '/regulation-types/{regulationType}/edit',
+        [RegulationTypeController::class, 'edit']
+    )
+        ->middleware('permission:regulation-types.update')
+        ->name('regulation-types.edit');
+
+    Route::put(
+        '/regulation-types/{regulationType}',
+        [RegulationTypeController::class, 'update']
+    )
+        ->middleware('permission:regulation-types.update')
+        ->name('regulation-types.update');
+
+    Route::get(
+        '/regulation-types/{regulationType}',
+        [RegulationTypeController::class, 'show']
+    )
+        ->middleware('permission:regulation-types.view')
+        ->name('regulation-types.show');
+
+    Route::delete(
+        '/regulation-types/{regulationType}',
+        [RegulationTypeController::class, 'destroy']
+    )
+        ->middleware('permission:regulation-types.delete')
+        ->name('regulation-types.destroy');
     /*
     |--------------------------------------------------------------------------
     | Relasi pdf
@@ -358,6 +443,7 @@ Route::post(
     '/helpdesk/tiket/{ticketNumber}/messages',
     [PublicHelpdeskController::class, 'storeMessage']
     )->name('helpdesk.ticket.messages.store');
+
 
 /*
 |--------------------------------------------------------------------------

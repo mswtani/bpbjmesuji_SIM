@@ -130,6 +130,22 @@
 
                 </div>
 
+                <div>
+
+                    
+                </div>
+                <a href="{{ route('login') }}">
+                    Login
+                </a>
+                
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+    
+                    <button type="submit">
+                        Logout
+                    </button>
+                </form>
+
 
                 {{-- Mobile Button --}}
                 <button

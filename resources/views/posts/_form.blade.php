@@ -75,7 +75,7 @@
         </label>
 
         <select
-            id="type"
+            id="type"Simpan 
             name="type"
             required
             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
@@ -272,7 +272,7 @@
                         for="regulation_date"
                         class="block text-sm font-medium text-gray-700"
                     >
-                        Tanggal Regulasi
+                        Tanggal Diundangkan Regulasi
                     </label>
 
                     <input
@@ -767,7 +767,7 @@
             type="text"
             value="{{ old('title', $post?->title) }}"
             required
-            maxlength="255"
+            maxlength="5000"
             autofocus
             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             placeholder="Masukkan judul konten"
@@ -923,64 +923,131 @@
     ========================================================= --}}
 
     <div>
+
         <label
             for="content-editor"
             class="block text-sm font-medium text-gray-700"
         >
             Isi Konten
+            <span class="text-red-500">*</span>
         </label>
+
 
         @if ($selectedType !== 'regulation')
 
-            <div class="mt-1 overflow-hidden rounded-md border border-gray-300 bg-white">
+            {{-- Editor untuk Berita dan Pengumuman --}}
+
+            <div
+                class="
+                    mt-1
+                    overflow-hidden
+                    rounded-md
+                    border
+                    border-gray-300
+                    bg-white
+                "
+            >
 
                 {{-- Toolbar --}}
+
                 <div
-                    class="flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50 p-2"
+                    class="
+                        flex
+                        flex-wrap
+                        items-center
+                        gap-1
+                        border-b
+                        border-gray-200
+                        bg-gray-50
+                        p-2
+                    "
                     role="toolbar"
                     aria-label="Pemformatan isi konten"
                 >
 
                     {{-- Bold --}}
+
                     <button
                         type="button"
                         data-editor-command="bold"
-                        class="editor-command rounded px-3 py-1.5 text-sm font-bold text-gray-700 hover:bg-gray-200"
+                        class="
+                            editor-command
+                            rounded
+                            px-3
+                            py-1.5
+                            text-sm
+                            font-bold
+                            text-gray-700
+                            hover:bg-gray-200
+                        "
                         title="Tebal"
                         aria-label="Tebal"
                     >
                         B
                     </button>
 
+
                     {{-- Italic --}}
+
                     <button
                         type="button"
                         data-editor-command="italic"
-                        class="editor-command rounded px-3 py-1.5 text-sm italic text-gray-700 hover:bg-gray-200"
+                        class="
+                            editor-command
+                            rounded
+                            px-3
+                            py-1.5
+                            text-sm
+                            italic
+                            text-gray-700
+                            hover:bg-gray-200
+                        "
                         title="Miring"
                         aria-label="Miring"
                     >
                         I
                     </button>
 
+
                     {{-- Underline --}}
+
                     <button
                         type="button"
                         data-editor-command="underline"
-                        class="editor-command rounded px-3 py-1.5 text-sm underline text-gray-700 hover:bg-gray-200"
+                        class="
+                            editor-command
+                            rounded
+                            px-3
+                            py-1.5
+                            text-sm
+                            underline
+                            text-gray-700
+                            hover:bg-gray-200
+                        "
                         title="Garis bawah"
                         aria-label="Garis bawah"
                     >
                         U
                     </button>
 
+
                     <span class="mx-1 h-6 w-px bg-gray-300"></span>
 
+
                     {{-- Link --}}
+
                     <button
                         type="button"
                         id="insert-link-button"
-                        class="rounded px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                        class="
+                            rounded
+                            px-3
+                            py-1.5
+                            text-sm
+                            font-medium
+                            text-gray-700
+                            hover:bg-gray-200
+                        "
                         title="Sisipkan Link"
                         aria-label="Sisipkan Link"
                     >
@@ -991,52 +1058,94 @@
 
 
                 {{-- Editor --}}
+
                 <div
                     id="content-editor"
                     contenteditable="true"
                     role="textbox"
                     aria-multiline="true"
-                    class="min-h-[300px] w-full px-4 py-3 text-sm leading-7 text-gray-900 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                    class="
+                        min-h-[300px]
+                        w-full
+                        px-4
+                        py-3
+                        text-sm
+                        leading-7
+                        text-gray-900
+                        outline-none
+                        focus:ring-2
+                        focus:ring-inset
+                        focus:ring-indigo-500
+                    "
                 >{!! old('content', $post?->content) !!}</div>
 
             </div>
 
 
             {{-- Nilai sebenarnya yang dikirim ke server --}}
+
             <textarea
                 id="content"
                 name="content"
                 class="hidden"
-                required
             >{{ old('content', $post?->content) }}</textarea>
 
 
             <p class="mt-1 text-xs text-gray-500">
+
                 Anda dapat menulis teks, membuat teks
                 <strong>tebal</strong>,
                 <em>miring</em>,
                 <u>garis bawah</u>,
                 dan membuat bagian tertentu menjadi link.
+
             </p>
+
 
         @else
 
-            {{-- Regulasi tetap menggunakan textarea biasa --}}
+            {{-- Regulasi menggunakan textarea biasa --}}
+
             <textarea
                 id="content"
                 name="content"
                 rows="12"
-                required
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                class="
+                    mt-1
+                    block
+                    w-full
+                    rounded-md
+                    border-gray-300
+                    shadow-sm
+                    focus:border-indigo-500
+                    focus:ring-indigo-500
+                "
                 placeholder="Tuliskan isi konten di sini..."
             >{{ old('content', $post?->content) }}</textarea>
 
         @endif
 
 
+        {{-- Error validasi JavaScript --}}
+
+        <p
+            id="content-client-error"
+            class="
+                mt-2
+                hidden
+                text-sm
+                text-red-600
+            "
+        >
+            Isi konten wajib diisi.
+        </p>
+
+
+        {{-- Error validasi Laravel --}}
+
         @error('content')
 
-            <p class="mt-1 text-sm text-red-600">
+            <p class="mt-2 text-sm text-red-600">
                 {{ $message }}
             </p>
 
@@ -1167,6 +1276,9 @@
 
         const contentTextarea =
             document.getElementById('content');
+
+        const contentClientError =
+            document.getElementById('content-client-error');
 
         const insertLinkButton =
             document.getElementById('insert-link-button');
@@ -1485,25 +1597,498 @@
 
         /*
         |--------------------------------------------------------------------------
-        | Submit form
+        | VALIDASI DAN SYNC ISI KONTEN
         |--------------------------------------------------------------------------
         */
 
-        const contentForm =
-            contentEditor?.closest('form');
+        const postForm =
+            document.getElementById(
+                '{{ $formId }}'
+            );
 
 
-        contentForm?.addEventListener(
+        postForm?.addEventListener(
             'submit',
+            function (event) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Berita / Pengumuman
+                |--------------------------------------------------------------------------
+                |
+                | Menggunakan Rich Text Editor
+                */
+
+                if (
+                    contentEditor &&
+                    contentTextarea
+                ) {
+
+                    syncContentEditor();
+
+
+                    const plainText =
+                        contentEditor.innerText.trim();
+
+
+                    if (! plainText) {
+
+                        event.preventDefault();
+
+
+                        contentClientError?.classList.remove(
+                            'hidden'
+                        );
+
+
+                        contentEditor.classList.add(
+                            'ring-2',
+                            'ring-inset',
+                            'ring-red-500'
+                        );
+
+
+                        contentEditor.focus();
+
+
+                        return;
+                    }
+
+
+                    contentClientError?.classList.add(
+                        'hidden'
+                    );
+
+
+                    contentEditor.classList.remove(
+                        'ring-2',
+                        'ring-inset',
+                        'ring-red-500'
+                    );
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Regulasi
+                |--------------------------------------------------------------------------
+                |
+                | Menggunakan textarea biasa
+                */
+
+                if (
+                    !contentEditor &&
+                    contentTextarea
+                ) {
+
+                    const contentValue =
+                        contentTextarea.value.trim();
+
+
+                    if (!contentValue) {
+
+                        event.preventDefault();
+
+
+                        contentClientError?.classList.remove(
+                            'hidden'
+                        );
+
+
+                        contentTextarea.classList.add(
+                            'border-red-500',
+                            'focus:border-red-500',
+                            'focus:ring-red-500/30'
+                        );
+
+
+                        contentTextarea.focus();
+
+
+                        return;
+                    }
+
+
+                    contentClientError?.classList.add(
+                        'hidden'
+                    );
+
+
+                    contentTextarea.classList.remove(
+                        'border-red-500',
+                        'focus:border-red-500',
+                        'focus:ring-red-500/30'
+                    );
+
+                }
+
+            }
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | BATAL / RESET FORM
+        |--------------------------------------------------------------------------
+        */
+
+        const resetPostFormButton =
+            document.getElementById(
+                'reset-post-form'
+            );
+
+
+        const cancelEditModal =
+            document.getElementById(
+                'cancel-edit-modal'
+            );
+
+
+        const cancelEditModalPanel =
+            document.getElementById(
+                'cancel-edit-modal-panel'
+            );
+
+
+        const closeCancelEditModalButton =
+            document.getElementById(
+                'close-cancel-edit-modal'
+            );
+
+
+        const confirmResetPostFormButton =
+            document.getElementById(
+                'confirm-reset-post-form'
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Buka Modal
+        |--------------------------------------------------------------------------
+        */
+
+        function openCancelEditModal() {
+
+            if (!cancelEditModal) {
+                return;
+            }
+
+
+            cancelEditModal.classList.remove(
+                'hidden'
+            );
+
+
+            cancelEditModal.classList.add(
+                'flex'
+            );
+
+
+            /*
+            | Animasi modal
+            */
+
+            requestAnimationFrame(
+                function () {
+
+                    cancelEditModalPanel?.classList.remove(
+                        'scale-95',
+                        'opacity-0'
+                    );
+
+
+                    cancelEditModalPanel?.classList.add(
+                        'scale-100',
+                        'opacity-100'
+                    );
+
+                }
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tutup Modal
+        |--------------------------------------------------------------------------
+        */
+
+        function closeCancelEditModal() {
+
+            if (!cancelEditModal) {
+                return;
+            }
+
+
+            cancelEditModalPanel?.classList.remove(
+                'scale-100',
+                'opacity-100'
+            );
+
+
+            cancelEditModalPanel?.classList.add(
+                'scale-95',
+                'opacity-0'
+            );
+
+
+            setTimeout(
+                function () {
+
+                    cancelEditModal.classList.remove(
+                        'flex'
+                    );
+
+
+                    cancelEditModal.classList.add(
+                        'hidden'
+                    );
+
+                },
+                200
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Klik Tombol Batal
+        |--------------------------------------------------------------------------
+        */
+
+        resetPostFormButton?.addEventListener(
+            'click',
             function () {
 
-                syncContentEditor();
+                openCancelEditModal();
 
             }
         );
 
 
-        initializeContentEditor();
+        /*
+        |--------------------------------------------------------------------------
+        | Tetap Edit
+        |--------------------------------------------------------------------------
+        */
+
+        closeCancelEditModalButton?.addEventListener(
+            'click',
+            function () {
+
+                closeCancelEditModal();
+
+            }
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Konfirmasi Reset
+        |--------------------------------------------------------------------------
+        */
+
+        confirmResetPostFormButton?.addEventListener(
+            'click',
+            function () {
+
+                if (!postForm) {
+                    return;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Reset seluruh input form
+                |--------------------------------------------------------------------------
+                */
+
+                postForm.reset();
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Sinkronkan Rich Text Editor
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    contentEditor &&
+                    contentTextarea
+                ) {
+
+                    contentEditor.innerHTML =
+                        contentTextarea.value || '';
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Sinkronkan Excerpt Editor
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    excerptEditor &&
+                    excerptTextarea
+                ) {
+
+                    excerptEditor.innerHTML =
+                        excerptTextarea.value || '';
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Hilangkan error validasi
+                |--------------------------------------------------------------------------
+                */
+
+                contentClientError?.classList.add(
+                    'hidden'
+                );
+
+
+                contentEditor?.classList.remove(
+                    'ring-2',
+                    'ring-inset',
+                    'ring-red-500'
+                );
+
+
+                contentTextarea?.classList.remove(
+                    'border-red-500',
+                    'focus:border-red-500',
+                    'focus:ring-red-500/30'
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Refresh field regulasi
+                |--------------------------------------------------------------------------
+                */
+
+                toggleRegulationFields();
+
+                toggleRegulationRelation();
+
+                filterRelatedRegulations();
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Tutup modal
+                |--------------------------------------------------------------------------
+                */
+
+                closeCancelEditModal();
+
+            }
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tutup Modal Saat Klik Backdrop
+        |--------------------------------------------------------------------------
+        */
+
+        cancelEditModal?.addEventListener(
+            'click',
+            function (event) {
+
+                if (
+                    event.target === cancelEditModal
+                ) {
+
+                    closeCancelEditModal();
+
+                }
+
+            }
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tutup Modal Dengan Tombol Escape
+        |--------------------------------------------------------------------------
+        */
+
+        document.addEventListener(
+            'keydown',
+            function (event) {
+
+                if (
+                    event.key === 'Escape' &&
+                    !cancelEditModal?.classList.contains('hidden')
+                ) {
+
+                    closeCancelEditModal();
+
+                }
+
+            }
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | HILANGKAN ERROR SAAT USER MULAI MENGISI
+        |--------------------------------------------------------------------------
+        */
+
+
+        contentTextarea?.addEventListener(
+            'input',
+            function () {
+
+                if (
+                    contentTextarea.value.trim()
+                ) {
+
+                    contentClientError?.classList.add(
+                        'hidden'
+                    );
+
+
+                    contentTextarea.classList.remove(
+                        'border-red-500',
+                        'focus:border-red-500',
+                        'focus:ring-red-500/30'
+                    );
+
+                }
+
+            }
+        );
+
+
+        contentEditor?.addEventListener(
+            'input',
+            function () {
+
+                if (
+                    contentEditor.innerText.trim()
+                ) {
+
+                    contentClientError?.classList.add(
+                        'hidden'
+                    );
+
+
+                    contentEditor.classList.remove(
+                        'ring-2',
+                        'ring-inset',
+                        'ring-red-500'
+                    );
+
+                }
+
+            }
+        );
+
 
 
         /*
@@ -1778,28 +2363,7 @@
                         );
 
 
-                    /*
-                    * Jangan mempertahankan pilihan
-                    * yang berbeda jenis regulasi.
-                    */
-                    const selectedOption =
-                        select.options[
-                            select.selectedIndex
-                        ];
-
-
-                    if (
-                        selectedOption &&
-                        selectedOption.value &&
-                        regulationTypeId &&
-                        selectedOption
-                            .dataset
-                            .regulationTypeId !==
-                            regulationTypeId
-                    ) {
-
-                        select.value = '';
-                    }
+                
 
                 }
             );

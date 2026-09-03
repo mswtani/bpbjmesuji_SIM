@@ -12,35 +12,66 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::create([
-            'code' => 'SUPER_ADMIN',
-            'name' => 'super administrator',
-            'description' => 'Hak akses penuh terhadap sistem',
-            'level' => 100,
-        ]);
-        
-        
-        Role::create([
-            'code' => 'ADMIN',
-            'name' => 'administrator',
-            'description' => 'Mengelola data pengguna',
-            'level' => 80,
-        ]);
+        $roles = [
 
-        
-        Role::create([
-            'code' => 'EDITOR',
-            'name' => 'Editor',
-            'description' => 'Mengelola dan mempulikasikan konten',
-            'level' => 60,
-        ]);
-        
-        
-        Role::create([
-            'code' => 'OPERATOR',
-            'name' => 'operator',
-            'description' => 'Mengelola konsultansi dan layanan',
-            'level' => 40,
-        ]);
+            [
+                'code' => 'SUPER_ADMIN',
+                'name' => 'Super Administrator',
+                'description' => 'Hak akses penuh terhadap seluruh sistem.',
+                'level' => 100,
+            ],
+
+            [
+                'code' => 'ADMIN',
+                'name' => 'Administrator',
+                'description' => 'Mengelola administrasi sistem.',
+                'level' => 80,
+            ],
+
+            [
+                'code' => 'USERS_MANAGER',
+                'name' => 'Users Manager',
+                'description' => 'Mengelola pengguna dan proses persetujuan akun ASN.',
+                'level' => 70,
+            ],
+
+            [
+                'code' => 'CONTENT_MANAGER',
+                'name' => 'Content Manager',
+                'description' => 'Mengelola berita, pengumuman, dan regulasi.',
+                'level' => 60,
+            ],
+
+            [
+                'code' => 'OPERATOR',
+                'name' => 'Operator',
+                'description' => 'Mengelola layanan operasional dan helpdesk.',
+                'level' => 40,
+            ],
+
+            [
+                'code' => 'AUDITOR',
+                'name' => 'Auditor',
+                'description' => 'Melakukan pengawasan dan audit terhadap data sistem.',
+                'level' => 30,
+            ],
+
+            [
+                'code' => 'PUBLIC_USER',
+                'name' => 'Public User',
+                'description' => 'Pengguna umum dan pelaku pengadaan yang melakukan registrasi mandiri.',
+                'level' => 10,
+            ],
+
+        ];
+
+        foreach ($roles as $role) {
+
+            Role::updateOrCreate(
+                ['code' => $role['code']],
+                $role
+            );
+
+        }
     }
 }

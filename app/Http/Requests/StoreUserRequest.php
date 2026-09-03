@@ -75,10 +75,6 @@ class StoreUserRequest extends FormRequest
                 Rule::unique('users', 'email'),
             ],
 
-            'phone' => [
-                'nullable',
-                'max:20',
-            ],
 
             'role_id' => [
                 'required',
@@ -109,8 +105,6 @@ class StoreUserRequest extends FormRequest
             'email.email' => 'Format email tidak valid.',
             'email.max' => 'Email maksimal 255 karakter.',
             'email.unique' => 'Email sudah digunakan oleh user lain.',
-
-            'phone.max' => 'Nomor HP maksimal 20 karakter.',
 
             'role_id.required' => 'Role wajib dipilih.',
             'role_id.exists' => 'Role yang dipilih tidak valid.',

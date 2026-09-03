@@ -30,8 +30,6 @@ class UserSeeder extends Seeder
 
                 'name' => config('bpbj.default_admin.name'),
 
-                'phone' => config('bpbj.default_admin.phone'),
-
                 'password' => config('bpbj.default_admin.password'),
 
                 'must_change_password' => true,

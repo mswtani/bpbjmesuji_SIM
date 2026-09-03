@@ -62,6 +62,18 @@ class PermissionSeeder extends Seeder
                 'description' => 'Mereset password user.',
             ],
 
+            [
+                'code' => 'users.approve',
+                'name' => 'Setujui User',
+                'description' => 'Menyetujui registrasi dan permohonan akun user.',
+            ],
+
+            [
+                'code' => 'users.reject',
+                'name' => 'Tolak User',
+                'description' => 'Menolak registrasi dan permohonan akun user.',
+            ],
+
 
             /*
             |--------------------------------------------------------------------------
@@ -115,19 +127,37 @@ class PermissionSeeder extends Seeder
             [
                 'code' => 'posts.update',
                 'name' => 'Edit Konten',
-                'description' => 'Mengubah berita, pengumuman, atau regulasi.',
+                'description' => 'Mengubah konten yang masih dapat diedit.',
+            ],
+
+            [
+                'code' => 'posts.update-published',
+                'name' => 'Edit Konten Published',
+                'description' => 'Mengubah konten yang sudah berstatus published.',
             ],
 
             [
                 'code' => 'posts.publish',
                 'name' => 'Publikasikan Konten',
-                'description' => 'Mempublikasikan atau mengarsipkan konten.',
+                'description' => 'Mempublikasikan konten.',
+            ],
+
+            [
+                'code' => 'posts.archive',
+                'name' => 'Arsipkan Konten',
+                'description' => 'Mengarsipkan konten.',
+            ],
+
+            [
+                'code' => 'posts.restore',
+                'name' => 'Pulihkan Konten',
+                'description' => 'Mengembalikan konten yang diarsipkan menjadi draft.',
             ],
 
             [
                 'code' => 'posts.delete',
                 'name' => 'Hapus Konten',
-                'description' => 'Menghapus berita, pengumuman, atau regulasi.',
+                'description' => 'Menghapus konten, terutama konten berstatus draft.',
             ],
 
             /*
@@ -152,6 +182,37 @@ class PermissionSeeder extends Seeder
                 'code' => 'helpdesk.manage',
                 'name' => 'Kelola Helpdesk',
                 'description' => 'Mengelola status dan prioritas tiket Helpdesk.',
+            ],
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Regulation Type Management
+            |--------------------------------------------------------------------------
+            */
+
+            [
+                'code' => 'regulation-types.view',
+                'name' => 'Lihat Jenis Regulasi',
+                'description' => 'Melihat daftar jenis regulasi.',
+            ],
+
+            [
+                'code' => 'regulation-types.create',
+                'name' => 'Tambah Jenis Regulasi',
+                'description' => 'Menambahkan jenis regulasi baru.',
+            ],
+
+            [
+                'code' => 'regulation-types.update',
+                'name' => 'Edit Jenis Regulasi',
+                'description' => 'Mengubah informasi jenis regulasi.',
+            ],
+
+            [
+                'code' => 'regulation-types.delete',
+                'name' => 'Hapus Jenis Regulasi',
+                'description' => 'Menghapus jenis regulasi yang tidak digunakan.',
             ],
         ];
 

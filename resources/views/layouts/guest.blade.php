@@ -11,55 +11,168 @@
     >
 
     <title>
-        @yield('title', 'BPBJ Mesuji')
+        @yield('title', 'SIM BPBJ Mesuji')
     </title>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite([
+        'resources/css/app.css',
+        'resources/js/app.js'
+    ])
 
 </head>
 
-<body class="min-h-screen bg-gray-100">
+<body
+    class="
+        min-h-screen
+        bg-gray-100
+        text-gray-900
+    "
+>
 
-    <div class="flex min-h-screen flex-col items-center justify-center px-6 py-12">
+    <main
+        class="
+            flex
+            min-h-screen
+            flex-col
+            items-center
+            justify-center
+            px-4
+            py-8
+            sm:px-6
+        "
+    >
 
-        {{-- Logo / Identitas --}}
-        <div class="mb-6 text-center">
-
-            <a href="{{ url('/') }}">
-
-                <h1 class="text-2xl font-bold text-indigo-700">
-                    BPBJ Mesuji
-                </h1>
-
-            </a>
-
-            <p class="mt-1 text-sm text-gray-500">
-                Sistem Informasi Manajemen BPBJ Mesuji
-            </p>
-
-        </div>
-
-
-        {{-- Card --}}
+        {{-- Authentication Container --}}
         <div class="w-full max-w-md">
 
-            <div class="overflow-hidden rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
+            {{-- Authentication Card --}}
+            <div
+                class="
+                    overflow-hidden
+                    rounded-2xl
+                    border
+                    border-gray-200
+                    bg-white
+                    shadow-xl
+                    shadow-gray-200/60
+                "
+            >
 
-                {{ $slot }}
+                {{-- System Header --}}
+                <div
+                    class="                        
+                        px-6
+                        pt-7
+                        pb-2
+                        text-center
+                        sm:px-8
+                    "
+                >
+
+                    {{-- Logo --}}
+                    <a
+                        href="{{ url('/') }}"
+                        class="
+                            inline-flex
+                            justify-center
+                            transition
+                            hover:opacity-90
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-blue-500
+                            focus:ring-offset-2
+                            rounded-xl
+                        "
+                        aria-label="Kembali ke Beranda"
+                    >
+
+                        <img
+                            src="{{ asset('assets/images/logo-mesujikab.png') }}"
+                            alt="Logo Kabupaten Mesuji"
+                            class="
+                                h-20
+                                w-auto
+                                sm:h-24
+                            "
+                        >
+
+                    </a>
+
+
+                    {{-- System Name --}}
+                    <h1
+                        class="
+                            mt-3
+                            text-3xl
+                            font-extrabold
+                            tracking-tight
+                            text-gray-900
+                            sm:text-2xl
+                        "
+                    >
+                        SIM BPBJ Mesuji
+                    </h1>
+
+
+                    {{-- System Description --}}
+                    {{-- <div
+                        class="
+                            mt-1
+                            text-xs
+                            leading-5
+                            text-gray-500
+                        "
+                    >
+
+                        <p>
+                            Sistem Informasi Manajemen
+                        </p>
+
+                        <p>
+                            Bagian Pengadaan Barang dan Jasa
+                        </p>
+                        <p>
+                            Kabupaten Mesuji
+                        </p>
+
+                    </div> --}}
+
+                </div>
+
+
+                {{-- Page Content --}}
+                <div
+                    class="
+                        px-6
+                        py-6
+                        sm:px-8
+                    "
+                >
+
+                    {{ $slot }}
+
+                </div>
 
             </div>
 
+
+            {{-- Footer --}}
+            <footer
+                class="
+                    mt-5
+                    text-center
+                    text-xs
+                    text-gray-500
+                "
+            >
+
+                © {{ date('Y') }} BPBJ Kabupaten Mesuji
+
+            </footer>
+
         </div>
 
-
-        {{-- Footer --}}
-        <div class="mt-6 text-center text-xs text-gray-500">
-
-            © {{ date('Y') }} BPBJ Mesuji
-
-        </div>
-
-    </div>
+    </main>
 
 </body>
 

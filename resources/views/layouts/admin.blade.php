@@ -26,7 +26,18 @@
 
 </head>
 
-<body class="min-h-screen bg-gray-50 text-gray-900">
+<body
+    class="min-h-screen bg-gray-50 text-gray-900"
+
+    @if (
+        session('success')
+        && session('success_type') !== 'reset-password'
+    )
+        data-success-message="{{ session('success') }}"
+        data-success-type="{{ session('success_type', 'create') }}"
+        data-success-redirect="{{ session('success_redirect') }}"
+    @endif
+>
 
     {{-- =====================================================
          ADMIN SIDEBAR
@@ -424,6 +435,179 @@
                         </button>
 
                     </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {{-- =====================================================
+        GLOBAL SUCCESS MODAL
+    ====================================================== --}}
+    <div
+        id="admin-success-modal"
+        class="fixed inset-0 z-[110] hidden"
+        aria-hidden="true"
+    >
+        {{-- Overlay --}}
+        <div
+            id="admin-success-overlay"
+            class="absolute inset-0 bg-gray-900/40 backdrop-blur-[1px]"
+        ></div>
+
+
+        {{-- Dialog Wrapper --}}
+        <div
+            class="
+                relative z-10
+                flex min-h-full
+                items-center justify-center
+                p-4
+            "
+        >
+
+            {{-- Dialog --}}
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-describedby="admin-success-message"
+                class="
+                    w-full max-w-md
+                    overflow-hidden
+                    rounded-2xl
+                    border border-gray-200
+                    bg-white
+                    shadow-2xl
+                "
+            >
+
+                {{-- Close --}}
+                <div class="flex justify-end px-4 pt-4">
+
+                    <button
+                        type="button"
+                        id="admin-success-close"
+                        aria-label="Tutup"
+                        title="Tutup"
+                        class="
+                            inline-flex h-9 w-9
+                            items-center justify-center
+                            rounded-lg
+                            text-gray-400
+                            transition
+                            hover:bg-gray-100
+                            hover:text-gray-700
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-blue-500/30
+                        "
+                    >
+
+                        <svg
+                            class="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M6 6l12 12M18 6 6 18"
+                            />
+                        </svg>
+
+                    </button>
+
+                </div>
+
+
+                {{-- ICON --}}
+                <div class="flex justify-center px-5 pt-1">
+
+                    <div
+                        id="admin-success-icon"
+                        class="
+                            flex h-16 w-16
+                            items-center justify-center
+                            rounded-2xl
+                            bg-emerald-50
+                            text-emerald-600
+                        "
+                    >
+
+                        <svg
+                            class="h-8 w-8"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="m5 12 4 4L19 6"
+                            />
+                        </svg>
+
+                    </div>
+
+                </div>
+
+
+                {{-- MESSAGE --}}
+                <div class="px-5 pb-6 pt-5 text-center">
+
+                    <p
+                        id="admin-success-message"
+                        class="
+                            text-lg
+                            font-bold
+                            leading-7
+                            text-gray-900
+                            sm:text-xl
+                        "
+                    ></p>
+
+                </div>
+
+
+                {{-- ACTION --}}
+                <div
+                    class="
+                        flex items-center justify-center
+                        border-t border-gray-100
+                        bg-gray-50/70
+                        px-5 py-4
+                    "
+                >
+
+                    <button
+                        type="button"
+                        id="admin-success-ok"
+                        class="
+                            inline-flex
+                            min-w-[120px]
+                            items-center
+                            justify-center
+                            rounded-lg
+                            bg-emerald-600
+                            px-4 py-2.5
+                            text-sm font-semibold
+                            text-white
+                            shadow-sm
+                            transition
+                            hover:bg-emerald-700
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-emerald-500/30
+                        "
+                    >
+                        OK
+                    </button>
 
                 </div>
 

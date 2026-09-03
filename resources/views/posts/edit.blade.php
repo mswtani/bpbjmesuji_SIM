@@ -90,156 +90,383 @@
             </div>
 
 
-            {{-- ACTION FOOTER --}}
+            {{-- =====================================================
+                ACTION FOOTER
+            ===================================================== --}}
+
             <div
                 class="
-                    flex flex-col gap-4
-                    border-t border-gray-100
-                    px-5 py-5
+                    flex
+                    flex-col
+                    gap-3
+                    border-t
+                    border-gray-100
+                    px-5
+                    py-5
                     sm:flex-row
                     sm:items-center
                     sm:justify-between
                     sm:px-6
-                ">
+                "
+                >
 
-                {{-- Kembali ke detail --}}
-                <a
-                    href="{{ route('posts.show', $post) }}"
+                
+
+
+                {{-- Action kanan --}}
+
+                <div
                     class="
-                        inline-flex
+                        mt-6
+                        flex
+                        w-full
+                        flex-col
+                        gap-4
+                        border-t
+                        border-gray-200
+                        pt-6
+
+                        sm:flex-row
+                        sm:items-center
+                        sm:justify-between
+                    "
+                    >
+
+                    {{-- =====================================================
+                        KEMBALI KE DETAIL KONTEN
+                    ====================================================== --}}
+
+                    <a
+                        href="{{ route('posts.show', $post) }}"
+                        class="
+                            order-2
+
+                            inline-flex
+                            w-full
+                            items-center
+                            justify-center
+                            rounded-lg
+                            bg-red-500
+                            px-5
+                            py-2.5
+                            text-sm
+                            font-semibold
+                            text-white
+                            shadow-sm
+                            transition
+
+                            hover:bg-red-600
+
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-red-500/30
+
+                            sm:order-1
+                            sm:w-auto
+                        "
+                        >
+                        <svg
+                                class="h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                viewBox="0 0 24 24"
+                                >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M19 12H5"
+                                    />
+
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="m12 19-7-7 7-7"
+                                />
+                        </svg>
+                        <span>
+                            Kembali ke Detail Konten
+                        </span>
+                    </a>
+
+
+                    {{-- =====================================================
+                        ACTION FORM
+                    ====================================================== --}}
+
+                    <div
+                        class="
+                            order-1
+
+                            flex
+                            w-full
+                            flex-col
+                            gap-3
+
+                            sm:order-2
+                            sm:w-auto
+                            sm:flex-row
+                            sm:items-center
+                        "
+                        >
+
+                        {{-- BATAL / RESET --}}
+                        <button
+                            type="button"
+                            id="reset-post-form"
+                            class="
+                                inline-flex
+                                w-full
+                                items-center
+                                justify-center
+                                rounded-lg
+                                border
+                                border-gray-300
+                                bg-white
+                                px-5
+                                py-2.5
+                                text-sm
+                                font-medium
+                                text-gray-700
+                                shadow-sm
+                                transition
+
+                                hover:bg-gray-50
+                                hover:text-gray-900
+
+                                focus:outline-none
+                                focus:ring-2
+                                focus:ring-gray-500/20
+
+                                sm:w-auto
+                            "
+                        >
+                            Batal
+                        </button>
+
+
+                        {{-- SIMPAN --}}
+                        <button
+                            type="submit"
+                            form="post-edit-form"
+                            class="
+                                inline-flex
+                                w-full
+                                items-center
+                                justify-center
+                                gap-2
+                                rounded-lg
+                                bg-blue-600
+                                px-5
+                                py-2.5
+                                text-sm
+                                font-semibold
+                                text-white
+                                shadow-sm
+                                transition
+
+                                hover:bg-blue-700
+
+                                focus:outline-none
+                                focus:ring-2
+                                focus:ring-blue-500/30
+
+                                sm:w-auto
+                            "
+                            >
+
+                            <svg
+                                    class="h-4 w-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="m5 12.5 4.5 4.5L19 7.5"
+                                    />
+                            </svg>
+
+                            Simpan Perubahan
+
+                        </button>
+
+                    </div>
+
+                </div> 
+            </div>                
+
+        </x-admin.card>
+
+    </div>
+
+    {{-- =====================================================
+        MODAL KONFIRMASI BATAL EDIT
+    ===================================================== --}}
+
+    <div
+        id="cancel-edit-modal"
+        class="
+            fixed inset-0 z-50 hidden
+            items-center justify-center
+            bg-gray-900/50
+            px-4
+            backdrop-blur-sm
+        "
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cancel-edit-modal-title"
+    >
+
+        <div
+            id="cancel-edit-modal-panel"
+            class="
+                w-full
+                max-w-md
+                scale-95
+                rounded-2xl
+                bg-white
+                p-6
+                opacity-0
+                shadow-xl
+                transition
+                duration-200
+            "
+        >
+
+            {{-- HEADER ICON --}}
+            <div class="flex items-start gap-4">
+
+                <div
+                    class="
+                        flex
+                        h-11
+                        w-11
+                        shrink-0
                         items-center
                         justify-center
-                        gap-2
-                        rounded-lg
-                        px-3 py-2.5
-                        text-sm font-medium
-                        text-white
-                        bg-red-500
-                        transition
-                        hover:bg-gray-100
-                        hover:text-gray-900
-                        focus:outline-none
-                        focus:ring-2
-                        focus:ring-gray-500/20
-                    ">
+                        rounded-full
+                        bg-amber-50
+                        text-amber-600
+                    "
+                >
+
                     <svg
-                        class="h-4 w-4"
+                        class="h-5 w-5"
                         fill="none"
                         stroke="currentColor"
-                        stroke-width="1.8"
+                        stroke-width="2"
                         viewBox="0 0 24 24"
                     >
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
-                            d="M19 12H5"
-                        />
-
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="m12 19-7-7 7-7"
+                            d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3Z"
                         />
                     </svg>
 
-                    <span>Kembali ke detail konten</span>
-                </a>
+                </div>
 
 
-                {{-- Action --}}
-                <div
-                    class="
-                        flex flex-col-reverse
-                        gap-3
-                        sm:flex-row
-                    ">
+                <div>
 
-                    {{-- Batal --}}
-                    <button
-                        type="button"
-                        id="post-edit-cancel"
+                    <h3
+                        id="cancel-edit-modal-title"
                         class="
-                            inline-flex
-                            items-center
-                            justify-center
-                            gap-2
-                            rounded-lg
-                            border border-gray-300
-                            bg-white
-                            px-4 py-2.5
-                            text-sm font-medium
-                            text-gray-700
-                            shadow-sm
-                            transition
-                            hover:bg-gray-50
-                            hover:text-gray-900
-                            focus:outline-none
-                            focus:ring-2
-                            focus:ring-gray-500/20
+                            text-base
+                            font-semibold
+                            text-gray-900
                         "
                     >
-                        <svg
-                            class="h-4 w-4"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.8"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M6 6l12 12M18 6 6 18"
-                            />
-                        </svg>
-
-                        <span>Batal</span>
-                    </button>
+                        Batalkan perubahan?
+                    </h3>
 
 
-                    {{-- Simpan --}}
-                    <button
-                        type="submit"
-                        form="post-edit-form"
-                        class="
-                            inline-flex
-                            items-center
-                            justify-center
-                            gap-2
-                            rounded-lg
-                            bg-blue-600
-                            px-4 py-2.5
-                            text-sm font-semibold
-                            text-white
-                            shadow-sm
-                            transition
-                            hover:bg-blue-700
-                            focus:outline-none
-                            focus:ring-2
-                            focus:ring-blue-500/30
-                        "
-                    >
-                        <svg
-                            class="h-4 w-4"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.8"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M5 12.5 9.5 17 19 7.5"
-                            />
-                        </svg>
-
-                        <span>Simpan Perubahan</span>
-                    </button>
+                    <p class="mt-1.5 text-sm leading-6 text-gray-500">
+                        Semua perubahan yang belum disimpan akan dihapus dan
+                        data akan dikembalikan ke kondisi sebelumnya.
+                    </p>
 
                 </div>
 
             </div>
 
-        </x-admin.card>
+
+            {{-- ACTION --}}
+            <div
+                class="
+                    mt-6
+                    flex
+                    flex-col-reverse
+                    gap-3
+                    sm:flex-row
+                    sm:justify-end
+                "
+            >
+
+                {{-- TETAP EDIT --}}
+                <button
+                    type="button"
+                    id="close-cancel-edit-modal"
+                    class="
+                        inline-flex
+                        items-center
+                        justify-center
+                        rounded-lg
+                        border
+                        border-gray-300
+                        bg-white
+                        px-4
+                        py-2.5
+                        text-sm
+                        font-medium
+                        text-gray-700
+                        transition
+
+                        hover:bg-gray-50
+
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-gray-500/20
+                    "
+                >
+                    Tetap Edit
+                </button>
+
+
+                {{-- YA, BATALKAN --}}
+                <button
+                    type="button"
+                    id="confirm-reset-post-form"
+                    class="
+                        inline-flex
+                        items-center
+                        justify-center
+                        rounded-lg
+                        bg-red-600
+                        px-4
+                        py-2.5
+                        text-sm
+                        font-semibold
+                        text-white
+                        shadow-sm
+                        transition
+
+                        hover:bg-red-700
+
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-red-500/30
+                    "
+                >
+                    Ya, Batalkan
+                </button>
+
+            </div>
+
+        </div>
 
     </div>
 

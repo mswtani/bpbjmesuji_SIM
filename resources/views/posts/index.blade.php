@@ -7,7 +7,7 @@
 <x-admin.page
     title="Konten"
     description="Kelola berita, pengumuman, dan Regulasi PBJ."
->
+    >
 
     <x-slot:actions>
 
@@ -76,24 +76,33 @@
         <form
             method="GET"
             action="{{ route('posts.index') }}"
-            class="space-y-4" >
+            class="space-y-4"
+        >
 
             {{-- Filter fields --}}
             <div
                 class="
-                    grid grid-cols-1 gap-4
+                    grid
+                    grid-cols-1
+                    gap-4
                     md:grid-cols-2
-                    lg:grid-cols-12
-                    lg:gap-4
+                    lg:grid-cols-[2fr_1fr_1fr_1fr_42px]
+                    items-end
                 "
-            >
+                >
 
                 {{-- Pencarian --}}
-                <div class="md:col-span-2 lg:col-span-6">
+                <div class="md:col-span-2 lg:col-auto">
 
                     <label
                         for="search"
-                        class="mb-1.5 block text-sm font-medium text-gray-700"
+                        class="
+                            mb-1.5
+                            block
+                            text-sm
+                            font-medium
+                            text-gray-700
+                        "
                     >
                         Pencarian
                     </label>
@@ -102,14 +111,19 @@
                         id="search"
                         type="text"
                         name="search"
-                        value="{{ $search }}"
-                        placeholder="Judul, slug, atau nomor regulasi..."
+                        value="{{ request('search') }}"
+                        placeholder="Judul atau ringkasan konten..."
                         class="
-                            block w-full rounded-lg
-                            border border-gray-300
+                            block
+                            w-full
+                            rounded-lg
+                            border
+                            border-gray-300
                             bg-white
-                            px-3 py-2.5
-                            text-sm text-gray-900
+                            px-3
+                            py-2.5
+                            text-sm
+                            text-gray-900
                             placeholder:text-gray-400
                             focus:border-blue-500
                             focus:ring-blue-500
@@ -120,11 +134,17 @@
 
 
                 {{-- Jenis --}}
-                <div class="lg:col-span-2">
+                <div>
 
                     <label
                         for="type"
-                        class="mb-1.5 block text-sm font-medium text-gray-700"
+                        class="
+                            mb-1.5
+                            block
+                            text-sm
+                            font-medium
+                            text-gray-700
+                        "
                     >
                         Jenis
                     </label>
@@ -133,11 +153,16 @@
                         id="type"
                         name="type"
                         class="
-                            block w-full rounded-lg
-                            border border-gray-300
+                            block
+                            w-full
+                            rounded-lg
+                            border
+                            border-gray-300
                             bg-white
-                            px-3 py-2.5
-                            text-sm text-gray-900
+                            px-3
+                            py-2.5
+                            text-sm
+                            text-gray-900
                             focus:border-blue-500
                             focus:ring-blue-500
                         "
@@ -147,15 +172,24 @@
                             Semua Jenis
                         </option>
 
-                        <option value="news" @selected(request('type') === 'news')>
+                        <option
+                            value="news"
+                            @selected(request('type') === 'news')
+                        >
                             Berita
                         </option>
 
-                        <option value="announcement" @selected(request('type') === 'announcement')>
+                        <option
+                            value="announcement"
+                            @selected(request('type') === 'announcement')
+                        >
                             Pengumuman
                         </option>
 
-                        <option value="regulation" @selected(request('type') === 'regulation')>
+                        <option
+                            value="regulation"
+                            @selected(request('type') === 'regulation')
+                        >
                             Regulasi
                         </option>
 
@@ -165,11 +199,17 @@
 
 
                 {{-- Status --}}
-                <div class="lg:col-span-2">
+                <div>
 
                     <label
                         for="status"
-                        class="mb-1.5 block text-sm font-medium text-gray-700"
+                        class="
+                            mb-1.5
+                            block
+                            text-sm
+                            font-medium
+                            text-gray-700
+                        "
                     >
                         Status
                     </label>
@@ -178,11 +218,16 @@
                         id="status"
                         name="status"
                         class="
-                            block w-full rounded-lg
-                            border border-gray-300
+                            block
+                            w-full
+                            rounded-lg
+                            border
+                            border-gray-300
                             bg-white
-                            px-3 py-2.5
-                            text-sm text-gray-900
+                            px-3
+                            py-2.5
+                            text-sm
+                            text-gray-900
                             focus:border-blue-500
                             focus:ring-blue-500
                         "
@@ -192,16 +237,25 @@
                             Semua Status
                         </option>
 
-                        <option value="draft" @selected(request('status') === 'draft')>
+                        <option
+                            value="draft"
+                            @selected(request('status') === 'draft')
+                        >
                             Draft
                         </option>
 
-                        <option value="published" @selected(request('status') === 'published')>
-                            Published
+                        <option
+                            value="published"
+                            @selected(request('status') === 'published')
+                        >
+                            Dipublikasikan
                         </option>
 
-                        <option value="archived" @selected(request('status') === 'archived')>
-                            Archived
+                        <option
+                            value="archived"
+                            @selected(request('status') === 'archived')
+                        >
+                            Diarsipkan
                         </option>
 
                     </select>
@@ -209,33 +263,116 @@
                 </div>
 
 
-                {{-- Tombol --}}
-                <div
-                    class="
-                        flex items-end gap-2
-                        lg:col-span-2
-                    "
-                >
+                {{-- Penulis --}}
+                <div>
+
+                    <label
+                        for="author"
+                        class="
+                            mb-1.5
+                            block
+                            text-sm
+                            font-medium
+                            text-gray-700
+                        "
+                    >
+                        Penulis
+                    </label>
+
+                    <select
+                        id="author"
+                        name="author"
+                        class="
+                            block
+                            w-full
+                            rounded-lg
+                            border
+                            border-gray-300
+                            bg-white
+                            px-3
+                            py-2.5
+                            text-sm
+                            text-gray-900
+                            focus:border-blue-500
+                            focus:ring-blue-500
+                        "
+                    >
+
+                        <option value="">
+                            Semua Penulis
+                        </option>
+
+                        @foreach ($authors as $author)
+
+                            <option
+                                value="{{ $author->id }}"
+                                @selected(
+                                    request('author') == $author->id
+                                )
+                            >
+                                {{ $author->name }}
+                            </option>
+
+                        @endforeach
+
+                    </select>
+
+                </div>
+
+
+                {{-- Tombol Search --}}
+                <div class="flex w-full sm:w-auto">
 
                     <button
                         type="submit"
+                        title="Cari"
+                        aria-label="Cari"
                         class="
-                            inline-flex w-full
-                            items-center justify-center
+                            inline-flex
+                            h-[42px]
+                            w-full
+                            items-center
+                            justify-center
+                            gap-2
                             rounded-lg
                             bg-blue-600
-                            px-4 py-2.5
-                            text-sm font-medium
+                            px-4
+                            text-sm
+                            font-medium
                             text-white
                             shadow-sm
                             transition
+
                             hover:bg-blue-700
+
                             focus:outline-none
                             focus:ring-2
                             focus:ring-blue-500/30
+
+                            sm:w-[42px]
+                            sm:px-0
                         "
                     >
-                        Cari
+
+                        <svg
+                            class="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="m21 21-4.35-4.35m1.35-5.15a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z"
+                            />
+                        </svg>
+
+                        <span class="sm:hidden">
+                            Cari
+                        </span>
+
                     </button>
 
                 </div>
@@ -243,32 +380,29 @@
             </div>
 
 
-            {{-- Reset --}}
-            @if ($search || $type || $status)
+            {{-- Reset Filter --}}
+            @if (
+                request('search')
+                || request('type')
+                || request('status')
+                || request('author')
+            )
 
-                <div
-                    class="
-                        flex
-                        items-center
-                        justify-between
-                        border-t border-gray-100
-                        pt-4
-                    "
-                >
-
-                    <p class="text-xs text-gray-500 sm:text-sm">
-                        Filter sedang diterapkan.
-                    </p>
+                <div>
 
                     <a
                         href="{{ route('posts.index') }}"
                         class="
-                            text-sm font-medium
+                            inline-flex
+                            items-center
+                            text-sm
+                            font-medium
                             text-gray-600
-                            hover:text-blue-600
+                            transition
+                            hover:text-red-600
                         "
                     >
-                        Reset filter
+                        Reset Filter
                     </a>
 
                 </div>
@@ -803,8 +937,7 @@
                 <form
                     method="GET"
                     action="{{ route('posts.index') }}"
-                    class="flex items-center gap-2"
-                >
+                    class="flex items-center justify-center gap-2 self-center sm:self-auto">
                     <label
                         for="per_page"
                         class="text-sm text-gray-600"

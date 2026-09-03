@@ -7,13 +7,18 @@
 
     <div
         class="
-            flex flex-col gap-3
+            flex flex-col
+            items-center
+            gap-3
             border-t border-gray-200
             px-4 py-4
-            sm:flex-row sm:items-center sm:justify-between
+            text-center
+            sm:flex-row
+            sm:items-center
+            sm:justify-between
             sm:px-5
-        "
-    >
+            sm:text-left
+        ">
 
         {{-- =====================================================
              INFORMATION

@@ -12,7 +12,7 @@
 
 <p class="mt-4">
 
-    Selamat datang di Website Resmi Bagian Pengadaan Barang dan Jasa Kabupaten Mesuji.
+    Selamat datang di Website Resmi Bagian Pengadaan Barang dan Jasa Kabupaten Mesuji. 
 
 </p>
 

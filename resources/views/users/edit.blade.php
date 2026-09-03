@@ -57,325 +57,83 @@
         </div>
 
 
-    <x-admin.card>
+        {{-- =====================================================
+             FORM CARD
+        ====================================================== --}}
 
-        <form
-            method="POST"
-            action="{{ route('users.update', $user) }}"
-        >
+        <x-admin.card :padding="false">
 
-            @csrf
-            @method('PUT')
-
-            <div class="space-y-6">
-
-                @include('users._form')
-
-            </div>
-
-            {{-- =================================================
-                ACTION
-            ================================================== --}}
-
-            <div
-                class="
-                    mt-8
-                    flex flex-col gap-4
-                    border-t border-gray-100
-                    pt-6
-                    sm:flex-row
-                    sm:items-center
-                    sm:justify-between
-                "
+            <form
+                method="POST"
+                action="{{ route('users.update', $user) }}"
+                class="space-y-6"
             >
 
-                {{-- Kembali ke Detail --}}
-                <a
-                    href="{{ route('users.show', $user) }}"
-                    class="
-                        inline-flex
-                        items-center
-                        justify-center
-                        gap-2
-                        rounded-lg
-                        border border-gray-200
-                        bg-red-500
-                        px-4 py-2.5
-                        text-sm font-medium
-                        text-white
-                        shadow-sm
-                        transition
-                        hover:border-gray-300
-                        hover:bg-gray-100
-                        hover:text-gray-900
-                        focus:outline-none
-                        focus:ring-2
-                        focus:ring-gray-500/20
-                    "
-                >
+                @csrf
+                @method('PUT')
 
-                    <svg
-                        class="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M19 12H5"
-                        />
+                <div class="p-5 sm:p-6 lg:p-7">
 
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="m12 19-7-7 7-7"
-                        />
-                    </svg>
-
-                    <span>
-                        Kembali ke detail user
-                    </span>
-
-                </a>
-
-
-                {{-- Action kanan --}}
-                <div class="flex items-center justify-end gap-3">
-
-                    {{-- Batal --}}
-                    <button
-                        type="reset"
-                        class="
-                            inline-flex
-                            items-center
-                            justify-center
-                            rounded-lg
-                            border border-gray-300
-                            bg-white
-                            px-4 py-2.5
-                            text-sm font-medium
-                            text-gray-700
-                            shadow-sm
-                            transition
-                            hover:bg-gray-50
-                            hover:text-gray-900
-                            focus:outline-none
-                            focus:ring-2
-                            focus:ring-gray-500/20
-                        "
-                    >
-                        Batal
-                    </button>
-
-
-                    {{-- Simpan --}}
-                    <button
-                        type="submit"
-                        class="
-                            inline-flex
-                            items-center
-                            justify-center
-                            gap-2
-                            rounded-lg
-                            bg-blue-600
-                            px-4 py-2.5
-                            text-sm font-semibold
-                            text-white
-                            shadow-sm
-                            transition
-                            hover:bg-blue-700
-                            focus:outline-none
-                            focus:ring-2
-                            focus:ring-blue-500/30
-                        "
-                    >
-
-                        <svg
-                            class="h-4 w-4"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.8"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="m5 12.5 4.5 4.5L19 7.5"
-                            />
-                        </svg>
-
-                        <span>
-                            Simpan Perubahan
-                        </span>
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        </form>
-
-    </x-admin.card>
-
-    {{-- =====================================================
-        SUCCESS MODAL
-    ====================================================== --}}
-
-    @if (session('success'))
-
-        <div
-            id="user-update-success-modal"
-            class="fixed inset-0 z-[100] flex items-center justify-center p-4"
-            aria-hidden="false"
-        >
-
-            {{-- Overlay --}}
-            <div
-                class="absolute inset-0 bg-gray-900/40 backdrop-blur-[1px]"
-            ></div>
-
-
-            {{-- Dialog --}}
-            <div
-                class="
-                    relative z-10
-                    w-full max-w-md
-                    overflow-hidden
-                    rounded-2xl
-                    border border-gray-200
-                    bg-white
-                    shadow-2xl
-                "
-            >
-
-                {{-- Close --}}
-                <div class="flex justify-end px-4 pt-4">
-
-                    <button
-                        type="button"
-                        id="user-update-success-close"
-                        aria-label="Tutup"
-                        title="Tutup"
-                        class="
-                            inline-flex h-9 w-9
-                            items-center justify-center
-                            rounded-lg
-                            text-gray-400
-                            transition
-                            hover:bg-gray-100
-                            hover:text-gray-700
-                            focus:outline-none
-                            focus:ring-2
-                            focus:ring-green-500/30
-                        "
-                    >
-
-                        <svg
-                            class="h-5 w-5"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.8"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M6 6l12 12M18 6 6 18"
-                            />
-                        </svg>
-
-                    </button>
+                    @include('users._form')
 
                 </div>
 
 
-                {{-- Icon --}}
-                <div class="flex justify-center px-5 pt-1">
+                {{-- =================================================
+                     ACTION
+                ================================================== --}}
 
-                    <div
-                        class="
-                            flex h-16 w-16
-                            items-center justify-center
-                            rounded-2xl
-                            bg-green-50
-                            text-green-600
-                        "
-                    >
-
-                        <svg
-                            class="h-8 w-8"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.8"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="m5 12 4.5 4.5L19 7.5"
-                            />
-                        </svg>
-
-                    </div>
-
-                </div>
-
-
-                {{-- Message --}}
-                <div class="px-5 pb-6 pt-5 text-center">
-
-                    <p
-                        class="
-                            text-lg
-                            font-bold
-                            leading-7
-                            text-gray-900
-                            sm:text-xl
-                        "
-                    >
-                        Data user berhasil diperbarui
-                    </p>
-
-                    <p class="mt-2 text-sm text-gray-500">
-                        Perubahan data pengguna telah berhasil disimpan.
-                    </p>
-
-                </div>
-
-
-                {{-- Action --}}
                 <div
                     class="
                         flex
-                        items-center
-                        justify-center
-                        border-t border-gray-100
-                        px-5 py-4
+                        flex-col
+                        gap-4
+                        border-t
+                        border-gray-100
+                        px-5
+                        py-5
+
+                        sm:flex-row
+                        sm:items-center
+                        sm:justify-between
+                        sm:px-6
                     "
                 >
 
+                    {{-- =================================================
+                         KEMBALI
+                         Mobile  : order 3
+                         Desktop : order 1 (kiri)
+                    ================================================== --}}
+
                     <a
-                        href="{{ route('users.index') }}"
+                        href="{{ route('users.show', $user) }}"
                         class="
+                            order-3
+
                             inline-flex
-                            min-w-[160px]
+                            w-full
                             items-center
                             justify-center
                             gap-2
                             rounded-lg
-                            bg-green-600
-                            px-4 py-2.5
-                            text-sm font-semibold
+                            bg-red-500
+                            px-5
+                            py-2.5
+                            text-sm
+                            font-semibold
                             text-white
                             shadow-sm
                             transition
-                            hover:bg-green-700
+
+                            hover:bg-red-600
+
                             focus:outline-none
                             focus:ring-2
-                            focus:ring-green-500/30
+                            focus:ring-red-500/30
+
+                            sm:order-1
+                            sm:w-auto
                         "
                     >
 
@@ -399,16 +157,131 @@
                             />
                         </svg>
 
-                        Kembali ke User
+                        <span>
+                            Kembali ke detail user
+                        </span>
 
                     </a>
 
+
+                    {{-- =================================================
+                         ACTION KANAN
+                         Mobile  : Batal → Simpan
+                         Desktop : tetap satu baris di kanan
+                    ================================================== --}}
+
+                    <div
+                        class="
+                            order-1
+                            flex
+                            w-full
+                            flex-col
+                            gap-3
+
+                            sm:order-2
+                            sm:w-auto
+                            sm:flex-row
+                            sm:items-center
+                        "
+                    >
+
+                        {{-- Batal --}}
+                        <button
+                            type="reset"
+                            class="
+                                order-1
+
+                                inline-flex
+                                w-full
+                                items-center
+                                justify-center
+                                rounded-lg
+                                border
+                                border-gray-300
+                                bg-white
+                                px-5
+                                py-2.5
+                                text-sm
+                                font-medium
+                                text-gray-700
+                                shadow-sm
+                                transition
+
+                                hover:bg-gray-50
+                                hover:text-gray-900
+
+                                focus:outline-none
+                                focus:ring-2
+                                focus:ring-gray-500/20
+
+                                sm:order-1
+                                sm:w-auto
+                            "
+                        >
+                            Batal
+                        </button>
+
+
+                        {{-- Simpan --}}
+                        <button
+                            type="submit"
+                            class="
+                                order-2
+
+                                inline-flex
+                                w-full
+                                items-center
+                                justify-center
+                                gap-2
+                                rounded-lg
+                                bg-blue-600
+                                px-5
+                                py-2.5
+                                text-sm
+                                font-semibold
+                                text-white
+                                shadow-sm
+                                transition
+
+                                hover:bg-blue-700
+
+                                focus:outline-none
+                                focus:ring-2
+                                focus:ring-blue-500/30
+
+                                sm:order-2
+                                sm:w-auto
+                            "
+                        >
+
+                            <svg
+                                class="h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="m5 12.5 4.5 4.5L19 7.5"
+                                />
+                            </svg>
+
+                            <span>
+                                Simpan Perubahan
+                            </span>
+
+                        </button>
+
+                    </div>
+
                 </div>
 
-            </div>
+            </form>
 
-        </div>
+        </x-admin.card>
 
-    @endif
+    </div>
 
 @endsection

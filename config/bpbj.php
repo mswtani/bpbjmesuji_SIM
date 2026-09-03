@@ -30,8 +30,6 @@ return [
 
         'email' => env('BPBJ_ADMIN_EMAIL', 'admin@localhost'),
 
-        'phone' => env('BPBJ_ADMIN_PHONE', '081373981510'),
-
         'password' => env('BPBJ_ADMIN_PASSWORD', 'admin12345'),
 
     ],
