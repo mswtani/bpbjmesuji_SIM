@@ -116,17 +116,160 @@ body {
     cursor: pointer;
 }
 
+/* =========================================================
+   PUBLIC DESKTOP DROPDOWN
+   ========================================================= */
+
+.public-dropdown {
+    position: relative;
+}
+
+/* Tombol Informasi / Layanan */
+.public-dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    height: 100%;
+    padding: 15px 22px;
+
+    border: 0;
+    outline: none;
+
+    background: transparent;
+    color: #fff;
+
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.2;
+
+    cursor: pointer;
+}
+
+.public-dropdown-toggle:hover,
+.public-dropdown-toggle:focus {
+    color: #d4af37;
+    background: transparent;
+    outline: none;
+}
+
+/* Hilangkan arrow bawaan browser / Bootstrap */
+.public-dropdown-toggle::after {
+    display: none !important;
+}
+
+/* Arrow custom */
+.public-dropdown-arrow {
+    display: inline-block;
+
+    width: 7px;
+    height: 7px;
+
+    margin-top: -3px;
+
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+}
+
+.public-dropdown.is-open .public-dropdown-arrow {
+    margin-top: 3px;
+    transform: rotate(225deg);
+}
+
+/* =========================================================
+   DROPDOWN MENU
+   Struktur HTML:
+   .public-dropdown-menu
+       ├── a
+       ├── a
+       └── a
+   ========================================================= */
+
+.public-dropdown-menu {
+    position: absolute;
+
+    top: 100%;
+    left: 0;
+
+    display: none;
+
+    width: 220px;
+    min-width: 220px;
+
+    margin: 0;
+    padding: 0;
+
+    background-color: #fff;
+
+    border: 0;
+    border-radius: 0 0 5px 5px;
+
+    overflow: hidden;
+
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+
+    z-index: 2500;
+}
+
+.public-dropdown.is-open > .public-dropdown-menu {
+    display: block;
+}
+
+/* INI yang paling penting:
+   karena <a> langsung berada di dalam .public-dropdown-menu
+*/
+.public-dropdown-menu > a {
+    display: block;
+
+    width: 100%;
+
+    margin: 0;
+    padding: 12px 16px;
+
+    background-color: #fff !important;
+    color: #333 !important;
+
+    border: 0;
+
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.4;
+
+    text-align: left;
+    text-decoration: none;
+
+    box-sizing: border-box;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+/* Hover */
+.public-dropdown-menu > a:hover,
+.public-dropdown-menu > a:focus {
+    background-color: #0b2f64 !important;
+    color: #fff !important;
+
+    text-decoration: none;
+    outline: none;
+}
+
 /* Navigation */
 .navbar {
     background-color: #1a4a8d;
 }
-.nav-links,
-.dropdown-menu {
+.nav-links {
     list-style: none;
     display: flex;
 }
-.nav-links li a,
-.dropdown-menu li a {
+.nav-links li a {
     display: block;
     padding: 15px 20px;
     color: white;
@@ -134,9 +277,7 @@ body {
     font-weight: 500;
     transition: background 0.3s;
 }
-.dropdown-menu li a {
-    color: #333; /* Warna teks dropdown */
-}
+
 .nav-links li a:hover,
 .dropdown-menu li a:hover {
     background-color: #0b2f64;
@@ -424,6 +565,13 @@ body.sidenav-open {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transition:
+        transform 0.3s,
+        box-shadow 0.3s;
+}
+.berita-card-small:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 .berita-card-small h4 {
     font-size: 16px;
@@ -936,4 +1084,749 @@ footer {
     padding-top: 20px;
     font-size: 14px;
     color: #94a3b8;
+}
+
+/* =========================================================
+   DESKTOP NAVIGATION
+   ========================================================= */
+
+.public-desktop-menu {
+    display: flex;
+
+    align-items: center;
+
+    gap: 4px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.public-desktop-menu > li {
+    position: relative;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+/* Semua menu desktop memiliki tinggi dan padding yang konsisten */
+.public-desktop-menu > li > a,
+.public-desktop-menu > li > .public-dropdown-toggle {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 52px;
+
+    padding: 15px 20px;
+
+    box-sizing: border-box;
+
+    color: #fff;
+    background: transparent;
+
+    border: 0;
+    outline: none;
+
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.2;
+
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+.public-desktop-menu > li > a:hover,
+.public-desktop-menu > li > a:focus,
+.public-desktop-menu > li > .public-dropdown-toggle:hover,
+.public-desktop-menu > li > .public-dropdown-toggle:focus {
+    color: #d4af37;
+    background: transparent;
+    outline: none;
+}
+
+/* Dropdown parent */
+.public-dropdown {
+    position: relative;
+}
+
+/* Dropdown button */
+.public-dropdown-toggle {
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+/* Hilangkan arrow bawaan Bootstrap */
+.public-dropdown-toggle::after {
+    display: none !important;
+}
+
+/* Custom arrow */
+.public-dropdown-arrow {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+}
+
+.public-dropdown.is-open .public-dropdown-arrow {
+    transform: rotate(225deg);
+}
+
+/* Desktop dropdown */
+.public-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+
+    display: none;
+
+    min-width: 220px;
+    padding: 0;
+    margin: 0;
+
+    background: #fff;
+
+    border: 0;
+    border-radius: 0 0 4px 4px;
+
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+
+    list-style: none;
+
+    z-index: 1050;
+}
+
+.public-dropdown.is-open .public-dropdown-menu {
+    display: block;
+}
+
+.public-dropdown-menu a {
+    display: block;
+
+    width: 100%;
+    padding: 12px 16px;
+
+    color: #0b2f64;
+    background: #fff;
+
+    font-size: 15px;
+    line-height: 1.4;
+
+    text-decoration: none;
+
+    box-sizing: border-box;
+}
+
+.public-dropdown-menu a:hover,
+.public-dropdown-menu a:focus {
+    color: #fff;
+    background: #0b2f64;
+}
+
+/* =========================================================
+   USER ACCOUNT
+   ========================================================= */
+
+.public-user-dropdown {
+    position: relative;
+}
+
+.public-user-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 0;
+
+    color: #fff;
+    background: transparent;
+    border: 0;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+.public-user-toggle:hover {
+    color: #d4af37;
+}
+
+.public-user-avatar {
+    width: 32px;
+    height: 32px;
+
+    border: 2px solid #d4af37;
+    border-radius: 50%;
+
+    object-fit: cover;
+}
+
+.public-user-name {
+    color: inherit;
+}
+
+.public-user-arrow {
+    display: inline-block;
+
+    width: 7px;
+    height: 7px;
+
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+}
+
+.public-user-dropdown.is-open .public-user-arrow {
+    transform: rotate(225deg);
+}
+
+.public-user-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+
+    display: none;
+
+    min-width: 180px;
+
+    padding: 5px 0;
+    margin: 0;
+
+    background: #fff;
+
+    border-radius: 4px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+
+    list-style: none;
+
+    z-index: 1060;
+}
+
+.public-user-dropdown.is-open .public-user-menu {
+    display: block;
+}
+
+.public-user-menu a,
+.public-user-menu button {
+    display: block;
+
+    width: 100%;
+
+    padding: 10px 15px;
+
+    color: #333;
+    background: #fff;
+
+    border: 0;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    text-align: left;
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+.public-user-menu a:hover,
+.public-user-menu button:hover {
+    color: #fff;
+    background: #0b2f64;
+}
+
+/* =========================================================
+   MOBILE NAVBAR
+   ========================================================= */
+
+#publicMobileBackdrop {
+    display: none;
+
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    z-index: 1090;
+}
+
+#publicMobileBackdrop.is-open {
+    display: block;
+}
+
+#publicMobileMenu {
+    position: fixed;
+
+    top: 0;
+    right: 0;
+
+    width: min(320px, 85vw);
+    height: 100vh;
+
+    padding: 0;
+
+    background: #1a4a8d;
+
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    z-index: 1100;
+
+    box-shadow: -5px 0 18px rgba(0, 0, 0, 0.2);
+}
+
+#publicMobileMenu.is-open {
+    transform: translateX(0);
+}
+
+/* Header mobile menu */
+.public-mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    min-height: 60px;
+    padding: 0 16px;
+
+    background: #0b2f64;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Tombol close benar-benar icon */
+#publicMobileClose {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+
+    padding: 0;
+
+    color: #fff;
+    background: transparent;
+
+    border: 0;
+    outline: none;
+
+    font-size: 28px;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+#publicMobileClose:hover {
+    color: #d4af37;
+}
+
+/* Mobile navigation */
+.public-mobile-navigation {
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.public-mobile-navigation > li {
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.public-mobile-navigation > li > a,
+.public-mobile-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+
+    min-height: 52px;
+
+    padding: 14px 16px;
+
+    color: #fff;
+    background: transparent;
+
+    border: 0;
+
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 400;
+
+    text-align: left;
+    text-decoration: none;
+
+    box-sizing: border-box;
+
+    cursor: pointer;
+}
+
+.public-mobile-navigation > li > a:hover,
+.public-mobile-dropdown-toggle:hover {
+    color: #fff;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile dropdown */
+.public-mobile-dropdown-menu {
+    display: none;
+
+    margin: 0;
+    padding: 0;
+
+    background: rgba(0, 0, 0, 0.08);
+
+    list-style: none;
+}
+
+.public-mobile-dropdown.is-open .public-mobile-dropdown-menu {
+    display: block;
+}
+
+.public-mobile-dropdown-menu li {
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.public-mobile-dropdown-menu a {
+    display: block;
+
+    width: 100%;
+
+    padding: 13px 16px 13px 30px;
+
+    color: #fff;
+
+    font-size: 15px;
+
+    text-decoration: none;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+
+    box-sizing: border-box;
+}
+
+.public-mobile-dropdown-menu a:hover {
+    color: #fff;
+    background: rgba(0, 0, 0, 0.12);
+}
+
+/* Mobile dropdown arrow */
+.public-mobile-dropdown-arrow {
+    display: inline-block;
+
+    width: 8px;
+    height: 8px;
+
+    flex-shrink: 0;
+
+    border-right: 1.5px solid #fff;
+    border-bottom: 1.5px solid #fff;
+
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+}
+
+.public-mobile-dropdown.is-open .public-mobile-dropdown-arrow {
+    transform: rotate(225deg);
+}
+
+/* =========================================================
+   MOBILE MENU BUTTON
+   ========================================================= */
+
+/* Desktop: benar-benar hilang */
+#publicMenuBtn {
+    display: none !important;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Mobile */
+@media (max-width: 767.98px) {
+    #publicMenuBtn {
+        display: flex !important;
+        visibility: visible;
+        pointer-events: auto;
+
+        align-items: center;
+        justify-content: center;
+
+        width: 40px;
+        height: 40px;
+
+        margin: 0;
+        padding: 0;
+
+        color: #ffffff;
+        background: transparent !important;
+
+        border: 0 !important;
+        outline: none !important;
+        box-shadow: none !important;
+
+        font-size: 24px;
+
+        cursor: pointer;
+    }
+}
+
+/* =========================================================
+   MOBILE USER ACCOUNT
+   ========================================================= */
+
+.public-mobile-user {
+    position: relative;
+
+    width: 100%;
+
+    margin-top: auto;
+
+    padding: 0;
+
+    background: #0b2f64;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+
+    box-sizing: border-box;
+}
+
+.public-mobile-user-toggle {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+
+    min-height: 58px;
+
+    padding: 13px 18px 13px 28px;
+
+    box-sizing: border-box;
+
+    border: 0;
+
+    background: transparent;
+
+    color: #fff;
+
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 400;
+
+    text-align: left;
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+.public-mobile-user-toggle:hover,
+.public-mobile-user-toggle:focus {
+    color: #d4af37;
+
+    background: rgba(0, 0, 0, 0.08);
+
+    outline: none;
+}
+
+.public-mobile-user-info {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    min-width: 0;
+}
+
+.public-mobile-user-info i {
+    width: 22px;
+
+    font-size: 17px;
+
+    text-align: center;
+}
+
+.public-mobile-user-avatar {
+    width: 32px;
+    height: 32px;
+
+    flex-shrink: 0;
+
+    border: 2px solid #d4af37;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+}
+
+.public-mobile-user-arrow {
+    display: inline-block;
+
+    width: 7px;
+    height: 7px;
+
+    flex-shrink: 0;
+
+    margin-top: 4px;
+
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+
+    transform: rotate(225deg);
+
+    transition: transform 0.2s ease;
+}
+/*
+|--------------------------------------------------------------------------
+| Dropdown akun dibuka KE ATAS
+|--------------------------------------------------------------------------
+*/
+
+.public-mobile-user-menu {
+    position: absolute;
+
+    right: 0;
+    bottom: 100%;
+    left: 0;
+
+    display: none;
+
+    width: 100%;
+
+    margin: 0;
+    padding: 6px 0;
+
+    box-sizing: border-box;
+
+    background: #1a4a8d;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+
+    box-shadow: 0 -8px 18px rgba(0, 0, 0, 0.18);
+
+    z-index: 5100;
+}
+
+.public-mobile-user.is-open .public-mobile-user-menu {
+    display: block;
+}
+
+/* =========================================================
+   MOBILE USER DROPDOWN ITEMS
+   ========================================================= */
+
+.public-mobile-user-menu a,
+.public-mobile-user-menu button {
+    display: flex !important;
+
+    align-items: center;
+
+    justify-content: flex-start !important;
+
+    gap: 10px;
+
+    width: 100%;
+
+    min-height: 48px;
+
+    margin: 0;
+
+    padding: 12px 18px 12px 28px;
+
+    box-sizing: border-box;
+
+    border: 0;
+
+    background: transparent;
+
+    color: #fff;
+
+    font-family: inherit;
+
+    font-size: 15px;
+
+    font-weight: 400;
+
+    line-height: 1.4;
+
+    text-align: left !important;
+
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+.public-mobile-user-menu a i,
+.public-mobile-user-menu button i {
+    width: 20px;
+
+    flex: 0 0 20px;
+
+    font-size: 16px;
+
+    text-align: center;
+}
+
+.public-mobile-user-menu a span,
+.public-mobile-user-menu button span {
+    display: inline-block;
+
+    margin: 0;
+}
+
+.public-mobile-user-menu a:hover,
+.public-mobile-user-menu button:hover {
+    color: #d4af37;
+
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.public-mobile-user-menu form {
+    margin: 0;
+    padding: 0;
+}
+
+.public-mobile-user.is-open .public-mobile-user-arrow {
+    transform: rotate(45deg);
+
+    margin-top: -3px;
+}
+
+#publicMobileMenu {
+    display: flex;
+    flex-direction: column;
+}
+
+#publicMobileMenu .public-mobile-navigation {
+    flex: 0 0 auto;
+}
+
+.public-mobile-user {
+    margin-top: auto;
 }

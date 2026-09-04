@@ -22,6 +22,10 @@ class UserController extends Controller
 
         $search = request('search');
 
+        $roleId = request('role');
+        
+        $positionId = request('position');
+
         $query = User::with([
             'role',
             'position',
@@ -54,6 +58,20 @@ class UserController extends Controller
             });
         }
 
+        // Role
+        $rolesQuery = Role::query()
+            ->orderBy('level', 'desc')
+            ->orderBy('name');
+
+        if (! $currentUser->hasRole('SUPER_ADMIN')) {
+            $rolesQuery->where('code', '!=', 'SUPER_ADMIN');
+        }
+
+        $roles = $rolesQuery->get(['id', 'name']);
+
+        // Jabatan
+        $positions = Position::query()->orderBy('name')->get(['id', 'name']);
+
         /*
         |--------------------------------------------------------------------------
         | Search user
@@ -68,17 +86,33 @@ class UserController extends Controller
                         'like',
                         "%{$search}%"
                     )
-                    ->orWhere(
-                        'nip',
-                        'like',
-                        "%{$search}%"
-                    )
+
+                    ->orWhereHas('role', function ($roleQuery) use ($search) {
+                        $roleQuery->where('name', 'like', "%{$search}%");
+                    })
+
                     ->orWhere(
                         'email',
                         'like',
                         "%{$search}%"
+                    )
+
+                    ->orWhere(
+                        'nip',
+                        'like',
+                        "%{$search}%"
                     );
             });
+        }
+
+        // Filter Role
+        if ($roleId) {
+            $query->where('role_id', $roleId);
+        }
+
+        // Filter Jabatan
+        if ($positionId) {
+            $query->where('position_id', $positionId);
         }
 
         /*
@@ -118,6 +152,10 @@ class UserController extends Controller
             compact(
                 'users',
                 'search',
+                'roleId',
+                'positionId',
+                'positions',
+                'roles',
                 'perPage'
             )
         );

@@ -386,7 +386,7 @@
                 || request('type')
                 || request('status')
                 || request('author')
-            )
+                )
 
                 <div>
 

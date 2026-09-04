@@ -95,137 +95,247 @@
         class="overflow-hidden"
     >
 
-        {{-- Search --}}
-        <div class="border-b border-gray-200 p-4 sm:p-5">
-
+         {{-- =====================================================
+        SEARCH & FILTER
+        ====================================================== --}}
+        <x-admin.card class="mb-6">
+            
             <form
                 method="GET"
                 action="{{ route('users.index') }}"
-                class="flex w-full items-center justify-center gap-2"
-            >
+                class="space-y-4">
 
-                <div class="relative w-full max-w-md">
+                {{-- Filter Fields --}}
+                <div
+                 class="
+                    grid
+                    grid-cols-1
+                    gap-4
+                    md:grid-cols-2
 
-                    <input
-                        type="text"
-                        name="search"
-                        value="{{ request('search') }}"
-                        placeholder="Cari nama, NIP, atau email..."
-                        class="
-                            block
-                            w-full
-                            rounded-lg
-                            border
-                            border-gray-300
-                            bg-white
-                            px-3
-                            py-2.5
-                            pr-10
-                            text-sm
-                            text-gray-900
-                            placeholder:text-gray-400
-                            focus:border-blue-500
-                            focus:ring-blue-500
-                        "
-                    >
-
-                    @if (request('search'))
-
-                        <a
-                            href="{{ route('users.index') }}"
-                            aria-label="Reset pencarian"
-                            title="Reset pencarian"
+                    lg:flex
+                    lg:flex-nowrap
+                    lg:items-end
+                "
+                >
+                {{-- Pencarian --}}
+                    <div class="min-w-0 md:col-span-2 lg:flex-[2]">
+                        <label
+                            for="search"
                             class="
-                                absolute
-                                right-2
-                                top-1/2
+                                mb-1.5
+                                block
+                                text-sm
+                                font-medium
+                                text-gray-700
+                            "
+                            >
+                            Pencarian
+                        </label>
+                        
+                        <input
+                            type="text"
+                            name="search"
+                            id="search"
+                            value="{{ request('search') }}"
+                            placeholder="Cari nama, NIP, atau Role..."
+                            class="
+                                block
+                                w-full
+                                rounded-lg
+                                border
+                                border-gray-300
+                                bg-white
+                                px-3
+                                py-2.5
+                                pr-10
+                                text-sm
+                                text-gray-900
+                                placeholder:text-gray-400
+                                focus:border-blue-500
+                                focus:ring-blue-500
+                            "
+                        >
+                    </div>
+                    
+                    {{-- Role--}}
+                    <div class="min-w-0 lg:flex-1">
+                        <label
+                            for="role"
+                            class="
+                                mb-1.5
+                                block
+                                text-sm
+                                font-medium
+                                text-gray-700
+                            ">
+                            Role
+                        </label>
+
+                        <select
+                            name="role"
+                            id="role"
+                            class="
+                                block
+                                w-full
+                                rounded-lg
+                                border
+                                border-gray-300
+                                bg-white
+                                px-3
+                                py-2.5
+                                text-sm
+                                text-gray-900
+                                focus:border-blue-500
+                                focus:ring-blue-500
+                            "
+                        >
+                            <option value="">Semua Role</option>
+                            @foreach ($roles as $role)
+                                <option
+                                    value="{{ $role->id }}"
+                                    {{ request('role') == $role->id ? 'selected' : '' }}
+                                >
+                                    {{ $role->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Jabatan--}}
+                    <div class="min-w-0 lg:flex-1">
+                        <label
+                            for="position"
+                            class="
+                                mb-1.5
+                                block
+                                text-sm
+                                font-medium
+                                text-gray-700
+                            ">
+                            Jabatan
+                        </label>
+
+                        <select
+                            name="position"
+                            id="position"
+                            class="
+                                block
+                                w-full
+                                rounded-lg
+                                border
+                                border-gray-300
+                                bg-white
+                                px-3
+                                py-2.5
+                                text-sm
+                                text-gray-900
+                                focus:border-blue-500
+                                focus:ring-blue-500
+                            "
+                        >
+                            <option value="">Semua Jabatan</option>
+                            @foreach ($positions as $position)
+                                <option
+                                    value="{{ $position->id }}"
+                                    {{ request('position') == $position->id ? 'selected' : '' }}
+                                >
+                                    {{ $position->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Tombol Search --}}
+                    <div class="flex w-full lg:w-[42px] lg:shrink-0">
+
+                        <button
+                            type="submit"
+                            title="Cari"
+                            aria-label="Cari"
+                            class="
                                 inline-flex
-                                h-7
-                                w-7
-                                -translate-y-1/2
+                                h-[42px]
+                                w-full
                                 items-center
                                 justify-center
-                                rounded-md
-                                text-gray-400
+                                gap-2
+                                rounded-lg
+                                bg-blue-600
+                                px-4
+                                text-sm
+                                font-medium
+                                text-white
+                                shadow-sm
                                 transition
-                                hover:bg-red-50
-                                hover:text-red-600
+
+                                hover:bg-blue-700
+
                                 focus:outline-none
                                 focus:ring-2
-                                focus:ring-red-500/30
+                                focus:ring-blue-500/30
+
+                                sm:w-[42px]
+                                sm:px-0
                             "
                         >
 
                             <svg
-                                class="h-4 w-4"
+                                class="h-5 w-5"
                                 fill="none"
                                 stroke="currentColor"
-                                stroke-width="1.8"
+                                stroke-width="2"
                                 viewBox="0 0 24 24"
+                                aria-hidden="true"
                             >
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    d="M6 6l12 12M18 6 6 18"
+                                    d="m21 21-4.35-4.35m1.35-5.15a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z"
                                 />
                             </svg>
 
-                        </a>
+                            <span class="sm:hidden">
+                                Cari
+                            </span>
 
-                    @endif
+                        </button>
+
+                    </div>
 
                 </div>
+                
+                {{-- Reset Filter --}}
+                @if (
+                    request('search')
+                    || request('role')
+                    || request('position')
+                    )
 
+                    <div>
 
-                {{-- Search Button --}}
-                <button
-                    type="submit"
-                    aria-label="Cari pengguna"
-                    title="Cari"
-                    class="
-                        inline-flex
-                        h-10
-                        w-10
-                        shrink-0
-                        items-center
-                        justify-center
-                        rounded-lg
-                        bg-blue-600
-                        text-white
-                        shadow-sm
-                        transition
-                        hover:bg-blue-700
-                        focus:outline-none
-                        focus:ring-2
-                        focus:ring-blue-500/30
-                    "
-                >
+                        <a
+                            href="{{ route('users.index') }}"
+                            class="
+                                inline-flex
+                                items-center
+                                text-sm
+                                font-medium
+                                text-gray-600
+                                transition
+                                hover:text-red-600
+                            "
+                        >
+                            Reset Filter
+                        </a>
 
-                    <svg
-                        class="h-5 w-5"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        viewBox="0 0 24 24"
-                    >
-                        <circle
-                            cx="11"
-                            cy="11"
-                            r="7"
-                        />
+                    </div>
 
-                        <path
-                            stroke-linecap="round"
-                            d="m20 20-4-4"
-                        />
-                    </svg>
+                @endif
 
-                </button>
+            </form>    
 
-            </form>
-
-        </div>
-
+        </x-admin.card>
 
         {{-- Table --}}
         <div class="overflow-x-auto">
@@ -269,7 +379,7 @@
                                 text-gray-500
                             "
                         >
-                            NIP
+                            Nama
                         </th>
 
 
@@ -287,7 +397,7 @@
                                 text-gray-500
                             "
                         >
-                            Nama
+                            NIP
                         </th>
 
 

@@ -31,14 +31,6 @@
         display: none; /* Tampilkan logo UKPBJ */
         height: 60px; /* Sesuaikan ukuran logo UKPBJ */
     }
-
-    .berita-detail-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .regulasi-detail-body {
-        grid-template-columns: 1fr;
-    }
 }
 
 /* Tablet & Mobile Umum (Maksimal 768px) */
@@ -113,6 +105,7 @@
 
     /* Style untuk link di dalam sidenav */
     .sidenav .nav-links {
+        display: flex;
         flex-direction: column;
         width: 100%;
         padding: 0;
@@ -191,29 +184,33 @@
         background-color: transparent !important; /* Hapus background di tombolnya saja */
     }
     /* Mengubah background seluruh .user-session jika dropdown di dalamnya aktif */
-    .sidenav .sidenav-footer:has(.dropdown-toggle.active) {
+    .sidenav .user-session:has(.dropdown-toggle.active) {
         background-color: #0b2f64;
     }
 
     /* Memberi warna font pada user session yang aktif */
-    .sidenav .sidenav-footer .dropdown-toggle.active,
-    .sidenav .sidenav-footer .dropdown-toggle.active .username {
+    .sidenav .user-session .dropdown-toggle.active,
+    .sidenav .user-session .dropdown-toggle.active .username {
         color: #d4af37 !important;
     }
 
-    /* Footer Sidenav (untuk user session) */
-    .sidenav-footer {
+    /* User session di Sidenav */
+    .sidenav .user-session {
+        position: absolute;
+        bottom: 0;
+        left: 0;
         width: 100%;
         background-color: #1a4a8d; /* Samakan dengan background sidenav */
         transition: background-color 0.3s ease; /* Animasi untuk background */
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .sidenav .user-session {
         padding: 15px 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
     .sidenav .user-session .dropdown-menu {
         position: absolute !important; /* Mengubah posisi agar relatif terhadap parent */
-        bottom: 100% !important; /* Posisi tepat di atas tombol pemicu */
+        bottom: calc(
+            24% - 1px
+        ) !important; /* Posisi tepat di atas tombol pemicu, dikurangi 1px border */
+        top: auto !important;
         left: 0 !important;
         width: 100% !important; /* Lebar sama dengan sidenav */
         background-color: #0b2f64; /* Samakan background */
@@ -295,15 +292,6 @@
 
     .contact-grid {
         padding: 20px 15px; /* Mengurangi padding horizontal di mobile */
-    }
-
-    .map-container iframe {
-        border: 0; /* Menghapus border dari inline style */
-    }
-
-    /* Mengubah social card menjadi 1 kolom di mobile */
-    .social-cards-container {
-        grid-template-columns: 1fr;
     }
 }
 
@@ -397,5 +385,58 @@
     }
 }
 
-@media (max-width: 991px) {
+@media (max-width: 767.98px) {
+    /* Desktop menu disembunyikan */
+    .public-desktop-menu {
+        display: none !important;
+    }
+
+    /* Hamburger muncul hanya di mobile */
+    #publicMenuBtn {
+        display: flex !important;
+
+        align-items: center;
+        justify-content: center;
+
+        width: 40px;
+        height: 40px;
+
+        padding: 0;
+
+        color: #fff;
+        background: transparent;
+
+        border: 0;
+        outline: none;
+
+        font-size: 24px;
+
+        cursor: pointer;
+    }
+
+    #publicMenuBtn:hover {
+        color: #d4af37;
+    }
+
+    /* User account mobile */
+    .public-user-name {
+        display: none;
+    }
+
+    .public-user-toggle {
+        gap: 0;
+    }
+
+    /* Mobile menu */
+    #publicMobileMenu {
+        width: min(320px, 85vw);
+    }
+
+    /* Jangan biarkan container lama memengaruhi menu */
+    #publicMobileMenu .container {
+        width: 100%;
+        max-width: none;
+        padding: 0;
+        margin: 0;
+    }
 }

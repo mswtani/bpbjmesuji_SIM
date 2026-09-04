@@ -20,9 +20,8 @@ use App\Http\Controllers\RegulationTypeController;
 */
 
 Route::get('/', function () {
-    return view('home');
-})  ->name('home');
-
+    return view('public.index');
+})->name('public.home');
 
 /*
 |--------------------------------------------------------------------------
