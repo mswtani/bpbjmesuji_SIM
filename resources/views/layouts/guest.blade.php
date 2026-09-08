@@ -112,31 +112,7 @@
                     >
                         SIM BPBJ Mesuji
                     </h1>
-
-
-                    {{-- System Description --}}
-                    {{-- <div
-                        class="
-                            mt-1
-                            text-xs
-                            leading-5
-                            text-gray-500
-                        "
-                    >
-
-                        <p>
-                            Sistem Informasi Manajemen
-                        </p>
-
-                        <p>
-                            Bagian Pengadaan Barang dan Jasa
-                        </p>
-                        <p>
-                            Kabupaten Mesuji
-                        </p>
-
-                    </div> --}}
-
+                   
                 </div>
 
 

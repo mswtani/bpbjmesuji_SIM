@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -31,15 +32,84 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
-    {
+    public function update(
+        ProfileUpdateRequest $request
+    ): RedirectResponse {
         $user = $request->user();
 
-        $user->fill($request->validated());
+        $data = $request->validated();
 
         /*
-         * Jika email berubah, verifikasi email harus diulang.
-         */
+        |--------------------------------------------------------------------------
+        | Avatar
+        |--------------------------------------------------------------------------
+        */
+
+        $oldAvatar = $user->avatar;
+
+        /*
+        | Upload avatar baru.
+        |
+        | Foto baru disimpan terlebih dahulu.
+        | Foto lama baru dihapus setelah file baru
+        | berhasil disimpan.
+        */
+        if ($request->hasFile('avatar')) {
+
+            $newAvatar = $request->file('avatar')
+                ->store('avatars', 'public');
+
+            $data['avatar'] = $newAvatar;
+
+            /*
+            | Hapus foto lama setelah foto baru berhasil
+            | disimpan.
+            */
+            if (
+                $oldAvatar &&
+                $oldAvatar !== $newAvatar &&
+                Storage::disk('public')->exists($oldAvatar)
+            ) {
+                Storage::disk('public')->delete($oldAvatar);
+            }
+        }
+
+        /*
+        | Hapus avatar jika tidak ada foto baru.
+        */
+        elseif (
+            ($data['remove_avatar'] ?? false) &&
+            $oldAvatar
+        ) {
+
+            if (
+                Storage::disk('public')->exists($oldAvatar)
+            ) {
+                Storage::disk('public')->delete($oldAvatar);
+            }
+
+            $data['avatar'] = null;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Jangan simpan field kontrol form ke database
+        |--------------------------------------------------------------------------
+        */
+
+        unset($data['remove_avatar']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Email
+        |--------------------------------------------------------------------------
+        */
+
+        $user->fill($data);
+
+        /*
+        * Jika email berubah, verifikasi email harus diulang.
+        */
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }

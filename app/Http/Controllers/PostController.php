@@ -198,12 +198,12 @@ class PostController extends Controller
         if (in_array($data['type'], ['news', 'announcement'], true)) {
             $data['content'] = Purifier::clean(
                 $data['content'],
-                'default'
+                'news'
             );
 
             $data['excerpt'] = Purifier::clean(
-            $data['excerpt'] ?? '',
-            'default'
+                $data['excerpt'] ?? '',
+                'news'
             );
         }
 
@@ -710,12 +710,12 @@ class PostController extends Controller
 
             $data['content'] = Purifier::clean(
                 $data['content'],
-                'default'
+                'news'
             );
 
             $data['excerpt'] = Purifier::clean(
                 $data['excerpt'] ?? '',
-                'default'
+                'news'
             );
         }
 
@@ -1422,6 +1422,7 @@ class PostController extends Controller
      
 
 
+
     /**
      * Download dokumen regulasi.
      */
@@ -1462,9 +1463,44 @@ class PostController extends Controller
             abort(404);
         }
 
+        $extension = strtolower(
+            pathinfo($post->document_path, PATHINFO_EXTENSION)
+        );
+
+        $filename = trim($post->title);
+
+        // Bersihkan karakter yang tidak diperbolehkan dalam nama file.
+        $filename = str_replace(
+            ['/', '\\'],
+            '-',
+            $filename
+        );
+
+        // Hilangkan karakter kontrol dan rapikan spasi.
+        $filename = preg_replace(
+            '/[\x00-\x1F\x7F]/u',
+            '',
+            $filename
+        );
+
+        $filename = preg_replace(
+            '/\s+/u',
+            ' ',
+            $filename
+        );
+
+        $filename = trim(
+            $filename,
+            " ."
+        );
+
+        if ($extension !== '') {
+            $filename .= '.' . $extension;
+        }
+
         return Storage::disk('public')->download(
             $post->document_path,
-            $post->document_original_name ?? 'dokumen-regulasi'
+            $filename
         );
     }
 

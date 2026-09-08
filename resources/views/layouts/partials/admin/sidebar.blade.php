@@ -327,7 +327,7 @@
             JENIS REGULASI
         ===================================================== --}}
 
-        @if (auth()->user()?->hasPermission('regulation-types.view'))
+        {{-- @if (auth()->user()?->hasPermission('regulation-types.view'))
 
             <a
                 href="{{ route('regulation-types.index') }}"
@@ -373,7 +373,7 @@
 
             </a>
 
-        @endif
+        @endif --}}
 
 
     </nav>

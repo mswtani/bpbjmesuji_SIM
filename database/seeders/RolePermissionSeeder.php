@@ -77,6 +77,12 @@ class RolePermissionSeeder extends Seeder
                     'regulation-types.update',
                     'regulation-types.delete',
 
+                    // Carousel
+                    'carousels.view',
+                    'carousels.create',
+                    'carousels.update',
+                    'carousels.delete',
+
                 ]
             )->pluck('id');
 
@@ -157,6 +163,13 @@ class RolePermissionSeeder extends Seeder
                     'regulation-types.create',
                     'regulation-types.update',
                     'regulation-types.delete',
+
+
+                    // Carousel
+                    'carousels.view',
+                    'carousels.create',
+                    'carousels.update',
+                    'carousels.delete',
 
                 ]
             )->pluck('id');

@@ -66,8 +66,9 @@
             <form
                 method="POST"
                 action="{{ route('users.update', $user) }}"
+                enctype="multipart/form-data"
                 class="space-y-6"
-            >
+                >
 
                 @csrf
                 @method('PUT')

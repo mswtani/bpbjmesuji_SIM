@@ -1670,7 +1670,19 @@
                             leading-7
                             text-gray-700
                         ">
-                        {!! $post->excerpt !!}
+                        @if ($post->excerpt)
+                            @php
+                                $excerpt = html_entity_decode(
+                                    $post->excerpt,
+                                    ENT_QUOTES | ENT_HTML5,
+                                    'UTF-8'
+                                );
+                            @endphp
+
+                            <p class="public-post-excerpt">
+                                {!! $excerpt !!}
+                            </p>
+                        @endif
                     </div>
 
                 @endif

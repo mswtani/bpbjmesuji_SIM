@@ -9,6 +9,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -483,7 +484,7 @@ class UserController extends Controller
     public function update(
         UpdateUserRequest $request,
         User $user
-        ): RedirectResponse {
+    ): RedirectResponse {
         $this->ensureCanManageUser($user);
 
         $data = $request->validated();
@@ -495,7 +496,7 @@ class UserController extends Controller
         */
 
         $role = Role::findOrFail($data['role_id']);
-        
+
         /*
         |--------------------------------------------------------------------------
         | Sinkronkan user type dengan role
@@ -506,6 +507,63 @@ class UserController extends Controller
             $role->code === 'PUBLIC_USER'
                 ? 'public'
                 : 'asn';
+
+       /*
+        |--------------------------------------------------------------------------
+        | Avatar
+        |--------------------------------------------------------------------------
+        */
+
+        $oldAvatar = $user->avatar;
+
+        /*
+        | Upload avatar baru.
+        |
+        | Foto lama tidak dihapus sebelum foto baru
+        | berhasil disimpan.
+        */
+        if ($request->hasFile('avatar')) {
+            $newAvatar = $request->file('avatar')
+                ->store('avatars', 'public');
+
+            $data['avatar'] = $newAvatar;
+
+            if (
+                $oldAvatar &&
+                $oldAvatar !== $newAvatar &&
+                Storage::disk('public')->exists($oldAvatar)
+            ) {
+                Storage::disk('public')->delete($oldAvatar);
+            }
+        }
+
+        /*
+        | Hapus avatar jika tidak ada foto baru.
+        */
+        elseif (
+            ($data['remove_avatar'] ?? false)
+            && $oldAvatar
+        ) {
+            if (Storage::disk('public')->exists($oldAvatar)) {
+                Storage::disk('public')->delete($oldAvatar);
+            }
+
+            $data['avatar'] = null;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Jangan simpan field kontrol form ke database
+        |--------------------------------------------------------------------------
+        */
+
+        unset($data['remove_avatar']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update user
+        |--------------------------------------------------------------------------
+        */
 
         $user->update($data);
 

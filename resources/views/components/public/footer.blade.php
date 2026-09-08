@@ -112,7 +112,7 @@
 
                 <li>
                     <a
-                        href="#"
+                        href="https://www.instagram.com/bpbjmesuji?igsi=cjB3Y3I5dThjaGc4"
                         target="_blank"
                         title="Instagram"
                     >
@@ -121,11 +121,6 @@
                 </li>
 
             </ul>
-
-            <p style="margin-top: 15px;">
-                <i class="fas fa-envelope"></i>
-                bpbj@mesujikab.go.id
-            </p>
 
         </div>
 

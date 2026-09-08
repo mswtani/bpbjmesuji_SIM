@@ -214,6 +214,37 @@ class PermissionSeeder extends Seeder
                 'name' => 'Hapus Jenis Regulasi',
                 'description' => 'Menghapus jenis regulasi yang tidak digunakan.',
             ],
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Carousel Management
+            |--------------------------------------------------------------------------
+            */
+            [
+                'code' => 'carousels.view',
+                'name' => 'Lihat Carousel',
+                'description' => 'Melihat daftar dan pengaturan Carousel halaman utama.',
+            ],
+
+            [
+                'code' => 'carousels.create',
+                'name' => 'Tambah Carousel',
+                'description' => 'Menambahkan konten ke Carousel halaman utama.',
+            ],
+
+            [
+                'code' => 'carousels.update',
+                'name' => 'Edit Carousel',
+                'description' => 'Mengubah pengaturan Carousel halaman utama.',
+            ],
+
+            [
+                'code' => 'carousels.delete',
+                'name' => 'Hapus Carousel',
+                'description' => 'Menghapus Carousel dari halaman utama.',
+            ],
+
         ];
 
 

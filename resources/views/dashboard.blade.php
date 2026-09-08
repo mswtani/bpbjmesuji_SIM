@@ -52,6 +52,34 @@
                 @endif
 
 
+                {{-- Jenis Regulasi --}}
+
+                @if (auth()->user()?->hasPermission('regulation-types.view'))
+
+                    <x-admin.menu-card
+                        href="{{ route('regulation-types.index') }}"
+                        title="Jenis Regulasi"
+                        description="Kelola jenis dan kategori regulasi."
+                        icon="document"
+                    />
+
+                @endif
+
+
+                {{-- Carousel --}}
+
+                @if (auth()->user()?->hasPermission('carousels.view'))
+
+                    <x-admin.menu-card
+                        href="{{ route('carousels.index') }}"
+                        title="Carousel"
+                        description="Kelola banner dan tampilan carousel halaman publik."
+                        icon="image"
+                    />
+
+                @endif
+
+
                 {{-- Helpdesk --}}
 
                 @if (auth()->user()?->hasPermission('helpdesk.view'))
@@ -102,6 +130,7 @@
                     description="Lihat dan ubah informasi profil Anda."
                     icon="profile"
                 />
+                
 
             </div>
 

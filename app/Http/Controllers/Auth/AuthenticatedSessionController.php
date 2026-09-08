@@ -67,7 +67,7 @@ class AuthenticatedSessionController extends Controller
             }
 
             return redirect()
-                ->route('home');
+                ->route('public.home');
         }
 
 
@@ -101,6 +101,6 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()
-            ->route('home');
+            ->route('public.home');
     }
 }

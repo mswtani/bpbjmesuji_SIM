@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PublicPostController extends Controller
@@ -10,21 +11,93 @@ class PublicPostController extends Controller
     /**
      * Daftar berita.
      */
-    public function news(): View
+    // public function news(): View
+    // {
+    //     $posts = Post::query()
+    //         ->with('author')
+    //         ->where('type', 'news')
+    //         ->where('status', 'published')
+    //         ->whereNotNull('published_at')
+    //         ->latest('published_at')
+    //         ->paginate(9);
+
+    //     return view('public.posts.index', [
+    //         'posts' => $posts,
+    //         'type' => 'news',
+    //         'pageTitle' => 'Berita',
+    //         'pageDescription' => 'Berita dan informasi terbaru.',
+    //     ]);
+    // }
+    /**
+     * Pencarian seluruh konten publik.
+     */
+    public function search(Request $request): View
     {
+        $search = trim($request->query('q', ''));
+
         $posts = Post::query()
-            ->with('author')
-            ->where('type', 'news')
+            ->with([
+                'author',
+                'regulationType',
+            ])
+            ->whereIn('type', [
+                'news',
+                'announcement',
+                'regulation',
+            ])
             ->where('status', 'published')
             ->whereNotNull('published_at')
+            ->when(
+                $search !== '',
+                fn ($query) => $query->where(function ($query) use ($search) {
+                    $query
+                        ->where('title', 'like', '%' . $search . '%')
+                        ->orWhere('excerpt', 'like', '%' . $search . '%')
+                        ->orWhere('content', 'like', '%' . $search . '%');
+                })
+            )
             ->latest('published_at')
-            ->paginate(9);
+            ->paginate(9)
+            ->withQueryString();
+
+        return view('public.search', [
+            'posts' => $posts,
+            'search' => $search,
+        ]);
+    }
+
+   public function news(Request $request): View
+    {
+        $type = $request->query('type', 'all');
+        $search = trim($request->query('search', ''));
+
+        $posts = Post::query()
+            ->with('author')
+            ->whereIn('type', ['news', 'announcement'])
+            ->where('status', 'published')
+            ->whereNotNull('published_at')
+            ->when(
+                in_array($type, ['news', 'announcement'], true),
+                fn ($query) => $query->where('type', $type)
+            )
+            ->when(
+                $search !== '',
+                fn ($query) => $query->where(function ($query) use ($search) {
+                    $query
+                        ->where('title', 'like', '%' . $search . '%')
+                        ->orWhere('excerpt', 'like', '%' . $search . '%');
+                })
+            )
+            ->latest('published_at')
+            ->paginate(9)
+            ->withQueryString();
 
         return view('public.posts.index', [
             'posts' => $posts,
-            'type' => 'news',
-            'pageTitle' => 'Berita',
-            'pageDescription' => 'Berita dan informasi terbaru.',
+            'type' => $type,
+            'search' => $search,
+            'pageTitle' => 'Berita & Pengumuman',
+            'pageDescription' => 'Berita dan informasi resmi terbaru dari BPBJ Kabupaten Mesuji.',
         ]);
     }
 
@@ -35,7 +108,7 @@ class PublicPostController extends Controller
     {
         $post = Post::query()
             ->with('author')
-            ->where('type', 'news')
+            ->whereIn('type', ['news', 'announcement'])
             ->where('status', 'published')
             ->whereNotNull('published_at')
             ->where('slug', $slug)
@@ -49,41 +122,75 @@ class PublicPostController extends Controller
     /**
      * Daftar pengumuman.
      */
-    public function announcements(): View
+    // public function announcements(): View
+    // {
+    //     $posts = Post::query()
+    //         ->with('author')
+    //         ->where('type', 'announcement')
+    //         ->where('status', 'published')
+    //         ->whereNotNull('published_at')
+    //         ->latest('published_at')
+    //         ->paginate(9);
+
+    //     return view('public.posts.index', [
+    //         'posts' => $posts,
+    //         'type' => 'announcement',
+    //         'pageTitle' => 'Pengumuman',
+    //         'pageDescription' => 'Pengumuman dan informasi resmi.',
+    //     ]);
+    // }
+
+    /**
+     * Daftar pengumuman.
+     */
+    public function announcements(Request $request): View
     {
+        $type = 'announcement';
+        $search = trim($request->query('search', ''));
+
         $posts = Post::query()
             ->with('author')
             ->where('type', 'announcement')
             ->where('status', 'published')
             ->whereNotNull('published_at')
+            ->when(
+                $search !== '',
+                fn ($query) => $query->where(function ($query) use ($search) {
+                    $query
+                        ->where('title', 'like', '%' . $search . '%')
+                        ->orWhere('excerpt', 'like', '%' . $search . '%');
+                })
+            )
             ->latest('published_at')
-            ->paginate(9);
+            ->paginate(9)
+            ->withQueryString();
 
         return view('public.posts.index', [
             'posts' => $posts,
-            'type' => 'announcement',
+            'type' => $type,
+            'search' => $search,
             'pageTitle' => 'Pengumuman',
-            'pageDescription' => 'Pengumuman dan informasi resmi.',
+            'pageDescription' => 'Pengumuman dan informasi resmi terbaru dari BPBJ Kabupaten Mesuji.',
         ]);
     }
 
     /**
      * Detail pengumuman.
      */
-    public function announcementShow(string $slug): View
-    {
-        $post = Post::query()
-            ->with('author')
-            ->where('type', 'announcement')
-            ->where('status', 'published')
-            ->whereNotNull('published_at')
-            ->where('slug', $slug)
-            ->firstOrFail();
+    // public function announcementShow(string $slug): View
+    // {
+    //     $post = Post::query()
+    //         ->with('author')
+    //         ->where('type', 'announcement')
+    //         ->where('status', 'published')
+    //         ->whereNotNull('published_at')
+    //         ->where('slug', $slug)
+    //         ->firstOrFail();
 
-        return view('public.posts.show', [
-            'post' => $post,
-        ]);
-    }
+    //     return view('public.posts.show', [
+    //         'post' => $post,
+    //     ]);
+    // }
 
     /**
      * Daftar regulasi.

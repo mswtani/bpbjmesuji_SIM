@@ -1,16 +1,20 @@
 <?php
 
-use App\Http\Controllers\UserApprovalController;
 use App\Http\Controllers\Auth\ChangePasswordController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\PostController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PublicPostController;
-use App\Http\Controllers\PublicHelpdeskController;
+use App\Http\Controllers\CarouselController;
 use App\Http\Controllers\HelpdeskController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicHelpdeskController;
+use App\Http\Controllers\PublicHomeController;
+use App\Http\Controllers\PublicPostController;
+use App\Http\Controllers\PublicProfileController;
 use App\Http\Controllers\RegulationTypeController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserApprovalController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\PublicAccountController;
+use Illuminate\Support\Facades\Route;
 
 
 /*
@@ -19,10 +23,18 @@ use App\Http\Controllers\RegulationTypeController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function () {
-    return view('public.index');
-})->name('public.home');
+Route::get('/', [PublicHomeController::class, 'index'])
+    ->name('public.home');
 
+Route::get('/pencarian', [PublicPostController::class, 'search'])
+    ->name('public.search');
+
+Route::get('/profil', [PublicProfileController::class, 'index'])
+    ->name('public.profile');
+
+Route::get('/kontak', function () {
+    return view('public.contact');
+    })->name('public.contact');
 /*
 |--------------------------------------------------------------------------
 | Dashboard
@@ -67,6 +79,18 @@ Route::get(
 */
 
 Route::middleware('auth')->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public User Account
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/akun', [PublicAccountController::class, 'edit'])
+        ->name('public.account.edit');
+
+    Route::patch('/akun', [PublicAccountController::class, 'update'])
+        ->name('public.account.update');
 
 
     /*
@@ -263,6 +287,16 @@ Route::middleware(['auth','approved',])->group(function () {
         ->middleware('permission:posts.delete')
         ->name('posts.destroy');
 
+    Route::resource('carousels', CarouselController::class)
+        ->except(['show'])
+        ->middleware([
+            'index' => 'permission:carousels.view',
+            'create' => 'permission:carousels.create',
+            'store' => 'permission:carousels.create',
+            'edit' => 'permission:carousels.update',
+            'update' => 'permission:carousels.update',
+            'destroy' => 'permission:carousels.delete',
+        ]);
 
         /*
     |--------------------------------------------------------------------------
@@ -398,11 +432,11 @@ Route::get('/berita', [PublicPostController::class, 'news'])
 Route::get('/berita/{slug}', [PublicPostController::class, 'newsShow'])
     ->name('public.news.show');
 
-Route::get('/pengumuman', [PublicPostController::class, 'announcements'])
-    ->name('public.announcements');
+// Route::get('/pengumuman', [PublicPostController::class, 'announcements'])
+//     ->name('public.announcements');
 
-Route::get('/pengumuman/{slug}', [PublicPostController::class, 'announcementShow'])
-    ->name('public.announcements.show');
+// Route::get('/pengumuman/{slug}', [PublicPostController::class, 'announcementShow'])
+//     ->name('public.announcements.show');
 
 Route::get('/regulasi', [PublicPostController::class, 'regulations'])
     ->name('public.regulations');

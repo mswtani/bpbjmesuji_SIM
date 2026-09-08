@@ -4,26 +4,26 @@
 
 @section('content')
 
-<div class="bg-gray-50">
+<div class="public-regulations-page">
 
-    {{-- Header --}}
-    <section class="border-b border-gray-200 bg-white">
+    {{-- =========================================================
+        HEADER
+    ========================================================== --}}
 
-        <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <section class="public-regulations-header">
 
-            <div class="max-w-3xl">
+        <div class="public-regulations-container">
 
-                <p class="text-sm font-semibold uppercase tracking-wide text-indigo-600">
-                    Jaringan Dokumentasi dan Informasi Hukum
-                </p>
+            <div class="public-section-heading">
 
-                <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                    Regulasi
+                <span
+                    class="public-section-heading-line"
+                    aria-hidden="true"
+                ></span>
+
+                <h1 class="public-section-heading-title">
+                    Regulasi Pengadaan Barang/Jasa
                 </h1>
-
-                <p class="mt-4 text-base leading-7 text-gray-600">
-                    {{ $pageDescription }}
-                </p>
 
             </div>
 
@@ -32,34 +32,49 @@
     </section>
 
 
+    {{-- =========================================================
+        CONTENT
+    ========================================================== --}}
 
-    {{-- Daftar --}}
-    <section>
+    <section class="public-regulations-content">
 
-        <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div class="public-regulations-container">
 
 
-            {{-- =====================================================
+            {{-- =================================================
                 SEARCH & FILTER
-            ====================================================== --}}
+            ================================================== --}}
 
             <form
                 method="GET"
                 action="{{ route('public.regulations') }}"
-                class="mb-10 rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+                class="public-regulations-toolbar"
             >
 
                 {{-- Search --}}
-                <div>
 
-                    <label
-                        for="q"
-                        class="block text-sm font-medium text-gray-700"
-                    >
-                        Cari Regulasi
-                    </label>
+                <div class="public-regulations-search-row">
 
-                    <div class="mt-2 flex flex-col gap-2 sm:flex-row">
+                    <div class="public-regulations-search-field">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            aria-hidden="true"
+                        >
+                            <circle
+                                cx="11"
+                                cy="11"
+                                r="7"
+                            />
+
+                            <path
+                                stroke-linecap="round"
+                                d="m20 20-3.5-3.5"
+                            />
+                        </svg>
 
                         <input
                             id="q"
@@ -67,39 +82,37 @@
                             type="search"
                             value="{{ request('q') }}"
                             placeholder="Cari berdasarkan judul, nomor regulasi, atau kata kunci..."
-                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         >
-
-                        <button
-                            type="submit"
-                            class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700"
-                        >
-                            Cari
-                        </button>
 
                     </div>
+
+
+                    <button
+                        type="submit"
+                        class="public-regulations-search-button"
+                    >
+                        Cari
+                    </button>
 
                 </div>
 
 
                 {{-- Filters --}}
-                <div class="mt-5 grid gap-4 md:grid-cols-3">
+
+                <div class="public-regulations-filters">
 
 
-                    {{-- Jenis --}}
-                    <div>
+                    {{-- Jenis Regulasi --}}
 
-                        <label
-                            for="regulation_type"
-                            class="block text-sm font-medium text-gray-700"
-                        >
+                    <div class="public-regulations-filter-field">
+
+                        <label for="regulation_type">
                             Jenis Regulasi
                         </label>
 
                         <select
                             id="regulation_type"
                             name="regulation_type"
-                            class="mt-2 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         >
 
                             <option value="">
@@ -127,19 +140,16 @@
 
 
                     {{-- Tahun --}}
-                    <div>
 
-                        <label
-                            for="year"
-                            class="block text-sm font-medium text-gray-700"
-                        >
+                    <div class="public-regulations-filter-field">
+
+                        <label for="year">
                             Tahun
                         </label>
 
                         <select
                             id="year"
                             name="year"
-                            class="mt-2 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         >
 
                             <option value="">
@@ -166,20 +176,17 @@
                     </div>
 
 
-                    {{-- Status --}}
-                    <div>
+                    {{-- Status Hukum --}}
 
-                        <label
-                            for="legal_status"
-                            class="block text-sm font-medium text-gray-700"
-                        >
+                    <div class="public-regulations-filter-field">
+
+                        <label for="legal_status">
                             Status Hukum
                         </label>
 
                         <select
                             id="legal_status"
                             name="legal_status"
-                            class="mt-2 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         >
 
                             <option value="">
@@ -188,28 +195,36 @@
 
                             <option
                                 value="berlaku"
-                                @selected(request('legal_status') === 'berlaku')
+                                @selected(
+                                    request('legal_status') === 'berlaku'
+                                )
                             >
                                 Berlaku
                             </option>
 
                             <option
                                 value="tidak_berlaku"
-                                @selected(request('legal_status') === 'tidak_berlaku')
+                                @selected(
+                                    request('legal_status') === 'tidak_berlaku'
+                                )
                             >
                                 Tidak Berlaku
                             </option>
 
                             <option
                                 value="dicabut"
-                                @selected(request('legal_status') === 'dicabut')
+                                @selected(
+                                    request('legal_status') === 'dicabut'
+                                )
                             >
                                 Dicabut
                             </option>
 
                             <option
                                 value="diubah"
-                                @selected(request('legal_status') === 'diubah')
+                                @selected(
+                                    request('legal_status') === 'diubah'
+                                )
                             >
                                 Diubah
                             </option>
@@ -221,12 +236,13 @@
                 </div>
 
 
-                {{-- Filter actions --}}
-                <div class="mt-5 flex flex-wrap items-center gap-3">
+                {{-- Filter Actions --}}
+
+                <div class="public-regulations-filter-actions">
 
                     <button
                         type="submit"
-                        class="inline-flex items-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+                        class="public-regulations-apply-button"
                     >
                         Terapkan Filter
                     </button>
@@ -241,7 +257,7 @@
 
                         <a
                             href="{{ route('public.regulations') }}"
-                            class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            class="public-regulations-reset-button"
                         >
                             Reset Filter
                         </a>
@@ -253,21 +269,22 @@
             </form>
 
 
-            {{-- =====================================================
-                HASIL
-            ====================================================== --}}
+            {{-- =================================================
+                RESULT HEADER
+            ================================================== --}}
 
-            <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div class="public-regulations-result-header">
 
                 <div>
 
-                    <h2 class="text-lg font-semibold text-gray-900">
+                    <h2 class="public-regulations-result-title">
                         Daftar Regulasi
                     </h2>
 
                     @if ($posts->total())
 
-                        <p class="mt-1 text-sm text-gray-500">
+                        <p class="public-regulations-result-info">
+
                             Menampilkan
                             {{ $posts->firstItem() }}
                             –
@@ -275,6 +292,7 @@
                             dari
                             {{ $posts->total() }}
                             regulasi.
+
                         </p>
 
                     @endif
@@ -284,153 +302,118 @@
             </div>
 
 
+            {{-- =================================================
+                REGULATION LIST
+            ================================================== --}}
+
             @if ($posts->count())
 
-                <div class="space-y-4">
+                <div class="public-regulations-list">
 
                     @foreach ($posts as $post)
 
-                        <article class="relative cursor-pointer rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-indigo-200 hover:shadow-md sm:p-6"onclick="window.location='{{ route('public.regulations.show', $post->slug) }}'">
+                        <article
+                            class="public-regulation-card"
+                        >
 
-                            {{-- Header --}}
-                            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            {{-- Main Content --}}
 
-                                <div class="min-w-0">
+                            <div class="public-regulation-main">
 
-                                    {{-- Jenis Regulasi --}}
-                                    @if ($post->regulationType)
+                                @if ($post->regulationType)
 
-                                        <p class="text-xs font-semibold uppercase tracking-wide text-indigo-600">
-                                            {{ $post->regulationType->name }}
-                                        </p>
+                                    <span class="public-regulation-type">
+                                        {{ $post->regulationType->name }}
+                                    </span>
 
-                                    @endif
-
-
-                                    {{-- Judul --}}
-                                    <h3 class="mt-1 text-lg font-semibold leading-7 text-gray-900">
-                                        {{ $post->title }}
-                                    </h3>
-
-                                </div>
+                                @endif
 
 
-                                {{-- Status Hukum --}}
-                                <div class="shrink-0">
+                                <h3 class="public-regulation-title">
+                                    {{ $post->title }}
+                                </h3>
+
+                            </div>
+
+
+                            {{-- Status Hukum --}}
+
+                            @if ($post->legal_status)
+
+                                <div class="public-regulation-status">
 
                                     @if ($post->legal_status === 'berlaku')
 
-                                        <span class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                                        <span class="public-regulation-status-badge berlaku">
                                             Berlaku
                                         </span>
 
                                     @elseif ($post->legal_status === 'mengubah')
 
-                                        <span class="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
+                                        <span class="public-regulation-status-badge diubah">
                                             Mengubah
                                         </span>
 
                                     @elseif ($post->legal_status === 'dicabut')
 
-                                        <span class="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                                        <span class="public-regulation-status-badge dicabut">
                                             Dicabut
                                         </span>
 
                                     @elseif ($post->legal_status === 'mencabut')
 
-                                        <span class="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">
+                                        <span class="public-regulation-status-badge mencabut">
                                             Mencabut
                                         </span>
 
                                     @elseif ($post->legal_status === 'diubah')
 
-                                        <span class="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
+                                        <span class="public-regulation-status-badge diubah">
                                             Diubah
                                         </span>
 
                                     @elseif ($post->legal_status === 'tidak_berlaku')
 
-                                        <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
+                                        <span class="public-regulation-status-badge tidak-berlaku">
                                             Tidak Berlaku
                                         </span>
 
-                                    @elseif ($post->legal_status)
+                                    @else
 
-                                        <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
-                                            {{ ucfirst(str_replace('_', ' ', $post->legal_status)) }}
+                                        <span class="public-regulation-status-badge">
+                                            {{ ucfirst(
+                                                str_replace(
+                                                    '_',
+                                                    ' ',
+                                                    $post->legal_status
+                                                )
+                                            ) }}
                                         </span>
 
                                     @endif
 
                                 </div>
 
-                            </div>
+                            @endif
 
 
-                            {{-- Metadata --}}
-                            {{-- <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-gray-500">
+                            {{-- Footer / Button --}}
 
-                                @if ($post->regulation_number)
-
-                                    <span>
-                                        Nomor:
-                                        <span class="font-medium text-gray-700">
-                                            {{ $post->regulation_number }}
-                                        </span>
-                                    </span>
-
-                                @endif
-
-
-                                @if ($post->regulation_year)
-
-                                    <span>
-                                        Tahun:
-                                        <span class="font-medium text-gray-700">
-                                            {{ $post->regulation_year }}
-                                        </span>
-                                    </span>
-
-                                @endif
-
-
-                                @if ($post->regulation_date)
-
-                                    <span>
-                                        Tanggal:
-                                        <span class="font-medium text-gray-700">
-                                            {{ $post->regulation_date->format('d/m/Y') }}
-                                        </span>
-                                    </span>
-
-                                @endif
-
-                            </div> --}}
-
-
-                            {{-- Ringkasan --}}
-                            {{-- @if ($post->excerpt)
-
-                                <p class="mt-4 line-clamp-2 text-sm leading-6 text-gray-600">
-                                    {{ $post->excerpt }}
-                                </p>
-
-                            @endif --}}
-
-
-                            {{-- Footer --}}
-                            <div class="mt-2 flex items-center justify-end border-t border-gray-100 pt-1">
+                            <div class="public-regulation-footer">
 
                                 <a
-                                    href="{{ route('public.regulations.show', $post->slug) }}"
-                                    class="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-800"
+                                    href="{{ route('public.regulations.show', ['slug' => $post->slug]) }}"
+                                    class="public-regulation-link"
+                                    aria-label="Lihat detail {{ $post->title }}"
                                 >
-                                    Lihat detail
+
+                                    <span>
+                                        Lihat
+                                    </span>
 
                                     <svg
-                                        class="h-4 w-4"
-                                        fill="none"
                                         viewBox="0 0 24 24"
+                                        fill="none"
                                         stroke="currentColor"
                                         stroke-width="2"
                                         aria-hidden="true"
@@ -453,27 +436,39 @@
                 </div>
 
 
-                {{-- Pagination --}}
-                <div class="mt-10">
-                    <x-public.pagination :paginator="$posts" />
+                {{-- =================================================
+                    PAGINATION
+                ================================================== --}}
+
+                <div class="public-posts-pagination">
+
+                    <x-public.pagination
+                        :paginator="$posts"
+                        label="regulasi"
+                    />
+
                 </div>
 
 
             @else
 
-                <div class="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
+                {{-- =================================================
+                    EMPTY STATE
+                ================================================== --}}
 
-                    <h2 class="text-lg font-semibold text-gray-900">
+                <div class="public-regulations-empty">
+
+                    <h2>
                         Regulasi tidak ditemukan
                     </h2>
 
-                    <p class="mt-2 text-sm text-gray-500">
-                        Tidak ada regulasi yang sesuai dengan pencarian atau filter Anda.
+                    <p>
+                        Tidak ada regulasi yang sesuai dengan
+                        pencarian atau filter Anda.
                     </p>
 
                     <a
                         href="{{ route('public.regulations') }}"
-                        class="mt-5 inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
                     >
                         Tampilkan Semua Regulasi
                     </a>
@@ -487,5 +482,668 @@
     </section>
 
 </div>
+
+
+{{-- =============================================================
+    PAGE STYLE
+============================================================= --}}
+
+<style>
+
+    /* =========================================================
+       PAGE
+    ========================================================== */
+
+    .public-regulations-page {
+        width: 100%;
+        background: #f4f6f9;
+    }
+
+    .public-regulations-container {
+        width: min(100% - 32px, 1200px);
+        margin: 0 auto;
+    }
+
+
+    /* =========================================================
+       HEADER
+    ========================================================== */
+
+    .public-regulations-header {
+        padding: 28px 0 18px;
+    }
+
+    .public-section-heading {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .public-section-heading-line {
+        width: 5px;
+        height: 30px;
+        flex-shrink: 0;
+        background: #d4af37;
+    }
+
+    .public-section-heading-title {
+        margin: 0;
+        color: #0b2f64;
+        font-size: 28px;
+        font-weight: 500;
+        line-height: 1.3;
+    }
+
+
+    /* =========================================================
+       CONTENT
+    ========================================================== */
+
+    .public-regulations-content {
+        padding: 10px 0 55px;
+    }
+
+
+    /* =========================================================
+       SEARCH & FILTER
+    ========================================================== */
+
+    .public-regulations-toolbar {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+
+    .public-regulations-search-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+    }
+
+    .public-regulations-search-field {
+        position: relative;
+        min-width: 0;
+    }
+
+    .public-regulations-search-field svg {
+        position: absolute;
+        top: 50%;
+        left: 13px;
+        width: 18px;
+        height: 18px;
+        color: #64748b;
+        pointer-events: none;
+        transform: translateY(-50%);
+    }
+
+    .public-regulations-search-field input {
+        display: block;
+        width: 100%;
+        height: 44px;
+        box-sizing: border-box;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 0 13px 0 40px;
+        background: #ffffff;
+        color: #111827;
+        font-size: 14px;
+        outline: none;
+        transition:
+            border-color 200ms ease,
+            box-shadow 200ms ease;
+    }
+
+    .public-regulations-search-field input::placeholder {
+        color: #9ca3af;
+    }
+
+    .public-regulations-search-field input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .public-regulations-search-button,
+    .public-regulations-apply-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        border: 0;
+        border-radius: 8px;
+        padding: 0 18px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1;
+        transition:
+            background-color 200ms ease,
+            transform 200ms ease;
+    }
+
+    .public-regulations-search-button {
+        background: #174ea6;
+        color: #ffffff;
+    }
+
+    .public-regulations-search-button:hover {
+        background: #123d82;
+        transform: translateY(-1px);
+    }
+
+
+    /* FILTER GRID */
+
+    .public-regulations-filters {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+    }
+
+    .public-regulations-filter-field {
+        min-width: 0;
+    }
+
+    .public-regulations-filter-field label {
+        display: block;
+        margin-bottom: 7px;
+        color: #374151;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .public-regulations-filter-field select {
+        display: block;
+        width: 100%;
+        height: 42px;
+        box-sizing: border-box;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 0 36px 0 12px;
+        background: #ffffff;
+        color: #374151;
+        font-size: 14px;
+        outline: none;
+        cursor: pointer;
+        transition:
+            border-color 200ms ease,
+            box-shadow 200ms ease;
+    }
+
+    .public-regulations-filter-field select:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+
+    /* FILTER ACTIONS */
+
+    .public-regulations-filter-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .public-regulations-apply-button {
+        background: #174ea6;
+        color: #ffffff;
+    }
+
+    .public-regulations-apply-button:hover {
+        background: #123d82;
+        transform: translateY(-1px);
+    }
+
+    .public-regulations-reset-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 0 18px;
+        background: #ffffff;
+        color: #374151;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1;
+        text-decoration: none;
+        transition:
+            background-color 200ms ease,
+            border-color 200ms ease;
+    }
+
+    .public-regulations-reset-button:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+    }
+
+
+    /* =========================================================
+       RESULT HEADER
+    ========================================================== */
+
+    .public-regulations-result-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+    }
+
+    .public-regulations-result-title {
+        margin: 0;
+        color: #111827;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.4;
+    }
+
+    .public-regulations-result-info {
+        margin: 4px 0 0;
+        color: #6b7280;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+
+    /* =========================================================
+       REGULATION LIST
+       1 COLUMN / 1 ROW
+    ========================================================== */
+
+    .public-regulations-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .public-regulation-card {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-rows: auto auto;
+        column-gap: 20px;
+        row-gap: 10px;
+        min-width: 0;
+        padding: 18px 15px;
+        border: 1px solid #dce3ec;
+        border-radius: 9px;
+        background: #ffffff;
+        box-shadow: 0 2px 7px rgba(15, 23, 42, 0.035);
+        transition:
+            transform 200ms ease,
+            border-color 200ms ease,
+            box-shadow 200ms ease;
+    }
+
+    .public-regulation-card:hover {
+        border-color: #cbd8e8;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.07);
+        transform: translateY(-1px);
+    }
+
+    .public-regulation-main {
+        min-width: 0;
+    }
+
+    .public-regulation-type {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        border-radius: 4px;
+        padding: 6px 10px;
+        background: #174ea6;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .public-regulation-title {
+        margin: 8px 0 0;
+        color: #1f2937;
+        font-size: 17px;
+        font-weight: 500;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+
+    /* STATUS */
+
+    .public-regulation-status {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: start;
+    }
+
+    .public-regulation-status-badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 5px 9px;
+        background: #f3f4f6;
+        color: #374151;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1;
+    }
+
+    .public-regulation-status-badge.berlaku {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .public-regulation-status-badge.diubah {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .public-regulation-status-badge.dicabut {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .public-regulation-status-badge.mencabut {
+        background: #ffedd5;
+        color: #9a3412;
+    }
+
+    .public-regulation-status-badge.tidak-berlaku {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+
+    /* FOOTER */
+
+    .public-regulation-footer {
+        grid-column: 2;
+        grid-row: 2;
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-end;
+    }
+
+    .public-regulation-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-width: 82px;
+        min-height: 41px;
+        box-sizing: border-box;
+        border-radius: 5px;
+        padding: 0 16px;
+        background: #d4af37;
+        color: #0b2f64;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1;
+        text-decoration: none;
+        transition:
+            background-color 200ms ease,
+            transform 200ms ease;
+    }
+
+    .public-regulation-link svg {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+    }
+
+    .public-regulation-link:hover {
+        background: #c5a12f;
+        color: #0b2f64;
+        transform: translateY(-1px);
+    }
+
+
+    /* =========================================================
+       PAGINATION
+    ========================================================== */
+
+    .public-posts-pagination {
+        margin-top: 28px;
+    }
+
+
+    /* =========================================================
+       EMPTY STATE
+    ========================================================== */
+
+    .public-regulations-empty {
+        padding: 55px 24px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 12px;
+        background: #ffffff;
+        text-align: center;
+    }
+
+    .public-regulations-empty h2 {
+        margin: 0;
+        color: #111827;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .public-regulations-empty p {
+        margin: 8px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .public-regulations-empty a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 18px;
+        min-height: 42px;
+        border-radius: 8px;
+        padding: 0 16px;
+        background: #174ea6;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .public-regulations-empty a:hover {
+        background: #123d82;
+    }
+
+
+    /* =========================================================
+       TABLET
+    ========================================================== */
+
+    @media (max-width: 768px) {
+
+        .public-regulations-container {
+            width: min(100% - 28px, 1200px);
+        }
+
+        .public-regulations-header {
+            padding: 24px 0 16px;
+        }
+
+        .public-section-heading {
+            gap: 10px;
+        }
+
+        .public-section-heading-line {
+            width: 4px;
+            height: 28px;
+        }
+
+        .public-section-heading-title {
+            font-size: 25px;
+        }
+
+        .public-regulations-content {
+            padding-top: 8px;
+        }
+
+        .public-regulations-filters {
+            grid-template-columns: 1fr;
+        }
+
+        .public-regulation-card {
+            column-gap: 15px;
+            padding: 17px 14px;
+        }
+
+        .public-regulation-title {
+            font-size: 16px;
+        }
+
+    }
+
+
+    /* =========================================================
+       MOBILE
+    ========================================================== */
+
+    @media (max-width: 480px) {
+
+        .public-regulations-container {
+            width: calc(100% - 24px);
+        }
+
+        .public-regulations-header {
+            padding: 20px 0 14px;
+        }
+
+        .public-section-heading {
+            gap: 9px;
+        }
+
+        .public-section-heading-line {
+            width: 4px;
+            height: 25px;
+        }
+
+        .public-section-heading-title {
+            font-size: 23px;
+            line-height: 1.3;
+        }
+
+
+        /* SEARCH */
+
+        .public-regulations-toolbar {
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .public-regulations-search-row {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .public-regulations-search-button {
+            width: 100%;
+        }
+
+
+        /* FILTER */
+
+        .public-regulations-filter-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .public-regulations-apply-button,
+        .public-regulations-reset-button {
+            width: 100%;
+        }
+
+
+        /* RESULT */
+
+        .public-regulations-result-title {
+            font-size: 17px;
+        }
+
+        .public-regulations-result-info {
+            font-size: 12px;
+        }
+
+
+        /* CARD */
+
+        .public-regulation-card {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px;
+        }
+
+        .public-regulation-title {
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .public-regulation-status {
+            order: 2;
+        }
+
+        .public-regulation-footer {
+            order: 3;
+            width: 100%;
+            justify-content: stretch;
+        }
+
+        .public-regulation-link {
+            width: 100%;
+        }
+
+    }
+
+
+    /* =========================================================
+       VERY SMALL
+    ========================================================== */
+
+    @media (max-width: 360px) {
+
+        .public-regulations-container {
+            width: calc(100% - 20px);
+        }
+
+        .public-section-heading-title {
+            font-size: 21px;
+        }
+
+        .public-regulations-toolbar {
+            padding: 14px;
+        }
+
+        .public-regulation-card {
+            padding: 14px;
+        }
+
+        .public-regulation-type {
+            padding: 5px 8px;
+            font-size: 11px;
+        }
+
+        .public-regulation-title {
+            font-size: 14px;
+        }
+
+        .public-regulation-link {
+            min-height: 40px;
+            font-size: 13px;
+        }
+
+    }
+
+</style>
 
 @endsection

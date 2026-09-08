@@ -30,10 +30,21 @@ return [
             'AutoFormat.AutoParagraph' => true,
             'AutoFormat.RemoveEmpty'   => true,
         ],
-         'news' => [
-            'HTML.Doctype' => 'HTML 5',
+        'news' => [
+            'HTML.Doctype' => 'HTML 4.01 Transitional',
 
-            'HTML.Allowed' => 'p,strong,em,u,a[href|title|target],ul,ol,li,br',
+            'HTML.Allowed' => 'p,strong,b,em,i,u,a[href|title|target|rel],ul,ol,li,br,span[style]',
+
+            'CSS.AllowedProperties' => [
+                'color',
+                'background-color',
+                'font-weight',
+                'font-style',
+                'text-decoration',
+                'font-family',
+                'font-size',
+                'text-align',
+            ],
 
             'URI.AllowedSchemes' => [
                 'http' => true,

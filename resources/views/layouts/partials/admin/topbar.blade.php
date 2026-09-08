@@ -126,18 +126,45 @@
                     aria-expanded="false"
                 >
 
-                    {{-- Avatar sementara menggunakan initial --}}
+                    {{-- Avatar --}}
 
-                    <div
-                        class="
-                            flex h-10 w-10 shrink-0
-                            items-center justify-center
-                            rounded-full bg-blue-100
-                            text-sm font-semibold text-blue-700
-                        "
-                    >
-                        {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
-                    </div>
+                    @if (auth()->user()->avatar)
+
+                        <img
+                            src="{{ asset('storage/' . auth()->user()->avatar) }}"
+                            alt="Foto {{ auth()->user()->name }}"
+                            class="
+                                h-10 w-10
+                                shrink-0
+                                rounded-full
+                                object-cover
+                            "
+                        >
+
+                    @else
+
+                       @auth
+                            @if (auth()->user()->avatar)
+                                <img
+                                    src="{{ asset('storage/' . auth()->user()->avatar) }}"
+                                    alt="Foto {{ auth()->user()->name }}"
+                                    class="h-10 w-10 shrink-0 rounded-full object-cover"
+                                >
+                            @else
+                                <div
+                                    class="
+                                        flex h-10 w-10 shrink-0
+                                        items-center justify-center
+                                        rounded-full bg-blue-100
+                                        text-sm font-semibold text-blue-700
+                                    "
+                                >
+                                    {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                                </div>
+                            @endif
+                        @endauth
+
+                    @endif
 
                     <div class="hidden text-left sm:block">
 

@@ -61,6 +61,123 @@
     <x-admin.form.error field="email" />
 </div>
 
+{{-- Foto Profil --}}
+<div>
+    <x-admin.form.label for="avatar">
+        Foto Profil
+    </x-admin.form.label>
+
+    <div class="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center">
+
+        {{-- Preview --}}
+        <div
+            class="
+                h-24
+                w-24
+                shrink-0
+                overflow-hidden
+                rounded-full
+                border
+                border-gray-200
+                bg-gray-100
+            "
+        >
+            @if ($user->avatar)
+                <img
+                    id="avatar-preview"
+                    src="{{ asset('storage/' . $user->avatar) }}"
+                    alt="Foto {{ $user->name }}"
+                    class="h-full w-full object-cover"
+                >
+            @else
+                <div
+                    id="avatar-placeholder"
+                    class="
+                        flex
+                        h-full
+                        w-full
+                        items-center
+                        justify-center
+                        bg-blue-100
+                        text-2xl
+                        font-semibold
+                        text-blue-700
+                    "
+                >
+                    {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
+                </div>
+            @endif
+        </div>
+
+        {{-- Input --}}
+        <div class="min-w-0 flex-1">
+
+            <input
+                id="avatar"
+                name="avatar"
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                class="
+                    block
+                    w-full
+                    text-sm
+                    text-gray-600
+                    file:mr-4
+                    file:rounded-lg
+                    file:border-0
+                    file:bg-blue-50
+                    file:px-4
+                    file:py-2
+                    file:text-sm
+                    file:font-semibold
+                    file:text-blue-700
+                    hover:file:bg-blue-100
+                "
+            >
+
+            <p class="mt-1.5 text-xs text-gray-500">
+                JPG, JPEG, PNG, atau WEBP. Maksimal 2 MB.
+            </p>
+
+            @if ($user->avatar)
+                <label
+                    class="
+                        mt-3
+                        inline-flex
+                        cursor-pointer
+                        items-center
+                        gap-2
+                        text-sm
+                        font-medium
+                        text-red-600
+                        hover:text-red-700
+                    "
+                >
+                    <input
+                        type="checkbox"
+                        name="remove_avatar"
+                        value="1"
+                        class="
+                            rounded
+                            border-gray-300
+                            text-red-600
+                            shadow-sm
+                            focus:border-red-500
+                            focus:ring-red-500
+                        "
+                    >
+
+                    Hapus foto profil
+                </label>
+            @endif
+
+        </div>
+
+    </div>
+
+    <x-admin.form.error field="avatar" />
+</div>
+
 
 @if (! $isPublic)
 
@@ -137,3 +254,52 @@
     </div>
 
 @endif
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.getElementById('avatar');
+        const preview = document.getElementById('avatar-preview');
+        const placeholder = document.getElementById('avatar-placeholder');
+
+        if (!input) {
+            return;
+        }
+
+        input.addEventListener('change', function (event) {
+            const file = event.target.files?.[0];
+
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                if (preview) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                } else {
+                    const image = document.createElement('img');
+
+                    image.id = 'avatar-preview';
+                    image.src = e.target.result;
+                    image.alt = 'Preview foto profil';
+                    image.className = 'h-full w-full object-cover';
+
+                    const container = placeholder?.parentElement;
+
+                    if (container) {
+                        placeholder.remove();
+                        container.appendChild(image);
+                    }
+                }
+
+                if (placeholder) {
+                    placeholder.classList.add('hidden');
+                }
+            };
+
+            reader.readAsDataURL(file);
+        });
+    });
+</script>

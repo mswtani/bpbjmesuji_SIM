@@ -155,6 +155,45 @@ class UpdateUserRequest extends FormRequest
                     'required',
                     'exists:positions,id',
                 ],
+            'avatar' => [
+                    'nullable',
+                    'image',
+                    'mimes:jpg,jpeg,png,webp',
+                    'max:2048',
+                ],
+
+            'remove_avatar' => [
+                    'nullable',
+                    'boolean',
+                ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'nip.required' => 'NIP wajib diisi.',
+            'nip.max' => 'NIP maksimal 30 karakter.',
+            'nip.unique' => 'NIP sudah digunakan oleh user lain.',
+
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'name.max' => 'Nama maksimal 255 karakter.',
+
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.max' => 'Email maksimal 255 karakter.',
+            'email.unique' => 'Email sudah digunakan oleh user lain.',
+
+            'role_id.required' => 'Role wajib dipilih.',
+            'role_id.exists' => 'Role yang dipilih tidak valid.',
+
+            'position_id.required' => 'Jabatan wajib dipilih.',
+            'position_id.exists' => 'Jabatan yang dipilih tidak valid.',
+
+            // Foto Profil
+            'avatar.image' => 'File foto profil harus berupa gambar.',
+            'avatar.mimes' => 'Foto profil harus berformat JPG, JPEG, PNG, atau WEBP.',
+            'avatar.max' => 'Ukuran foto profil maksimal 2 MB.',
         ];
     }
 }

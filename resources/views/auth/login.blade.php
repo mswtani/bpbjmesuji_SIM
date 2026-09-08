@@ -1,18 +1,5 @@
 <x-guest-layout>
 
-    {{-- Judul Halaman --}}
-    {{-- <div class="mb-6 text-center">
-
-        <h2 class="text-xl font-bold text-gray-900">
-            Masuk ke Akun
-        </h2>
-
-        <p class="mt-1 text-sm text-gray-500">
-            Masukkan email dan password untuk melanjutkan.
-        </p>
-
-    </div> --}}
-
 
     {{-- Notifikasi --}}
     @if (session('status'))

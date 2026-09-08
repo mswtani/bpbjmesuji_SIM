@@ -37,6 +37,7 @@
                 'bg-amber-50 text-amber-600' => $icon === 'users',
                 'bg-violet-50 text-violet-600' => $icon === 'roles',
                 'bg-cyan-50 text-cyan-600' => $icon === 'profile',
+                'bg-rose-50 text-rose-600' => $icon === 'image',
             ])
         >
 
@@ -74,6 +75,38 @@
                     <path
                         stroke-linecap="round"
                         d="M14 3v4h4M9 12h6M9 16h6"
+                    />
+                </svg>
+
+
+            @elseif ($icon === 'image')
+
+                <svg
+                    class="h-5 w-5 sm:h-6 sm:w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    viewBox="0 0 24 24"
+                >
+                    <rect
+                        x="3"
+                        y="4"
+                        width="18"
+                        height="16"
+                        rx="2"
+                        ry="2"
+                    />
+
+                    <circle
+                        cx="8.5"
+                        cy="9"
+                        r="1.5"
+                    />
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m3 16 5-5 4 4 2.5-2.5L21 18"
                     />
                 </svg>
 

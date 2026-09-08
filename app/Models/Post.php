@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\RegulationRelation;
 
 class Post extends Model
@@ -168,5 +169,13 @@ class Post extends Model
             'relation_type',
             'repeals'
         );
+    }
+
+     /**
+     * Caraousel yang menampilkan konten ini.
+     */
+    public function carousel(): HasOne
+    {
+        return $this->hasOne(Carousel::class);
     }
 }

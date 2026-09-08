@@ -40,6 +40,34 @@ class ProfileUpdateRequest extends FormRequest
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
 
+            'avatar' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048',
+            ],
+
+            'remove_avatar' => [
+                'nullable',
+                'boolean',
+            ],
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'avatar.image' =>
+                'File foto profil harus berupa gambar.',
+
+            'avatar.mimes' =>
+                'Foto profil harus berformat JPG, JPEG, PNG, atau WEBP.',
+
+            'avatar.max' =>
+                'Ukuran foto profil maksimal 2 MB.',
         ];
     }
 }

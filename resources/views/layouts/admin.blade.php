@@ -26,6 +26,8 @@
 
 </head>
 
+ @stack('scripts')
+ 
 <body
     class="min-h-screen bg-gray-50 text-gray-900"
 
