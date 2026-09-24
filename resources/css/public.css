@@ -1,107 +1,16 @@
 /* =========================================================
-   PUBLIC MOBILE NAVIGATION
+TAILWIND
 ========================================================= */
 
-.public-mobile-menu {
-    display: none;
-    background-color: #1a4a8d;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-.public-mobile-menu.is-open {
-    display: block;
-}
+/* =========================================================
+GLOBAL FONT
+========================================================= */
 
-.public-mobile-menu .container {
-    width: 90%;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.public-mobile-menu a,
-.public-mobile-menu .mobile-dropdown-btn {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 13px 5px;
-
-    color: #fff;
-    background: transparent;
-
-    border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-
-    text-decoration: none;
-    text-align: left;
-
-    font-size: 15px;
-    font-weight: 500;
-
-    cursor: pointer;
-}
-
-.public-mobile-menu a:hover,
-.public-mobile-menu .mobile-dropdown-btn:hover {
-    color: #d4af37;
-}
-
-.mobile-dropdown-menu {
-    display: none;
-    padding-left: 15px;
-}
-
-.mobile-dropdown-menu.is-open {
-    display: block;
-}
-
-.mobile-dropdown-menu a {
-    font-size: 14px;
-    color: #e5e7eb;
-}
-
-.mobile-dropdown-btn i {
-    transition: transform 0.25s ease;
-}
-
-.mobile-dropdown-btn.is-open i {
-    transform: rotate(180deg);
-}
-
-.user-avatar {
-    width: 32px;
-    height: 32px;
-
-    border-radius: 50%;
-    border: 2px solid #d4af37;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    background-color: #fff;
-    color: #0b2f64;
-}
-
-@media (max-width: 768px) {
-    .public-mobile-menu {
-        display: none;
-    }
-
-    .public-mobile-menu.is-open {
-        display: block;
-    }
-
-    .navbar .nav-links {
-        display: none;
-    }
-
-    .navbar .hamburger-btn {
-        display: block;
-    }
-
-    .public-mobile-menu {
-        width: 100%;
-    }
+html,
+body {
+    font-family: "Roboto", sans-serif;
 }

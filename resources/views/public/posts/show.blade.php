@@ -69,7 +69,7 @@
         ->get();
 @endphp
 
-
+@push('styles')
 <style>
     /*
     |--------------------------------------------------------------------------
@@ -630,6 +630,46 @@
         box-shadow: 0 4px 14px rgba(15, 23, 42, 0.07);
     }
 
+    .public-post-related-image-link {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    margin-bottom: 8px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #f1f5f9;
+}
+
+
+.public-post-related-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+.public-post-related-image-link:hover .public-post-related-image {
+    transform: scale(1.03);
+}
+
+
+.public-post-related-placeholder {
+    display: flex;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    background: #f1f5f9;
+}
+
+
+.public-post-related-placeholder svg {
+    width: 32px;
+    height: 32px;
+}
+
 
     .public-post-related-meta {
         display: flex;
@@ -915,22 +955,19 @@
     |--------------------------------------------------------------------------
     */
 
-    @media (max-width: 360px) {
+        @media (max-width: 360px) {
 
         .public-post-show-container {
             width: calc(100% - 16px);
         }
 
-
         .public-post-title {
             font-size: 1.4rem;
         }
 
-
         .public-post-content {
             font-size: 14px;
         }
-
 
         .public-post-back-link {
             padding-right: 12px;
@@ -940,6 +977,8 @@
 
     }
 </style>
+@endpush
+
 
 
 <main class="public-post-show">

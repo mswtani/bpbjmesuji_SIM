@@ -14,8 +14,10 @@ class HelpdeskTicket extends Model
     protected $fillable = [
         'user_id',
         'category_id',
+        'position_id',
         'ticket_number',
         'access_token_hash',
+        'access_token',
         'requester_name',
         'requester_email',
         'requester_phone',
@@ -29,6 +31,7 @@ class HelpdeskTicket extends Model
     protected function casts(): array
     {
         return [
+            'access_token' => 'encrypted',
             'last_message_at' => 'datetime',
             'closed_at' => 'datetime',
         ];
@@ -52,6 +55,17 @@ class HelpdeskTicket extends Model
         return $this->belongsTo(
             HelpdeskCategory::class,
             'category_id'
+        );
+    }
+
+    /**
+     * Posisi pemohon tiket.
+     */
+    public function position(): BelongsTo
+    {
+        return $this->belongsTo(
+            Position::class,
+            'position_id'
         );
     }
 

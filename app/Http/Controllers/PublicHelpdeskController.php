@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use App\Http\Requests\ResendHelpdeskAccessRequest;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\HelpdeskAccessLinkMail;
+use App\Models\Position;
 
 class PublicHelpdeskController extends Controller
 {
@@ -34,6 +38,27 @@ class PublicHelpdeskController extends Controller
     }
 
     /**
+     * Daftar tiket milik user yang sedang login.
+     */
+    public function myTickets(Request $request): View
+    {
+        $tickets = HelpdeskTicket::query()
+            ->with([
+                'category',
+                'position',
+            ])
+            ->where('user_id', $request->user()->id)
+            ->latest('last_message_at')
+            ->latest('created_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('public.helpdesk.my-tickets', [
+            'tickets' => $tickets,
+        ]);
+    }
+
+    /**
      * Form pengajuan Helpdesk.
      */
     public function create(string $slug): View
@@ -43,8 +68,25 @@ class PublicHelpdeskController extends Controller
             ->where('slug', $slug)
             ->firstOrFail();
 
+        $positions = collect();
+
+        if ($category->slug === 'konsultasi-pengadaan') {
+            $positions = Position::query()
+                ->whereIn('code', [
+                    'PENYEDIA',
+                    'NON_PENYEDIA',
+                    'PA',
+                    'PPK',
+                    'POKJA',
+                    'PP',
+                ])
+                ->orderBy('id')
+                ->get();
+        }
+
         return view('public.helpdesk.create', [
             'category' => $category,
+            'positions' => $positions,
         ]);
     }
 
@@ -62,6 +104,45 @@ class PublicHelpdeskController extends Controller
             ->firstOrFail();
 
         $validated = $request->validated();
+
+        $allowedPositionCodes = [
+            'PENYEDIA',
+            'NON_PENYEDIA',
+            'PA',
+            'PPK',
+            'POKJA',
+            'PP',
+        ];
+
+        if ($category->slug === 'konsultasi-pengadaan') {
+            $positionValidated = $request->validate([
+                'position_id' => [
+                    'required',
+                    'integer',
+                    'exists:positions,id',
+                ],
+            ], [
+                'position_id.required' =>
+                    'Peran pemohon wajib dipilih.',
+                'position_id.exists' =>
+                    'Peran pemohon tidak valid.',
+            ]);
+
+            $position = Position::query()
+                ->whereIn('code', $allowedPositionCodes)
+                ->whereKey($positionValidated['position_id'])
+                ->first();
+
+            abort_unless(
+                $position !== null,
+                422,
+                'Peran pemohon tidak valid untuk Konsultasi Pengadaan.'
+            );
+
+            $validated['position_id'] = $position->id;
+        } else {
+            $validated['position_id'] = null;
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -119,12 +200,13 @@ class PublicHelpdeskController extends Controller
 
                 'category_id' => $category->id,
 
+                'position_id' => $validated['position_id'],
+
                 'ticket_number' => $ticketNumber,
 
-                'access_token_hash' => hash(
-                    'sha256',
-                    $accessToken
-                ),
+                'access_token_hash' => hash('sha256', $accessToken),
+
+                'access_token' => $accessToken,
 
                 'requester_name' =>
                     $validated['requester_name'],
@@ -138,7 +220,7 @@ class PublicHelpdeskController extends Controller
                 'subject' =>
                     $validated['subject'],
 
-                'status' => 'open',
+                'status' => 'baru',
 
                 'priority' => 'normal',
 
@@ -215,14 +297,131 @@ class PublicHelpdeskController extends Controller
         ]);
     }
 
+    /**
+     * Meminta pengiriman ulang tautan akses tiket guest.
+     */
+    public function resendTicketAccess(
+        ResendHelpdeskAccessRequest $request
+    ): RedirectResponse {
+        \Log::info('Helpdesk resend access: controller reached', [
+            'ticket_number' => $request->validated('ticket_number'),
+            'email' => $request->validated('email'),
+        ]);
+        $ticketNumber = strtoupper(
+            trim($request->validated('ticket_number'))
+        );
+
+        $email = strtolower(
+            trim($request->validated('email'))
+        );
+
+        $ticket = HelpdeskTicket::query()
+            ->where('ticket_number', $ticketNumber)
+            ->where('requester_email', $email)
+            ->whereNull('user_id')
+            ->first();
+
+        \Log::info('Helpdesk resend access: ticket lookup', [
+            'ticket_number' => $ticketNumber,
+            'found' => $ticket !== null,
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Jangan membocorkan apakah tiket/email ditemukan
+        |--------------------------------------------------------------------------
+        */
+        if (! $ticket) {
+            return back()->with(
+                'success',
+                'Jika data tiket sesuai, tautan akses akan dikirim ke email Anda.'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Generate token baru
+        |--------------------------------------------------------------------------
+        */
+        $accessToken = Str::random(64);
+
+        /*
+        |--------------------------------------------------------------------------
+        | URL akses
+        |--------------------------------------------------------------------------
+        */
+        $ticketUrl = route(
+            'helpdesk.ticket',
+            [
+                'ticketNumber' => $ticket->ticket_number,
+                'token' => $accessToken,
+            ]
+        );
+
+        try {
+                $ticket->forceFill([
+                    'access_token_hash' => hash(
+                        'sha256',
+                        $accessToken
+                    ),
+                    'access_token' => $accessToken,
+                ])->save();
+
+                \Log::info('Helpdesk resend access: token saved');
+
+                Mail::to($ticket->requester_email)
+                    ->send(
+                        new HelpdeskAccessLinkMail(
+                            $ticket,
+                            $ticketUrl
+                        )
+                    );
+
+                \Log::info('Helpdesk resend access: mail sent');
+
+            } catch (\Throwable $e) {
+                \Log::error('Helpdesk resend access: mail failed', [
+                    'class' => get_class($e),
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]);
+
+                report($e);
+
+                return back()
+                    ->with(
+                        'mail_error',
+                        'Tautan akses belum berhasil dikirim. Silakan coba kembali beberapa saat lagi.'
+                    );
+            }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Berhasil
+        |--------------------------------------------------------------------------
+        */
+        return back()
+            ->with(
+                'mail_success',
+                'Tautan akses berhasil dikirim. Silakan periksa inbox atau folder spam/junk email Anda.'
+            );
+    }
+    /**
+     * Menampilkan halaman untuk meminta kembali akses tiket guest.
+     */
+    public function ticketAccess(): View
+    {
+        return view('public.helpdesk.access');
+    }
 
     /**
-     * Menampilkan detail tiket Helpdesk.
+     * Menampilkan detail dan riwayat tiket Helpdesk.
      */
     public function showTicket(
         Request $request,
         string $ticketNumber
-    ): View {
+    ): View|RedirectResponse {
         $ticket = HelpdeskTicket::query()
             ->with([
                 'category',
@@ -234,53 +433,139 @@ class PublicHelpdeskController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | USER LOGIN
+        | AUTHORIZATION
         |--------------------------------------------------------------------------
         */
 
         if ($request->user()) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | User login
+            |--------------------------------------------------------------------------
+            */
 
             abort_unless(
                 $ticket->user_id === $request->user()->id,
                 403
             );
 
+        } else {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Guest
+            |--------------------------------------------------------------------------
+            */
+
+            $sessionAccess = $request->session()->get(
+                'helpdesk_guest_ticket_access'
+            );
+
+            $sessionAuthorized =
+                is_array($sessionAccess)
+                && ($sessionAccess['ticket_id'] ?? null) === $ticket->id
+                && now()->timestamp <= ($sessionAccess['expires_at'] ?? 0);
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Jika session guest sudah valid
+            |--------------------------------------------------------------------------
+            */
+
+            if (! $sessionAuthorized) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Token tidak diberikan
+            |--------------------------------------------------------------------------
+            |
+            | Session guest sudah berakhir dan URL tidak membawa token.
+            | Tampilkan halaman pemulihan akses agar guest dapat meminta
+            | tautan akses baru melalui email.
+            |
+            */
+                $token = $request->query('token');
+
+                if (! $token) {
+                    return view(
+                        'public.helpdesk.access-expired',
+                        [
+                            'ticket' => $ticket,
+                        ]
+                    );
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | Validasi token dari link email
+                |--------------------------------------------------------------------------
+                */
+
+                $tokenHash = hash(
+                    'sha256',
+                    $token
+                );
+
+                $tokenAuthorized = hash_equals(
+                    (string) $ticket->access_token_hash,
+                    $tokenHash
+                );
+
+                /*
+                |--------------------------------------------------------------------------
+                | Token tidak valid
+                |--------------------------------------------------------------------------
+                */
+
+                abort_unless(
+                    $tokenAuthorized,
+                    403
+                );
+
+                /*
+                |--------------------------------------------------------------------------
+                | Simpan akses guest ke session
+                |--------------------------------------------------------------------------
+                */
+
+                $request->session()->put(
+                    'helpdesk_guest_ticket_access',
+                    [
+                        'ticket_id' => $ticket->id,
+                        'expires_at' => now()
+                            ->addHours(2)
+                            ->timestamp,
+                    ]
+                );
+
+                /*
+                |--------------------------------------------------------------------------
+                | Redirect agar token hilang dari URL
+                |--------------------------------------------------------------------------
+                */
+
+                return redirect()->route(
+                    'helpdesk.ticket',
+                    $ticket->ticket_number
+                );
+            }
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | GUEST
+        | Tampilkan tiket
         |--------------------------------------------------------------------------
         */
 
-        else {
-
-            $token = $request->query('token');
-
-            abort_unless(
-                $token,
-                403
-            );
-
-            $tokenHash = hash(
-                'sha256',
-                $token
-            );
-
-            abort_unless(
-                hash_equals(
-                    $ticket->access_token_hash,
-                    $tokenHash
-                ),
-                403
-            );
-        }
-
-
-        return view('public.helpdesk.ticket', [
-            'ticket' => $ticket,
-        ]);
+        return view(
+            'public.helpdesk.ticket',
+            [
+                'ticket' => $ticket,
+            ]
+        );
     }
 
     
@@ -318,26 +603,36 @@ class PublicHelpdeskController extends Controller
 
         } else {
 
-            $token = $request->query('token');
-
-            abort_unless(
-                $token,
-                403
+            $sessionAccess = $request->session()->get(
+                'helpdesk_guest_ticket_access'
             );
 
-            $tokenHash = hash(
-                'sha256',
-                $token
-            );
+            $sessionAuthorized =
+                is_array($sessionAccess)
+                && ($sessionAccess['ticket_id'] ?? null) === $ticket->id
+                && now()->timestamp <= ($sessionAccess['expires_at'] ?? 0);
 
             abort_unless(
-                hash_equals(
-                    $ticket->access_token_hash,
-                    $tokenHash
-                ),
+                $sessionAuthorized,
                 403
             );
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Kategori yang mendukung percakapan dua arah
+        |--------------------------------------------------------------------------
+        */
+
+        abort_unless(
+            in_array(
+                $ticket->category->slug,
+                ['aduan', 'konsultasi-pengadaan'],
+                true
+            ),
+            403,
+            'Kategori tiket ini tidak menerima balasan dari pemohon.'
+        );
 
 
         /*
@@ -346,61 +641,181 @@ class PublicHelpdeskController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        abort_if(
-            $ticket->status === 'closed',
+        abort_unless(
+            in_array(
+                $ticket->status,
+                ['baru', 'menunggu_pemohon'],
+                true
+            ),
             403,
-            'Tiket sudah ditutup.'
+            'Pesan baru tidak dapat dikirim pada status tiket saat ini.'
         );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Simpan pesan
-        |--------------------------------------------------------------------------
-        */
-
-        HelpdeskMessage::create([
-            'ticket_id' => $ticket->id,
-
-            'user_id' => $request->user()?->id,
-
-            'sender_type' => 'requester',
-
-            'message' => $request->validated('message'),
-        ]);
-
 
         /*
         |--------------------------------------------------------------------------
-        | Update aktivitas tiket
+        | Simpan pesan dan lampiran
         |--------------------------------------------------------------------------
         */
 
-        $ticket->update([
-            'last_message_at' => now(),
-        ]);
+        $storedPaths = [];
+
+        try {
+
+            $message = DB::transaction(function () use (
+                $request,
+                $ticket,
+                &$storedPaths
+            ) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Simpan pesan
+                |--------------------------------------------------------------------------
+                */
+
+                $message = HelpdeskMessage::create([
+                    'ticket_id' => $ticket->id,
+
+                    'user_id' => $request->user()?->id,
+
+                    'sender_type' => 'requester',
+
+                    'message' => $request->validated('message'),
+                ]);
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Simpan lampiran
+                |--------------------------------------------------------------------------
+                */
+
+                if ($request->hasFile('attachments')) {
+
+                    foreach ($request->file('attachments') as $file) {
+
+                        $path = $file->store(
+                            'helpdesk/' . $ticket->id,
+                            'local'
+                        );
+
+                        $storedPaths[] = $path;
+
+                        HelpdeskAttachment::create([
+                            'ticket_id' => $ticket->id,
+
+                            'message_id' => $message->id,
+
+                            'original_name' =>
+                                $file->getClientOriginalName(),
+
+                            'file_path' => $path,
+
+                            'mime_type' => $file->getMimeType(),
+
+                            'file_size' => $file->getSize(),
+
+                            'uploaded_by_user_id' =>
+                                $request->user()?->id,
+                        ]);
+                    }
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Update aktivitas tiket
+                |--------------------------------------------------------------------------
+                */
+
+                $ticket->update([
+                    'last_message_at' => $message->created_at,
+                ]);
+
+
+                return $message;
+            });
+
+        } catch (\Throwable $e) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Bersihkan file jika transaksi gagal
+            |--------------------------------------------------------------------------
+            */
+
+            foreach ($storedPaths as $path) {
+
+                Storage::disk('local')->delete($path);
+            }
+
+            throw $e;
+        }
 
 
         return redirect()
-            ->route(
-                'helpdesk.ticket',
-                [
-                    'ticketNumber' => $ticket->ticket_number,
+        ->route(
+            'helpdesk.ticket',
+            [
+                'ticketNumber' => $ticket->ticket_number,
+            ]
+        )
+        ->with(
+            'success',
+            'Pesan berhasil dikirim.'
+        );
+    }
 
-                    ...(
-                        $request->user()
-                            ? []
-                            : [
-                                'token' =>
-                                    $request->query('token'),
-                            ]
-                    ),
-                ]
-            )
-            ->with(
-                'success',
-                'Pesan berhasil dikirim.'
+
+    public function viewAttachment(
+        Request $request,
+        string $ticketNumber,
+        int $attachment
+    ) {
+        $ticket = HelpdeskTicket::query()
+            ->where('ticket_number', $ticketNumber)
+            ->firstOrFail();
+
+        $file = HelpdeskAttachment::query()
+            ->where('id', $attachment)
+            ->where('ticket_id', $ticket->id)
+            ->firstOrFail();
+
+        if ($request->user()) {
+            abort_unless(
+                $ticket->user_id === $request->user()->id,
+                403
             );
+        } else {
+            $sessionAccess = $request->session()->get(
+                'helpdesk_guest_ticket_access'
+            );
+
+            $sessionAuthorized =
+                is_array($sessionAccess)
+                && ($sessionAccess['ticket_id'] ?? null) === $ticket->id
+                && now()->timestamp <= ($sessionAccess['expires_at'] ?? 0);
+
+            abort_unless($sessionAuthorized, 403);
+        }
+
+        $disk = Storage::disk('local');
+
+        abort_unless(
+            $disk->exists($file->file_path),
+            404
+        );
+
+        return response()->file(
+            $disk->path($file->file_path),
+            [
+                'Content-Type' => $file->mime_type,
+                'Content-Disposition' => 'inline; filename="' .
+                    addslashes($file->original_name) . '"',
+            ]
+        );
     }
 
 

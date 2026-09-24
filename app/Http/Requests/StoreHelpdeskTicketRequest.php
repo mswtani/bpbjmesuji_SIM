@@ -46,6 +46,12 @@ class StoreHelpdeskTicketRequest extends FormRequest
                 'max:30',
             ],
 
+            'position_id' => [
+                'nullable',
+                'integer',
+                'exists:positions,id',
+            ],
+
             /*
             |--------------------------------------------------------------------------
             | Isi Pengajuan
@@ -135,6 +141,12 @@ class StoreHelpdeskTicketRequest extends FormRequest
 
             'attachments.*.mimes' =>
                 'Format lampiran yang diperbolehkan adalah PDF, DOC, DOCX, JPG, JPEG, PNG, ZIP atau RAR.',
+
+            'position_id.integer' =>
+                'Posisi pemohon tidak valid.',
+
+            'position_id.exists' =>
+                'Posisi pemohon tidak valid.',
         ];
     }
 }

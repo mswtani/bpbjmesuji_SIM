@@ -243,13 +243,41 @@ class HelpdeskController extends Controller
             throw $e;
         }
 
-        Mail::to($ticket->requester_email)
-            ->send(
-                new HelpdeskReplyMail(
-                    $ticket,
-                    $message
-                )
+       
+
+        try {
+
+            Mail::to($ticket->requester_email)
+                ->queue(
+                    new HelpdeskReplyMail(
+                        $ticket,
+                        $message
+                    )
+                );
+
+        } catch (\Throwable $e) {
+
+            \Log::error(
+                'Helpdesk: gagal memasukkan email balasan ke antrean.',
+                [
+                    'ticket_id' => $ticket->id,
+                    'ticket_number' => $ticket->ticket_number,
+                    'message_id' => $message->id,
+                    'error' => $e->getMessage(),
+                ]
             );
+
+            return redirect()
+                ->route(
+                    'helpdesk.admin.show',
+                    $ticket->ticket_number
+                )
+                ->with(
+                    'warning',
+                    'Balasan berhasil disimpan, tetapi notifikasi email gagal dimasukkan ke antrean.'
+                );
+        }
+
 
         return redirect()
             ->route(
@@ -258,9 +286,62 @@ class HelpdeskController extends Controller
             )
             ->with(
                 'success',
-                'Balasan berhasil dikirim.'
+                'Balasan berhasil disimpan dan notifikasi email telah dimasukkan ke antrean.'
             );
-    }
+            
+        }
+         // $mailSent = true;
+
+        // try {
+
+        //     Mail::to($ticket->requester_email)
+        //         ->queue(
+        //             new HelpdeskReplyMail(
+        //                 $ticket,
+        //                 $message
+        //             )
+        //         );
+
+        // } catch (\Throwable $e) {
+
+        //     $mailSent = false;
+
+        //     \Log::error(
+        //         'Helpdesk: gagal mengirim email balasan petugas.',
+        //         [
+        //             'ticket_id' => $ticket->id,
+        //             'ticket_number' => $ticket->ticket_number,
+        //             'message_id' => $message->id,
+        //             'error' => $e->getMessage(),
+        //         ]
+        //     );
+        // }
+
+
+        // if ($mailSent) {
+
+        //     return redirect()
+        //         ->route(
+        //             'helpdesk.admin.show',
+        //             $ticket->ticket_number
+        //         )
+        //         ->with(
+        //             'success',
+        //             'Balasan berhasil dikirim kepada pemohon.'
+        //         );
+
+        // }
+
+
+        // return redirect()
+        //     ->route(
+        //         'helpdesk.admin.show',
+        //         $ticket->ticket_number
+        //     )
+        //     ->with(
+        //         'warning',
+        //         'Balasan berhasil disimpan, tetapi notifikasi email kepada pemohon gagal dikirim.'
+        //     );
 
     /**
      * Mengubah status dan prioritas tiket.
@@ -296,6 +377,29 @@ class HelpdeskController extends Controller
             'priority.in' =>
                 'Prioritas tiket tidak valid.',
         ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Aturan status berdasarkan kategori
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            in_array(
+                $ticket->category->slug,
+                ['kritik', 'saran'],
+                true
+            )
+            &&
+            $validated['status'] === 'menunggu_pemohon'
+        ) {
+            return back()
+                ->withErrors([
+                    'status' =>
+                        'Status Menunggu Pemohon tidak dapat digunakan pada kategori Kritik atau Saran.',
+                ])
+                ->withInput();
+        }
 
         $ticket->update([
             'status' => $validated['status'],

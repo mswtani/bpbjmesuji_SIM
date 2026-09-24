@@ -1,0 +1,18 @@
+[90m= [39m[34;4mApp\Models\HelpdeskTicket[39;24m {#8690
+    [34mid[39m: [35m8[39m,
+    [34muser_id[39m: [36mnull[39m,
+    [34mcategory_id[39m: [35m1[39m,
+    [34mticket_number[39m: [32m"[39m[32mHD-20260912-MIDFUB[39m[32m"[39m,
+    [34maccess_token_hash[39m: [32m"[39m[32md5e7a2cf0446ec1d48e6d4a5d1813ad056d141529b59836c00a5f36dce13ddd0[39m[32m"[39m,
+    [34maccess_token[39m: [32m"[39m[32meyJpdiI6InJaWFdFeHRITVdzTEM4U1BhcG1kYmc9PSIsInZhbHVlIjoic0FrbjNOTlovNU5oSGJHZERibnBrakczby9iV0tjZkdJNlEzUERDNmU5OFo2cHZ3K1gwekxISERtSEV6U1NDNi9uSzRVQ01RQXlnMXVibTdlS1dBVklLbW9zOWpyNlZTT3hpSHlZcXNHNGc9IiwibWFjIjoiNTcyYmY4Mjk1YjRjNmUzNzMzOGRkYjZmZTVjMjRkZGI1MjE0ZDA2MmMyOTc1NmMyZGE4MTUwOTIyMTQ0ZjY0OCIsInRhZyI6IiJ9[39m[32m"[39m,
+    [34mrequester_name[39m: [32m"[39m[32mguest[39m[32m"[39m,
+    [34mrequester_email[39m: [32m"[39m[32mukpbjmesuji@gmail.com[39m[32m"[39m,
+    [34mrequester_phone[39m: [36mnull[39m,
+    [34msubject[39m: [32m"[39m[32macces token null fix[39m[32m"[39m,
+    [34mstatus[39m: [32m"[39m[32mselesai[39m[32m"[39m,
+    [34mpriority[39m: [32m"[39m[32mnormal[39m[32m"[39m,
+    [34mlast_message_at[39m: [32m"[39m[32m2026-09-12 20:27:39[39m[32m"[39m,
+    [34mclosed_at[39m: [36mnull[39m,
+    [34mcreated_at[39m: [32m"[39m[32m2026-09-12 20:03:46[39m[32m"[39m,
+    [34mupdated_at[39m: [32m"[39m[32m2026-09-12 20:27:55[39m[32m"[39m,
+  }

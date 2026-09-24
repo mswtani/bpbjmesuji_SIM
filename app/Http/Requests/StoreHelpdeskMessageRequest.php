@@ -29,7 +29,7 @@ class StoreHelpdeskMessageRequest extends FormRequest
             'attachments.*' => [
                 'file',
                 'max:10240',
-                'mimes:pdf,jpg,jpeg,png,zip',
+                'mimes:pdf,jpg,jpeg,png,webp,zip',
             ],
         ];
     }

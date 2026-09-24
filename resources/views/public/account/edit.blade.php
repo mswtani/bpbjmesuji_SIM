@@ -499,6 +499,95 @@
         }
     }
 
+        /* =========================================================
+       AVATAR IMAGE MODAL
+    ========================================================= */
+
+    .public-account-avatar {
+        cursor: pointer;
+    }
+
+    .public-account-avatar-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        background: rgba(0, 0, 0, 0.75);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition:
+            opacity 0.2s ease,
+            visibility 0.2s ease;
+    }
+
+    .public-account-avatar-modal.is-open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .public-account-avatar-modal-image {
+        display: block;
+        max-width: min(90vw, 600px);
+        max-height: 85vh;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        border: 3px solid #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    .public-account-avatar-modal-close {
+        position: absolute;
+        top: 20px;
+        right: 25px;
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        font-size: 28px;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .public-account-avatar-modal-close:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
+
+    body.public-account-avatar-modal-open {
+        overflow: hidden;
+    }
+
+    @media (max-width: 767.98px) {
+
+        .public-account-avatar-modal {
+            padding: 20px;
+        }
+
+        .public-account-avatar-modal-image {
+            max-width: 92vw;
+            max-height: 75vh;
+        }
+
+        .public-account-avatar-modal-close {
+            top: 15px;
+            right: 15px;
+            width: 38px;
+            height: 38px;
+            font-size: 24px;
+        }
+    }
 
 </style>
 
@@ -883,6 +972,32 @@
 
 </div>
 
+{{-- =============================================================
+     AVATAR IMAGE MODAL
+============================================================= --}}
+
+<div
+    class="public-account-avatar-modal"
+    id="publicAccountAvatarModal"
+    aria-hidden="true"
+>
+    <button
+        type="button"
+        class="public-account-avatar-modal-close"
+        id="publicAccountAvatarModalClose"
+        aria-label="Tutup foto profil"
+    >
+        &times;
+    </button>
+
+    <img
+        src=""
+        alt="Foto profil"
+        class="public-account-avatar-modal-image"
+        id="publicAccountAvatarModalImage"
+    >
+</div>
+
 
 {{-- =============================================================
      AVATAR PREVIEW
@@ -965,6 +1080,128 @@
 
     });
 </script>
+
+
+{{-- =============================================================
+     AVATAR IMAGE MODAL SCRIPT
+============================================================= --}}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const avatarContainer = document.querySelector(
+            '.public-account-avatar'
+        );
+
+        const modal = document.getElementById(
+            'publicAccountAvatarModal'
+        );
+
+        const modalImage = document.getElementById(
+            'publicAccountAvatarModalImage'
+        );
+
+        const closeButton = document.getElementById(
+            'publicAccountAvatarModalClose'
+        );
+
+
+        if (
+            !avatarContainer ||
+            !modal ||
+            !modalImage ||
+            !closeButton
+        ) {
+            return;
+        }
+
+
+        function openAvatarModal() {
+
+            const avatar =
+                document.getElementById(
+                    'public-account-avatar-preview'
+                );
+
+            if (!avatar || !avatar.src) {
+                return;
+            }
+
+            modalImage.src = avatar.src;
+            modalImage.alt = avatar.alt || 'Foto profil';
+
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+
+            document.body.classList.add(
+                'public-account-avatar-modal-open'
+            );
+        }
+
+
+        function closeAvatarModal() {
+
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+
+            document.body.classList.remove(
+                'public-account-avatar-modal-open'
+            );
+
+            modalImage.src = '';
+        }
+
+
+        avatarContainer.addEventListener(
+            'click',
+            function (event) {
+
+                if (
+                    event.target.closest(
+                        'input, label, button'
+                    )
+                ) {
+                    return;
+                }
+
+                openAvatarModal();
+            }
+        );
+
+
+        closeButton.addEventListener(
+            'click',
+            closeAvatarModal
+        );
+
+
+        modal.addEventListener(
+            'click',
+            function (event) {
+
+                if (event.target === modal) {
+                    closeAvatarModal();
+                }
+            }
+        );
+
+
+        document.addEventListener(
+            'keydown',
+            function (event) {
+
+                if (
+                    event.key === 'Escape' &&
+                    modal.classList.contains('is-open')
+                ) {
+                    closeAvatarModal();
+                }
+            }
+        );
+
+    });
+</script>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

@@ -8,6 +8,100 @@
     </p>
 </header>
 
+<style>
+
+        /* =========================================================
+       PROFILE AVATAR IMAGE MODAL
+    ========================================================= */
+
+    .profile-avatar-preview-trigger {
+        cursor: pointer;
+    }
+
+    .profile-avatar-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        background: rgba(0, 0, 0, 0.75);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition:
+            opacity 0.2s ease,
+            visibility 0.2s ease;
+    }
+
+    .profile-avatar-modal.is-open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .profile-avatar-modal-image {
+        display: block;
+        max-width: min(90vw, 600px);
+        max-height: 85vh;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        border: 3px solid #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    .profile-avatar-modal-close {
+        position: absolute;
+        top: 20px;
+        right: 25px;
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        font-size: 28px;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .profile-avatar-modal-close:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
+
+    body.profile-avatar-modal-open {
+        overflow: hidden;
+    }
+
+    @media (max-width: 767.98px) {
+
+        .profile-avatar-modal {
+            padding: 20px;
+        }
+
+        .profile-avatar-modal-image {
+            max-width: 92vw;
+            max-height: 75vh;
+        }
+
+        .profile-avatar-modal-close {
+            top: 15px;
+            right: 15px;
+            width: 38px;
+            height: 38px;
+            font-size: 24px;
+        }
+    }
+
+</style>
+
 
 {{-- Informasi akun --}}
 <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -129,6 +223,7 @@
             {{-- Preview --}}
             <div
                 class="
+                    profile-avatar-preview-trigger
                     h-24 w-24
                     shrink-0
                     overflow-hidden
@@ -136,7 +231,7 @@
                     border border-gray-200
                     bg-blue-100
                 "
-            >
+                >
 
                 @if ($user->avatar)
 
@@ -388,6 +483,32 @@
 
 </form>
 
+{{-- =========================================================
+    AVATAR IMAGE MODAL
+========================================================== --}}
+
+<div
+    class="profile-avatar-modal"
+    id="profileAvatarModal"
+    aria-hidden="true"
+>
+    <button
+        type="button"
+        class="profile-avatar-modal-close"
+        id="profileAvatarModalClose"
+        aria-label="Tutup foto profil"
+    >
+        &times;
+    </button>
+
+    <img
+        src=""
+        alt="Foto profil"
+        class="profile-avatar-modal-image"
+        id="profileAvatarModalImage"
+    >
+</div>
+
 
 {{-- =========================================================
     PREVIEW FOTO PROFIL
@@ -461,5 +582,117 @@
 
             reader.readAsDataURL(file);
         });
+    });
+</script>
+
+{{-- =========================================================
+    AVATAR IMAGE MODAL SCRIPT
+========================================================== --}}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const avatarContainer = document.querySelector(
+            '.profile-avatar-preview-trigger'
+        );
+
+        const modal = document.getElementById(
+            'profileAvatarModal'
+        );
+
+        const modalImage = document.getElementById(
+            'profileAvatarModalImage'
+        );
+
+        const closeButton = document.getElementById(
+            'profileAvatarModalClose'
+        );
+
+        if (
+            !avatarContainer ||
+            !modal ||
+            !modalImage ||
+            !closeButton
+        ) {
+            return;
+        }
+
+        function openAvatarModal() {
+
+            const avatar = document.getElementById(
+                'profile-avatar-preview'
+            );
+
+            if (!avatar || !avatar.src) {
+                return;
+            }
+
+            modalImage.src = avatar.src;
+            modalImage.alt = avatar.alt || 'Foto profil';
+
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+
+            document.body.classList.add(
+                'profile-avatar-modal-open'
+            );
+        }
+
+        function closeAvatarModal() {
+
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+
+            document.body.classList.remove(
+                'profile-avatar-modal-open'
+            );
+
+            modalImage.src = '';
+        }
+
+        avatarContainer.addEventListener(
+            'click',
+            function (event) {
+
+                if (
+                    event.target.closest(
+                        'input, label, button'
+                    )
+                ) {
+                    return;
+                }
+
+                openAvatarModal();
+            }
+        );
+
+        closeButton.addEventListener(
+            'click',
+            closeAvatarModal
+        );
+
+        modal.addEventListener(
+            'click',
+            function (event) {
+
+                if (event.target === modal) {
+                    closeAvatarModal();
+                }
+            }
+        );
+
+        document.addEventListener(
+            'keydown',
+            function (event) {
+
+                if (
+                    event.key === 'Escape' &&
+                    modal.classList.contains('is-open')
+                ) {
+                    closeAvatarModal();
+                }
+            }
+        );
+
     });
 </script>

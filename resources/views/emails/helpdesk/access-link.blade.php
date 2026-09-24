@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
 
     <title>
-        Balasan Helpdesk {{ $ticket->ticket_number }}
+        Tautan Akses Tiket {{ $ticket->ticket_number }}
     </title>
 </head>
 
@@ -16,7 +16,7 @@
     </p>
 
     <p>
-        Terdapat balasan baru dari petugas Helpdesk untuk tiket Anda.
+        Anda meminta pengiriman ulang tautan akses untuk tiket Helpdesk Anda.
     </p>
 
     <p>
@@ -29,19 +29,9 @@
         {{ $ticket->subject }}
     </p>
 
-    <hr>
-
     <p>
-        <strong>Balasan Petugas:</strong>
-    </p>
-
-    <p style="white-space: pre-line;">{{ $reply->message }}</p>
-
-    <hr>
-
-    <p>
-    Untuk melihat riwayat percakapan lengkap dan memberikan balasan,
-    silakan klik tombol berikut:
+        Gunakan tombol berikut untuk membuka tiket dan melihat riwayat
+        percakapan Anda dengan petugas Helpdesk:
     </p>
 
     <p>
@@ -63,6 +53,11 @@
 
     <p>
         Tautan ini bersifat pribadi. Jangan membagikannya kepada orang lain.
+    </p>
+
+    <p>
+        Jika Anda tidak meminta pengiriman ulang tautan ini,
+        Anda dapat mengabaikan email ini.
     </p>
 
     <p>

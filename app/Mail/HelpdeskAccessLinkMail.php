@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\HelpdeskMessage;
 use App\Models\HelpdeskTicket;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -10,9 +9,8 @@ use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class HelpdeskReplyMail extends Mailable implements ShouldQueue
+class HelpdeskAccessLinkMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -22,12 +20,7 @@ class HelpdeskReplyMail extends Mailable implements ShouldQueue
     public HelpdeskTicket $ticket;
 
     /**
-     * Balasan terbaru dari petugas.
-     */
-    public HelpdeskMessage $reply;
-
-    /**
-     * URL akses tiket untuk pemohon.
+     * URL akses tiket.
      */
     public string $ticketUrl;
 
@@ -36,18 +29,10 @@ class HelpdeskReplyMail extends Mailable implements ShouldQueue
      */
     public function __construct(
         HelpdeskTicket $ticket,
-        HelpdeskMessage $reply
+        string $ticketUrl
     ) {
         $this->ticket = $ticket;
-        $this->reply = $reply;
-
-        $this->ticketUrl = route(
-            'helpdesk.ticket',
-            [
-                'ticketNumber' => $ticket->ticket_number,
-                'token' => $ticket->access_token,
-            ]
-        );
+        $this->ticketUrl = $ticketUrl;
     }
 
     /**
@@ -56,7 +41,8 @@ class HelpdeskReplyMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Balasan Helpdesk - ' . $this->ticket->ticket_number,
+            subject: 'Tautan Akses Tiket Helpdesk - '
+                . $this->ticket->ticket_number,
         );
     }
 
@@ -66,7 +52,7 @@ class HelpdeskReplyMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            view: 'emails.helpdesk.reply',
+            view: 'emails.helpdesk.access-link',
         );
     }
 

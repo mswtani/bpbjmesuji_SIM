@@ -1,118 +1,11 @@
-@push('styles')
-    <style>
-        /* CSS khusus public navbar */
-        
-        /* Logo utama */
-        .main-header .logo {
-            display: block;
-            height: 65px;
-            width: auto;
-        }
+    
 
-        .main-header .logo-area .ukpbj {
-            display: none;
-        }
-
-        /* Struktur logo */
-        .main-header .logo-area {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            gap: 15px;
-        }
-
-        /* =========================
-           MOBILE
-           ========================= */
-        @media (max-width: 768px) {
-
-            .main-header .logo-area {
-                display: grid;
-
-                grid-template-columns: auto auto;
-                grid-template-rows: auto auto;
-
-                align-items: center;
-                justify-content: center;
-
-                column-gap: 8px;
-
-                width: 100%;
-            }
-
-            .main-header .logo.mesuji {
-                grid-column: 1;
-                grid-row: 1 / 3;
-
-                width: 42px;
-                height: auto;
-            }
-
-            .main-header .logo.ukpbj {
-                display: block;
-
-                grid-column: 2;
-                grid-row: 1;
-
-                width: 45px;
-                height: auto;
-            }
-
-            .main-header .logo-text {
-                grid-column: 2;
-                grid-row: 2;
-            }
-
-            .public-navbar .mobile-logo {
-                display: block;
-                width: auto;
-                height: 34px;
-            }
-        }
-
-        /* =========================
-           MOBILE 480px
-           ========================= */
-        @media (max-width: 480px) {
-
-            .main-header .logo.mesuji {
-                width: 38px;
-            }
-
-            .main-header .logo.ukpbj {
-                width: 42px;
-            }
-
-            .public-navbar .mobile-logo {
-                height: 32px;
-            }
-        }
-
-        /* =========================
-           MOBILE 320px
-           ========================= */
-        @media (max-width: 320px) {
-
-            .main-header .logo.mesuji {
-                width: 34px;
-            }
-
-            .main-header .logo.ukpbj {
-                width: 38px;
-            }
-
-            .public-navbar .mobile-logo {
-                height: 29px;
-            }
-        }
-    </style>
-@endpush
 {{-- =========================================================
      TOP BAR
      ========================================================= --}}
 
 <div class="top-bar">
-    <div class="container">
+    <div class="public-topbar-container">
         
         <span>
             <a
@@ -250,8 +143,7 @@
 
 <header class="main-header">
 
-    <div class="container header-flex">
-
+    <div class="public-header-container header-flex">
         <a
             href="{{ route('public.home') }}"
             class="logo-area"
@@ -321,9 +213,9 @@
      DESKTOP NAVBAR
      ========================================================= --}}
 
-<nav class="navbar public-navbar">
+<nav class="public-navbar">
 
-    <div class="container">
+    <div class="public-navbar-container">
 
         {{-- Logo hanya untuk mobile --}}
 
@@ -378,11 +270,11 @@
                     data-public-dropdown-menu="informasi"
                 >
 
-                    <a href="{{ url('/berita') }}">
+                    <a href="{{ url('/berita') }}" class="{{ request()->routeIs('berita') ? 'active' : '' }}">
                         Berita & Pengumuman
                     </a>
 
-                    <a href="{{ url('/regulasi') }}">
+                    <a href="{{ url('/regulasi') }}" class="{{ request()->routeIs('regulasi') ? 'active' : '' }}">
                         Regulasi
                     </a>
 
@@ -415,12 +307,12 @@
                     data-public-dropdown-menu="layanan"
                 >
 
-                    <a href="{{ route('helpdesk.index') }}">
-                        Konsultasi PBJ
+                    <a href="{{ url('/aduan-kritik-saran') }}">
+                        FAQ
                     </a>
 
-                    <a href="{{ url('/aduan-kritik-saran') }}">
-                        Aduan Kritik dan Saran
+                    <a href="{{ route('helpdesk.index') }}">
+                        Helpdesk
                     </a>
 
                     <a href="{{ url('/simonpraja') }}">
@@ -535,11 +427,7 @@
             >
 
                 <a href="{{ url('/berita') }}" class="{{ request()->routeIs('berita') ? 'active' : '' }}">
-                    Berita
-                </a>
-
-                <a href="{{ url('/pengumuman') }}" class="{{ request()->routeIs('pengumuman') ? 'active' : '' }}">
-                    Pengumuman
+                    Berita & Pengumuman
                 </a>
 
                 <a href="{{ url('/regulasi') }}" class="{{ request()->routeIs('regulasi') ? 'active' : '' }}">
@@ -578,11 +466,11 @@
             >
 
                 <a href="{{ url('/konsultasi') }}" class="{{ request()->routeIs('konsultasi') ? 'active' : '' }}">
-                    Konsultasi PBJ
+                    FAQ
                 </a>
 
-                <a href="{{ url('/aduan-kritik-saran') }}" class="{{ request()->routeIs('aduan-kritik-saran') ? 'active' : '' }}">
-                    Aduan Kritik dan Saran
+                <a href="{{ route('helpdesk.index') }}">
+                    Helpdesk
                 </a>
 
                 <a href="{{ url('/simonpraja') }}" class="{{ request()->routeIs('simonpraja') ? 'active' : '' }}">
@@ -700,6 +588,17 @@
             image.dataset.avatarLoaded = 'true';
 
         }
+
+            /*
+     * INITIAL LOAD
+     *
+     * Avatar dimuat ketika halaman selesai
+     * dimuat, sehingga tidak perlu membuka
+     * dropdown terlebih dahulu.
+     */
+        lazyAvatars.forEach(function (image) {
+            loadAvatar(image);
+        });
 
 
         /*

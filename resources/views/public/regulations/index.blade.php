@@ -176,63 +176,6 @@
                     </div>
 
 
-                    {{-- Status Hukum --}}
-
-                    <div class="public-regulations-filter-field">
-
-                        <label for="legal_status">
-                            Status Hukum
-                        </label>
-
-                        <select
-                            id="legal_status"
-                            name="legal_status"
-                        >
-
-                            <option value="">
-                                Semua Status
-                            </option>
-
-                            <option
-                                value="berlaku"
-                                @selected(
-                                    request('legal_status') === 'berlaku'
-                                )
-                            >
-                                Berlaku
-                            </option>
-
-                            <option
-                                value="tidak_berlaku"
-                                @selected(
-                                    request('legal_status') === 'tidak_berlaku'
-                                )
-                            >
-                                Tidak Berlaku
-                            </option>
-
-                            <option
-                                value="dicabut"
-                                @selected(
-                                    request('legal_status') === 'dicabut'
-                                )
-                            >
-                                Dicabut
-                            </option>
-
-                            <option
-                                value="diubah"
-                                @selected(
-                                    request('legal_status') === 'diubah'
-                                )
-                            >
-                                Diubah
-                            </option>
-
-                        </select>
-
-                    </div>
-
                 </div>
 
 
@@ -251,8 +194,8 @@
                     @if (
                         request()->filled('q') ||
                         request()->filled('regulation_type') ||
-                        request()->filled('year') ||
-                        request()->filled('legal_status')
+                        request()->filled('year')
+
                     )
 
                         <a
@@ -910,6 +853,116 @@
     .public-posts-pagination {
         margin-top: 28px;
     }
+
+    /* =========================================================
+   PAGINATION COMPONENT
+========================================================== */
+
+.public-pagination-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 28px;
+}
+
+.public-pagination-info {
+    margin: 0;
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.public-pagination-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.public-pagination-page,
+.public-pagination-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    box-sizing: border-box;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.public-pagination-page-link,
+.public-pagination-arrow-link {
+    transition:
+        background-color 200ms ease,
+        border-color 200ms ease,
+        color 200ms ease;
+}
+
+.public-pagination-page-link:hover,
+.public-pagination-arrow-link:hover {
+    border-color: #174ea6;
+    background: #174ea6;
+    color: #ffffff;
+}
+
+.public-pagination-page-active {
+    border-color: #174ea6;
+    background: #174ea6;
+    color: #ffffff;
+}
+
+.public-pagination-arrow {
+    font-size: 20px;
+}
+
+.public-pagination-arrow-disabled {
+    background: #f8fafc;
+    color: #cbd5e1;
+    cursor: default;
+}
+
+.public-pagination-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 36px;
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1;
+}
+
+
+/* =========================================================
+   PAGINATION MOBILE
+========================================================== */
+
+@media (max-width: 768px) {
+
+    .public-pagination-wrapper {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .public-pagination-info {
+        text-align: center;
+    }
+
+    .public-pagination-nav {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+}
 
 
     /* =========================================================
