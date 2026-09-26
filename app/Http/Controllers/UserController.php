@@ -586,6 +586,50 @@ class UserController extends Controller
             );
     }
 
+    /**
+     * Menghapus user secara soft delete.
+     */
+    public function destroy(
+        User $user
+    ): RedirectResponse {
+        $currentUser = auth()->user();
+
+        if (! $currentUser) {
+            abort(403);
+        }
+
+        if (! $currentUser->hasPermission('users.delete')) {
+            abort(403);
+        }
+
+        if ($user->is($currentUser)) {
+            abort(
+                403,
+                'Anda tidak dapat menghapus akun sendiri.'
+            );
+        }
+
+        if ($user->hasRole('SUPER_ADMIN')) {
+            abort(
+                403,
+                'Akun Super Administrator tidak dapat dihapus.'
+            );
+        }
+
+        $user->delete();
+
+        return redirect()
+            ->route('users.index')
+            ->with(
+                'success',
+                'User berhasil dihapus.'
+            )
+            ->with(
+                'success_type',
+                'delete'
+            );
+    }
+
 
     /**
      * Detail user.

@@ -283,6 +283,86 @@
                 </form>
             @endif
 
+            {{-- DELETE --}}
+            @if (
+                auth()->user()->hasPermission('users.delete')
+                && ! $user->is(auth()->user())
+                && ! $user->hasRole('SUPER_ADMIN')
+                )
+                <form
+                    method="POST"
+                    action="{{ route('users.destroy', $user) }}"
+                    class="inline"
+                    data-confirm="Apakah Anda yakin ingin menghapus user ini?"
+                    data-confirm-action="delete"
+                    data-confirm-button="Hapus"
+                >
+                    @csrf
+                    @method('DELETE')
+
+                    <button
+                        type="submit"
+                        title="Hapus user"
+                        aria-label="Hapus user"
+                        class="
+                            inline-flex
+                            items-center
+                            justify-center
+                            gap-2
+                            rounded-lg
+                            px-3 py-2
+                            md:p-2.5
+                            text-sm
+                            font-medium
+                            text-white
+                            bg-red-600
+                            transition
+                            hover:bg-red-700
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-red-500/30
+                        "
+                    >
+                        <svg
+                            class="h-4 w-4 shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M3 6h18"
+                            />
+
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M8 6V4h8v2"
+                            />
+
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M19 6l-1 14H6L5 6"
+                            />
+
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M10 11v5M14 11v5"
+                            />
+                        </svg>
+
+                        <span class="md:hidden">
+                            Hapus
+                        </span>
+                    </button>
+                </form>
+            @endif
+
         </div>
 
     </div>
@@ -748,77 +828,7 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const confirmModal = document.getElementById('user-confirm-modal');
-    const confirmTitle = document.getElementById('user-confirm-title');
-    const confirmMessage = document.getElementById('user-confirm-message');
-    const cancelButton = confirmModal?.querySelector('[data-user-confirm-cancel]');
-    const submitButton = document.getElementById('user-confirm-submit');
     
-    const iconBg = document.getElementById('modal-icon-bg');
-    const deactivateIcon = document.getElementById('deactivate-icon');
-    const activateIcon = document.getElementById('activate-icon');
-
-    const successModal = document.getElementById('user-success-modal');
-    const successCloseButton = successModal?.querySelector('[data-user-success-close]');
-
-    let pendingForm = null;
-    let previousFocus = null;
-
-    function openModal(modal) {
-        previousFocus = document.activeElement;
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        modal.setAttribute('aria-hidden', 'false');
-    }
-
-    function closeModal(modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        modal.setAttribute('aria-hidden', 'true');
-        previousFocus?.focus();
-    }
-
-    function closeConfirmModal() {
-        pendingForm = null;
-        closeModal(confirmModal);
-    }
-
-    document.addEventListener('submit', (event) => {
-        const form = event.target.closest('form[data-user-action-form], form[data-confirm]');
-
-        if (!form || form.dataset.confirmed === '1') {
-            return;
-        }
-
-        event.preventDefault();
-        event.stopImmediatePropagation();
-
-        pendingForm = form;
-        
-        const actionType = form.dataset.confirmAction || (form.action.includes('deactivate') ? 'deactivate' : 'activate');
-
-        if (actionType === 'deactivate') {
-            iconBg.className = 'mx-auto flex h-12 w-12 items-center justify-center rounded-full mb-4 bg-red-100';
-            deactivateIcon.classList.remove('hidden');
-            activateIcon.classList.add('hidden');
-            
-            submitButton.className = 'w-full sm:w-auto rounded-lg px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-500/30 transition';
-        } else {
-            iconBg.className = 'mx-auto flex h-12 w-12 items-center justify-center rounded-full mb-4 bg-emerald-100';
-            activateIcon.classList.remove('hidden');
-            deactivateIcon.classList.add('hidden');
-            
-            submitButton.className = 'w-full sm:w-auto rounded-lg px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500/30 transition';
-        }
-
-        confirmTitle.textContent = form.dataset.confirmTitle || (actionType === 'deactivate' ? 'Nonaktifkan User' : 'Aktifkan User');
-        confirmMessage.textContent = form.dataset.confirmMessage || form.dataset.confirm || 'Apakah Anda yakin ingin melanjutkan tindakan ini?';
-        submitButton.textContent = form.dataset.confirmButton || (actionType === 'deactivate' ? 'Nonaktifkan' : 'Aktifkan');
-
-        openModal(confirmModal);
-        submitButton.focus();
-    }, true);
-
     cancelButton?.addEventListener('click', closeConfirmModal);
 
     submitButton?.addEventListener('click', () => {

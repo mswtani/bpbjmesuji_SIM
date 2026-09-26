@@ -479,7 +479,7 @@
                                 whitespace-nowrap
                                 px-6
                                 py-3
-                                text-right
+                                text-left
                                 text-xs
                                 font-medium
                                 uppercase
@@ -645,13 +645,13 @@
                                     py-4
                                     text-right
                                 "
-                            >
+                                >
 
                                 <div
                                     class="
                                         flex
                                         items-center
-                                        justify-end
+                                        justify-start
                                         gap-1.5
                                     "
                                 >
@@ -901,7 +901,7 @@
                                         && auth()->user()->hasPermission(
                                             'users.reset-password'
                                         )
-                                    )
+                                        )
 
                                         <form
                                             method="POST"
@@ -964,6 +964,60 @@
 
                                         </form>
 
+                                    @endif
+
+                                    {{-- DELETE PASSWORD --}}
+                                   @if (
+                                        auth()->user()->hasPermission('users.delete')
+                                        && ! $user->is(auth()->user())
+                                        && ! $user->hasRole('SUPER_ADMIN')
+                                        )
+                                        <form
+                                            method="POST"
+                                            action="{{ route('users.destroy', $user) }}"
+                                            class="inline"
+                                            data-confirm="Apakah Anda yakin ingin menghapus user ini?"
+                                            data-confirm-action="delete"
+                                            data-confirm-button="Hapus"
+                                        >
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button
+                                                type="submit"
+                                                class="
+                                                    inline-flex
+                                                    items-center
+                                                    rounded-md
+                                                    px-3
+                                                    py-2
+                                                    text-sm
+                                                    font-medium
+                                                    text-red-600
+                                                    transition
+                                                    hover:bg-red-50
+                                                    hover:text-red-700
+                                                    focus:outline-none
+                                                    focus:ring-2
+                                                    focus:ring-red-500/30
+                                                "
+                                                title="Hapus User"
+                                            >
+                                                <svg
+                                                    class="h-5 w-5"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="1.8"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        </form>
                                     @endif
 
                                 </div>

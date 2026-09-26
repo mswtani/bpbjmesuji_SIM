@@ -341,6 +341,13 @@ Route::middleware([
     ->middleware('permission:users.update')
     ->name('users.update');
 
+        Route::delete(
+        '/users/{user}',
+        [UserController::class, 'destroy']
+    )
+        ->middleware('permission:users.delete')
+        ->name('users.destroy');
+
     Route::get(
         '/users/{user}',
         [UserController::class, 'show']
