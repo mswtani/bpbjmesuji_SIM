@@ -795,7 +795,7 @@
                                 'nip' => 'NIP. 19890515 201503 1 001',
                             ],
                             [
-                                'name' => 'YULIANTO KURNIAWAN, S.Kep.',
+                                'name' => 'Ns. YULIANTO KURNIAWAN, S.Kep.',
                                 'jabatan' => 'Fungsional PBJ Ahli Pertama',
                                 'nip' => 'NIP. 19900607 201403 1 002',
                             ],

@@ -124,14 +124,9 @@ class StorePostRequest extends FormRequest
                 Rule::requiredIf($isRegulation),
                 'nullable',
                 'string',
-
                 Rule::in([
                     'berlaku',
                     'tidak_berlaku',
-                    'mencabut',
-                    'dicabut',
-                    'mengubah',
-                    'diubah',
                 ]),
             ],
             
@@ -154,7 +149,7 @@ class StorePostRequest extends FormRequest
             'amends_post_id' => [
                 Rule::requiredIf(
                     fn () => $isRegulation &&
-                        $this->input('legal_status') === 'mengubah'
+                        $this->filled('amends_post_id')
                 ),
                 'nullable',
                 'integer',
@@ -172,7 +167,7 @@ class StorePostRequest extends FormRequest
             'amended_by_post_id' => [
                 Rule::requiredIf(
                     fn () => $isRegulation &&
-                        $this->input('legal_status') === 'diubah'
+                        $this->filled('amended_by_post_id')
                 ),
                 'nullable',
                 'integer',
@@ -190,7 +185,7 @@ class StorePostRequest extends FormRequest
             'repeals_post_id' => [
                 Rule::requiredIf(
                     fn () => $isRegulation &&
-                        $this->input('legal_status') === 'mencabut'
+                        $this->filled('repeals_post_id')
                 ),
                 'nullable',
                 'integer',
@@ -208,7 +203,7 @@ class StorePostRequest extends FormRequest
             'repealed_by_post_id' => [
                 Rule::requiredIf(
                     fn () => $isRegulation &&
-                        $this->input('legal_status') === 'dicabut'
+                        $this->filled('repealed_by_post_id')
                 ),
                 'nullable',
                 'integer',

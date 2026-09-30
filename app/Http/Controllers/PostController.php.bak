@@ -181,6 +181,19 @@ class PostController extends Controller
 
         $data = $request->validated();
 
+        /*
+        |--------------------------------------------------------------------------
+        | Default Status Hukum Regulasi
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $data['type'] === 'regulation' &&
+            empty($data['legal_status'])
+        ) {
+            $data['legal_status'] = 'berlaku';
+        }
+
 
         if (
             in_array(
@@ -207,6 +220,24 @@ class PostController extends Controller
             );
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil data hubungan regulasi
+        |--------------------------------------------------------------------------
+        |
+        | Field ini digunakan untuk regulation_relations,
+        | bukan untuk tabel posts.
+        |
+        */
+
+        $amendsPostId = $request->input('amends_post_id');
+
+        $amendedByPostId = $request->input('amended_by_post_id');
+
+        $repealsPostId = $request->input('repeals_post_id');
+
+        $repealedByPostId = $request->input('repealed_by_post_id');
 
 
         /*
@@ -529,10 +560,8 @@ class PostController extends Controller
             'author',
             'regulationType',
             'regulationRelations.relatedPost',
-            'amends.relatedPost',
-            'amendedBy.relatedPost',
-            'repeals.relatedPost',
-            'repealedBy.relatedPost',
+            'amendedBy.post',
+            'repealedBy.post',
         ]);
 
         return view('posts.show', compact('post'));
@@ -561,15 +590,9 @@ class PostController extends Controller
         $post->load([
             'author',
             'regulationType',
-
             'regulationRelations.relatedPost',
-            'regulationRelations.post',
-
-            'amends.relatedPost',
-            'amendedBy.post',
-
+            'amendments.relatedPost',
             'repeals.relatedPost',
-            'repealedBy.post',
         ]);
 
         $regulations = Post::query()
@@ -597,6 +620,14 @@ class PostController extends Controller
     Post $post
     ): RedirectResponse {
 
+        logger()->info('POST UPDATE HIT', [
+            'post_id' => $post->id,
+            'repeals_post_id' => $request->input('repeals_post_id'),
+            'repealed_by_post_id' => $request->input('repealed_by_post_id'),
+            'amends_post_id' => $request->input('amends_post_id'),
+            'amended_by_post_id' => $request->input('amended_by_post_id'),
+        ]);
+
         abort_if(
             $post->status === 'archived',
             403,
@@ -618,6 +649,20 @@ class PostController extends Controller
 
         $data = $request->validated();
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Default Status Hukum Regulasi
+        |--------------------------------------------------------------------------
+        |
+        | Jika regulasi belum memiliki status hukum,
+        | gunakan status hukum yang sudah tersimpan.
+        |
+        */
+
+        if ($data['type'] === 'regulation') {
+            $data['legal_status'] = 'berlaku';
+        }
 
 
         if (
@@ -645,6 +690,25 @@ class PostController extends Controller
             );
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil data hubungan regulasi dari request
+        |--------------------------------------------------------------------------
+        |
+        | Field ini hanya digunakan untuk mengelola
+        | regulation_relations dan tidak disimpan
+        | langsung ke tabel posts.
+        |
+        */
+
+        $amendsPostId = $request->input('amends_post_id');
+
+        $amendedByPostId = $request->input('amended_by_post_id');
+
+        $repealsPostId = $request->input('repeals_post_id');
+
+        $repealedByPostId = $request->input('repealed_by_post_id');
 
         /*
         |--------------------------------------------------------------------------
@@ -836,7 +900,45 @@ class PostController extends Controller
         }
 
 
-        
+        /*
+        |--------------------------------------------------------------------------
+        | Simpan hubungan regulasi lama
+        |--------------------------------------------------------------------------
+        |
+        | Digunakan untuk menghitung ulang status hukum regulasi
+        | yang sebelumnya menjadi target pencabutan.
+        |
+        */
+
+        $previousAmendsPostId = null;
+        $previousAmendedByPostId = null;
+        $previousRepealsPostId = null;
+        $previousRepealedByPostId = null;
+
+        if ($post->type === 'regulation') {
+
+            $previousAmendsPostId = RegulationRelation::query()
+                ->where('post_id', $post->id)
+                ->where('relation_type', 'amends')
+                ->value('related_post_id');
+
+            $previousAmendedByPostId = RegulationRelation::query()
+                ->where('related_post_id', $post->id)
+                ->where('relation_type', 'amends')
+                ->value('post_id');
+
+            $previousRepealsPostId = RegulationRelation::query()
+                ->where('post_id', $post->id)
+                ->where('relation_type', 'repeals')
+                ->value('related_post_id');
+
+            $previousRepealedByPostId = RegulationRelation::query()
+                ->where('related_post_id', $post->id)
+                ->where('relation_type', 'repeals')
+                ->value('post_id');
+        }
+
+
         /*
         |--------------------------------------------------------------------------
         | Update Post
@@ -845,26 +947,227 @@ class PostController extends Controller
 
         $post->update($data);
 
-        if ($post->type === 'regulation') {
-            logger()->info('REGULATION STATUS BEFORE SYNC', [
-                'post_id' => $post->id,
-                'legal_status' => $post->legal_status,
-                'incoming_repeals' => RegulationRelation::query()
-                    ->where('related_post_id', $post->id)
-                    ->where('relation_type', 'repeals')
-                    ->pluck('post_id')
-                    ->all(),
-            ]);
 
-            $this->syncLegalStatus($post->id);
+        /*
+        |--------------------------------------------------------------------------
+        | Sinkronisasi Hubungan Regulasi
+        |--------------------------------------------------------------------------
+        |
+        | Hubungan ditentukan langsung oleh field relation:
+        |
+        |   amends_post_id
+        |   amended_by_post_id
+        |   repeals_post_id
+        |   repealed_by_post_id
+        |
+        | Database menggunakan arah kanonik:
+        |
+        |   source -> target
+        |
+        | relation_type:
+        |   amends
+        |   repeals
+        |
+        */
 
-            $post->refresh();
+        if ($data['type'] === 'regulation') {
 
-            logger()->info('REGULATION STATUS AFTER SYNC', [
-                'post_id' => $post->id,
-                'legal_status' => $post->legal_status,
-            ]);
+        /*
+        |--------------------------------------------------------------------------
+        | Sinkronisasi hubungan MENGUBAH
+        |--------------------------------------------------------------------------
+        |
+        | Hanya hubungan ini yang diubah.
+        | Hubungan lain tidak disentuh.
+        |
+        */
+
+        if (
+            $previousAmendsPostId &&
+            (string) $previousAmendsPostId !== (string) $amendsPostId
+        ) {
+
+            RegulationRelation::query()
+                ->where('post_id', $post->id)
+                ->where('related_post_id', $previousAmendsPostId)
+                ->where('relation_type', 'amends')
+                ->delete();
         }
+
+        if ($amendsPostId) {
+
+            $relatedPost = Post::query()
+                ->where('type', 'regulation')
+                ->whereKeyNot($post->id)
+                ->findOrFail($amendsPostId);
+
+            RegulationRelation::updateOrCreate(
+                [
+                    'post_id' => $post->id,
+                    'related_post_id' => $relatedPost->id,
+                    'relation_type' => 'amends',
+                ]
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Sinkronisasi hubungan DIUBAH OLEH
+        |--------------------------------------------------------------------------
+        |
+        | Contoh:
+        |
+        | Perpres 12/2021 -> amends -> Perpres 16/2018
+        |
+        */
+
+        if (
+            $previousAmendedByPostId &&
+            (string) $previousAmendedByPostId !== (string) $amendedByPostId
+        ) {
+
+            RegulationRelation::query()
+                ->where('post_id', $previousAmendedByPostId)
+                ->where('related_post_id', $post->id)
+                ->where('relation_type', 'amends')
+                ->delete();
+        }
+
+        if ($amendedByPostId) {
+
+            $relatedPost = Post::query()
+                ->where('type', 'regulation')
+                ->whereKeyNot($post->id)
+                ->findOrFail($amendedByPostId);
+
+            RegulationRelation::updateOrCreate(
+                [
+                    'post_id' => $relatedPost->id,
+                    'related_post_id' => $post->id,
+                    'relation_type' => 'amends',
+                ]
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Sinkronisasi hubungan MENCABUT
+        |--------------------------------------------------------------------------
+        |
+        | Contoh:
+        |
+        | Perpres 16/2018 -> repeals -> Perpres 54/2010
+        |
+        */
+
+        if (
+            $previousRepealsPostId &&
+            (string) $previousRepealsPostId !== (string) $repealsPostId
+        ) {
+
+            RegulationRelation::query()
+                ->where('post_id', $post->id)
+                ->where('related_post_id', $previousRepealsPostId)
+                ->where('relation_type', 'repeals')
+                ->delete();
+        }
+
+        if ($repealsPostId) {
+
+            $relatedPost = Post::query()
+                ->where('type', 'regulation')
+                ->whereKeyNot($post->id)
+                ->findOrFail($repealsPostId);
+
+            RegulationRelation::updateOrCreate(
+                [
+                    'post_id' => $post->id,
+                    'related_post_id' => $relatedPost->id,
+                    'relation_type' => 'repeals',
+                ]
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Sinkronisasi hubungan DICABUT OLEH
+        |--------------------------------------------------------------------------
+        |
+        | Contoh:
+        |
+        | Perpres X -> repeals -> Perpres ini
+        |
+        */
+
+        if (
+            $previousRepealedByPostId &&
+            (string) $previousRepealedByPostId !== (string) $repealedByPostId
+        ) {
+
+            RegulationRelation::query()
+                ->where('post_id', $previousRepealedByPostId)
+                ->where('related_post_id', $post->id)
+                ->where('relation_type', 'repeals')
+                ->delete();
+        }
+
+        if ($repealedByPostId) {
+
+            $relatedPost = Post::query()
+                ->where('type', 'regulation')
+                ->whereKeyNot($post->id)
+                ->findOrFail($repealedByPostId);
+
+            RegulationRelation::updateOrCreate(
+                [
+                    'post_id' => $relatedPost->id,
+                    'related_post_id' => $post->id,
+                    'relation_type' => 'repeals',
+                ]
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Hitung ulang Status Hukum
+        |--------------------------------------------------------------------------
+        |
+        | Regulasi tidak berlaku jika ada setidaknya satu
+        | hubungan repeals yang menunjuk kepadanya.
+        |
+        */
+
+        $affectedRegulationIds = collect([
+            $previousRepealsPostId,
+            $repealsPostId,
+            $post->id,
+        ])
+            ->filter()
+            ->unique()
+            ->values();
+
+        foreach ($affectedRegulationIds as $regulationId) {
+
+            $hasIncomingRepeal = RegulationRelation::query()
+                ->where('related_post_id', $regulationId)
+                ->where('relation_type', 'repeals')
+                ->exists();
+
+            Post::query()
+                ->whereKey($regulationId)
+                ->where('type', 'regulation')
+                ->update([
+                    'legal_status' =>
+                        $hasIncomingRepeal
+                            ? 'tidak_berlaku'
+                            : 'berlaku',
+                ]);
+        }
+    }
 
         /*
         |--------------------------------------------------------------------------
@@ -1265,15 +1568,14 @@ class PostController extends Controller
         ]);
     }
 
-
     /**
-     * Menambahkan hubungan regulasi.
+     * Relasi hubungan regulasi Menyimpan Hubungan.
      */
+
     public function storeRelation(
         Request $request,
         Post $post
     ): RedirectResponse {
-
         abort_unless(
             $post->type === 'regulation',
             404
@@ -1292,182 +1594,42 @@ class PostController extends Controller
                 'exists:posts,id',
             ],
 
-            'relation' => [
+            'relation_type' => [
                 'required',
                 'string',
-                'in:amends_outgoing,amends_incoming,repeals_outgoing,repeals_incoming',
+                'in:amends,repeals',
             ],
         ]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Ambil regulasi terkait.
-        |--------------------------------------------------------------------------
-        */
-
-        $relatedPost = Post::query()
-            ->where('type', 'regulation')
-            ->whereKeyNot($post->id)
-            ->findOrFail($data['related_post_id']);
-
-        abort_if(
-            $relatedPost->status === 'archived',
-            422,
-            'Regulasi terkait yang sudah diarsipkan tidak dapat dijadikan hubungan.'
+        $relatedPost = Post::findOrFail(
+            $data['related_post_id']
         );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Regulasi terkait harus dari jenis regulasi yang sama.
-        |--------------------------------------------------------------------------
-        */
 
         abort_unless(
-            $post->regulation_type_id !== null &&
-            $relatedPost->regulation_type_id === $post->regulation_type_id,
-            422,
-            'Regulasi terkait harus memiliki jenis regulasi yang sama.'
+            $relatedPost->type === 'regulation',
+            422
         );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Terjemahkan pilihan UI menjadi hubungan kanonik.
-        |--------------------------------------------------------------------------
-        |
-        | amends_outgoing:
-        |   Regulasi ini mengubah regulasi terkait.
-        |
-        | amends_incoming:
-        |   Regulasi terkait mengubah regulasi ini.
-        |
-        | repeals_outgoing:
-        |   Regulasi ini mencabut regulasi terkait.
-        |
-        | repeals_incoming:
-        |   Regulasi terkait mencabut regulasi ini.
-        |--------------------------------------------------------------------------
-        */
-
-        $relationMap = [
-            'amends_outgoing' => [
-                'relation_type' => 'amends',
-                'source' => $post->id,
-                'target' => $relatedPost->id,
-                'slot' => 'amends',
-            ],
-
-            'amends_incoming' => [
-                'relation_type' => 'amends',
-                'source' => $relatedPost->id,
-                'target' => $post->id,
-                'slot' => 'amendedBy',
-            ],
-
-            'repeals_outgoing' => [
-                'relation_type' => 'repeals',
-                'source' => $post->id,
-                'target' => $relatedPost->id,
-                'slot' => 'repeals',
-            ],
-
-            'repeals_incoming' => [
-                'relation_type' => 'repeals',
-                'source' => $relatedPost->id,
-                'target' => $post->id,
-                'slot' => 'repealedBy',
-            ],
-        ];
-
-        $selectedRelation = $relationMap[$data['relation']];
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Satu jenis hubungan hanya boleh digunakan satu kali
-        | dari sudut pandang regulasi yang sedang diedit.
-        |--------------------------------------------------------------------------
-        */
-
-        $slotExists = match ($selectedRelation['slot']) {
-
-            'amends' => $post->amends()->exists(),
-
-            'amendedBy' => $post->amendedBy()->exists(),
-
-            'repeals' => $post->repeals()->exists(),
-
-            'repealedBy' => $post->repealedBy()->exists(),
-
-            default => false,
-
-        };
-
 
         abort_if(
-            $slotExists,
+            $relatedPost->id === $post->id,
             422,
-            'Hubungan regulasi tersebut sudah ada. Hapus hubungan yang lama terlebih dahulu sebelum menambahkan hubungan baru.'
+            'Regulasi tidak dapat berhubungan dengan dirinya sendiri.'
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Jangan membuat duplikasi hubungan yang sama.
-        |--------------------------------------------------------------------------
-        */
-
-        $duplicateExists = RegulationRelation::query()
-            ->where('post_id', $selectedRelation['source'])
-            ->where('related_post_id', $selectedRelation['target'])
-            ->where('relation_type', $selectedRelation['relation_type'])
-            ->exists();
-
-        abort_if(
-            $duplicateExists,
-            422,
-            'Hubungan regulasi tersebut sudah ada.'
+        RegulationRelation::updateOrCreate(
+            [
+                'post_id' => $post->id,
+                'related_post_id' => $relatedPost->id,
+                'relation_type' => $data['relation_type'],
+            ]
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Simpan hubungan kanonik.
-        |--------------------------------------------------------------------------
-        */
-
-        $relation = RegulationRelation::create([
-            'post_id' => $selectedRelation['source'],
-            'related_post_id' => $selectedRelation['target'],
-            'relation_type' => $selectedRelation['relation_type'],
-        ]);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Sinkronisasi status hukum.
-        |--------------------------------------------------------------------------
-        |
-        | Hanya relation "repeals" yang memengaruhi status hukum.
-        |--------------------------------------------------------------------------
-        */
-
-        if ($relation->relation_type === 'repeals') {
-
-            $this->syncLegalStatus(
-                $selectedRelation['source']
-            );
-
-            $this->syncLegalStatus(
-                $selectedRelation['target']
-            );
+        if ($data['relation_type'] === 'repeals') {
+            $this->syncLegalStatus($relatedPost->id);
         }
 
-
         return redirect()
-            ->route('posts.edit', $post)
+            ->route('posts.show', $post)
             ->with(
                 'success',
                 'Hubungan regulasi berhasil ditambahkan.'
@@ -1476,16 +1638,15 @@ class PostController extends Controller
 
 
     /**
-     * Menghapus hubungan regulasi.
+     * Relasi hubungan regulasi Menghapus Hubungan.
      */
     public function destroyRelation(
         Post $post,
         RegulationRelation $relation
     ): RedirectResponse {
-
         abort_unless(
-            $post->type === 'regulation',
-            404
+            $relation->post_id === $post->id,
+            403
         );
 
         abort_if(
@@ -1494,65 +1655,20 @@ class PostController extends Controller
             'Konten yang sudah diarsipkan tidak dapat diubah. Kembalikan ke draft terlebih dahulu.'
         );
 
+        $affectedRegulationId = null;
 
-        /*
-        |--------------------------------------------------------------------------
-        | Regulasi yang sedang diedit harus merupakan salah satu sisi relation.
-        |--------------------------------------------------------------------------
-        */
-
-        abort_unless(
-            $relation->post_id === $post->id ||
-            $relation->related_post_id === $post->id,
-            403
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Simpan ID target sebelum relation dihapus.
-        |--------------------------------------------------------------------------
-        */
-
-        $affectedRegulationIds = collect([
-            $relation->post_id,
-            $relation->related_post_id,
-        ])
-            ->unique()
-            ->values();
-
-
-        $relationType = $relation->relation_type;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Hapus hanya relation yang dipilih.
-        |--------------------------------------------------------------------------
-        */
+        if ($relation->relation_type === 'repeals') {
+            $affectedRegulationId = $relation->related_post_id;
+        }
 
         $relation->delete();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Hitung ulang status hukum jika relation adalah repeals.
-        |--------------------------------------------------------------------------
-        */
-
-        if ($relationType === 'repeals') {
-
-            foreach ($affectedRegulationIds as $regulationId) {
-
-                $this->syncLegalStatus(
-                    (int) $regulationId
-                );
-            }
+        if ($affectedRegulationId) {
+            $this->syncLegalStatus($affectedRegulationId);
         }
 
-
         return redirect()
-            ->route('posts.edit', $post)
+            ->route('posts.show', $post)
             ->with(
                 'success',
                 'Hubungan regulasi berhasil dihapus.'

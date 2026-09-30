@@ -30,6 +30,7 @@ return [
             'AutoFormat.AutoParagraph' => true,
             'AutoFormat.RemoveEmpty'   => true,
         ],
+
         'news' => [
             'HTML.Doctype' => 'HTML 4.01 Transitional',
 
@@ -54,9 +55,56 @@ return [
             'AutoFormat.AutoParagraph' => true,
             'AutoFormat.RemoveEmpty' => true,
         ],
+
+        'rich_content' => [
+            'HTML.Doctype' => 'HTML 4.01 Transitional',
+
+            'HTML.Allowed' => 'p,h1,h2,h3,strong,b,em,i,u,a[href|title|target|rel],ul,ol,li,br,span[style],figure,figcaption,img[src|alt|width|height]',
+
+            'CSS.AllowedProperties' => [
+                'font-size',
+                'font-weight',
+                'font-style',
+                'font-family',
+                'text-decoration',
+                'text-align',
+            ],
+
+            'URI.AllowedSchemes' => [
+                'http' => true,
+                'https' => true,
+            ],
+
+            'AutoFormat.AutoParagraph' => true,
+            'AutoFormat.RemoveEmpty' => true,
+        ],
+
+        'simple_content' => [
+            'HTML.Doctype' => 'HTML 4.01 Transitional',
+
+            'HTML.Allowed' => 'p,strong,b,em,i,u,a[href|title|target|rel],br,span[style]',
+
+            'CSS.AllowedProperties' => [
+                'font-size',
+                'font-weight',
+                'font-style',
+                'font-family',
+                'text-decoration',
+            ],
+
+            'URI.AllowedSchemes' => [
+                'http' => true,
+                'https' => true,
+            ],
+
+            'AutoFormat.AutoParagraph' => true,
+            'AutoFormat.RemoveEmpty' => true,
+        ],
+
         'test'    => [
             'Attr.EnableID' => 'true',
         ],
+
         "youtube" => [
             "HTML.SafeIframe"      => 'true',
             "URI.SafeIframeRegexp" => "%^(http://|https://|//)(www.youtube.com/embed/|player.vimeo.com/video/)%",

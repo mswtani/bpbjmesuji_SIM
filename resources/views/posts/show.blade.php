@@ -992,6 +992,31 @@
 
                             </div>
 
+                            {{-- Status Hukum --}}
+                            <div class="px-5 py-4">
+
+                                <p
+                                    class="
+                                        text-[11px]
+                                        font-medium
+                                        uppercase
+                                        tracking-wide
+                                        text-gray-500
+                                    "
+                                >
+                                    Status Hukum
+                                </p>
+
+                                <div class="mt-2">
+                                    <span
+                                        class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold {{ $legalStatusClasses }}"
+                                    >
+                                        {{ $legalStatusLabel }}
+                                    </span>
+                                </div>
+
+                            </div>
+
 
 
                         </div>
